@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RefIQ — Train Your Match IQ</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#080c09">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="RefIQ">
+<meta name="description" content="AI-powered referee decision training. Real scenarios. Real Laws. Try a question free.">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#ffd60a;--green-dark:#2a9d47;--gold:#ffd60a;
+  --bg:#080c09;--surface:#111711;
+  --border:rgba(255,255,255,.08);
+  --text:#f0f4f0;--muted:#8ea696;--red:#ff453a;
+}
+html{overflow-x:hidden}body{min-height:100%;overflow-x:hidden}
+body{
+  font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(52,199,89,.012) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(52,199,89,.012) 1px,transparent 1px);
+  background-size:60px 60px;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;height:62px;
+  background:rgba(8,12,9,.92);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-inner{
+  max-width:1160px;margin:0 auto;height:100%;
+  display:grid;grid-template-columns:1fr auto 1fr;
+  align-items:center;padding:0 24px;
+}
+.nav-logo{
+  display:flex;align-items:center;gap:8px;text-decoration:none;
+}
+.nav-logo img{height:28px;width:28px;object-fit:contain;mix-blend-mode:screen}
+.nav-logo-text{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:4px;color:var(--green)}
+.nav-spacer{} /* left column placeholder */
+.nav-cta{
+  justify-self:end;white-space:nowrap;
+  padding:9px 18px;background:var(--green-dark);color:#fff;
+  border-radius:10px;font-size:13px;font-weight:600;
+  text-decoration:none;transition:background .2s;border:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+}
+.nav-cta:hover{background:var(--green);color:#080c09}
+
+/* ── DEMO HERO ── */
+.demo-hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:82px 20px 48px;
+  position:relative;z-index:1;
+}
+.hero-text{
+  text-align:center;margin-bottom:16px;
+  animation:fadeUp .5s ease both;
+}
+.hero-headline{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(38px,6vw,72px);
+  letter-spacing:3px;line-height:.95;color:#fff;margin-bottom:10px;
+}
+.hero-sub{
+  font-size:clamp(14px,1.8vw,17px);color:var(--muted);letter-spacing:.2px;
+}
+
+/* ── DEMO CARD ── */
+.demo-card-wrap{
+  width:100%;max-width:620px;
+  animation:fadeUp .5s .1s ease both;
+}
+.demo-card{
+  background:var(--surface);
+  border:1px solid rgba(52,199,89,.18);
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 24px 64px rgba(0,0,0,.55);
+  transition:border-color .3s,box-shadow .3s;
+}
+/* Progress bar — 4px strip at top of card */
+.demo-prog{height:4px;background:rgba(255,255,255,.06)}
+.demo-prog-fill{
+  height:100%;width:0;
+  background:linear-gradient(90deg,var(--green),#7fff9f);
+  border-radius:3px;
+  transition:width .6s ease;
+}
+
+/* Card header */
+.demo-header{
+  padding:14px 20px;
+  background:linear-gradient(160deg,rgba(52,199,89,.13) 0%,rgba(52,199,89,.04) 55%,transparent 100%);
+  display:flex;align-items:center;
+}
+.demo-label{
+  font-family:'DM Sans',sans-serif;font-size:12px;letter-spacing:0.12em;
+  font-weight:600;color:#ffd60a;
+}
+
+/* Question body */
+.demo-body{padding:16px 24px 0}
+.demo-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.demo-pill{
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.8px;
+  text-transform:uppercase;padding:4px 10px;border-radius:20px;
+}
+.pill-rules{background:rgba(52,199,89,.1);color:var(--green);border:1px solid rgba(52,199,89,.22)}
+.pill-scenario{background:rgba(255,214,10,.1);color:var(--gold);border:1px solid rgba(255,214,10,.22)}
+.pill-law{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid rgba(255,255,255,.1)}
+.demo-qtext{
+  font-size:clamp(15px,2.2vw,18px);font-weight:700;line-height:1.5;
+  color:var(--text);margin-bottom:20px;
+}
+
+/* Answer options */
+.demo-opts{padding:0 24px 20px}
+.demo-opt{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 16px;margin-bottom:10px;
+  border-radius:14px;
+  background:rgba(255,255,255,.03);
+  border:1.5px solid rgba(255,255,255,.1);
+  cursor:pointer;
+  transition:border-color .18s,background .18s;
+  user-select:none;-webkit-tap-highlight-color:transparent;
+}
+.demo-opt:last-child{margin-bottom:0}
+.demo-opt:hover:not(.answered){
+  border-color:rgba(52,199,89,.35);
+  background:rgba(52,199,89,.06);
+}
+.demo-opt.answered{cursor:default;pointer-events:none}
+.demo-letter{
+  width:36px;height:36px;flex-shrink:0;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:18px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.75);
+  transition:background .2s,border-color .2s,color .2s;
+}
+.demo-opt-text{
+  font-size:15px;font-weight:500;
+  color:rgba(255,255,255,.85);
+  line-height:1.4;flex:1;
+}
+
+/* Correct answer state */
+.demo-opt.correct{
+  background:rgba(52,199,89,.1);
+  border-color:rgba(52,199,89,.55);
+}
+.demo-opt.correct .demo-letter{
+  background:var(--green);border-color:var(--green);color:#000;font-weight:700;
+}
+.demo-opt.correct .demo-opt-text{color:#fff;font-weight:600}
+
+/* Wrong answer state */
+.demo-opt.wrong{
+  background:rgba(255,69,58,.07);
+  border-color:rgba(255,69,58,.45);
+}
+.demo-opt.wrong .demo-letter{
+  background:rgba(255,69,58,.15);border-color:rgba(255,69,58,.5);color:var(--red);
+}
+.demo-opt.wrong .demo-opt-text{color:rgba(255,255,255,.65)}
+
+/* Non-selected after answer */
+.demo-opt.faded{
+  opacity:.3;
+  border-color:rgba(255,255,255,.05);
+  background:transparent;
+}
+.demo-opt.faded .demo-letter{
+  background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.07);color:rgba(255,255,255,.3);
+}
+
+/* Law explanation — slides in after answer */
+.demo-expl{
+  max-height:0;overflow:hidden;opacity:0;
+  margin:0 24px;
+  transition:max-height .45s ease, opacity .35s ease .06s, margin .45s ease;
+}
+.demo-expl.show{max-height:200px;opacity:1;margin:0 24px 14px}
+.demo-expl-inner{
+  background:rgba(52,199,89,.07);
+  border:1px solid rgba(52,199,89,.2);
+  border-radius:12px;padding:14px 16px;
+}
+.demo-expl-law{
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--green);margin-bottom:6px;display:block;
+}
+.demo-expl-text{font-size:13px;color:rgba(240,244,240,.72);line-height:1.65}
+
+/* Gold CTA — appears after answer */
+.demo-cta-wrap{
+  display:none;
+  padding:0 24px 24px;
+}
+.demo-cta-wrap.show{
+  display:block;
+  animation:fadeUp .35s ease both;
+}
+.demo-cta-btn{
+  display:block;width:100%;padding:16px;
+  background:var(--gold);color:#000;
+  border:none;border-radius:14px;
+  font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;
+  cursor:pointer;transition:all .2s;
+  text-align:center;text-decoration:none;
+  box-shadow:0 8px 24px rgba(255,214,10,.2);
+}
+.demo-cta-btn:hover{
+  background:#ffe44d;transform:translateY(-1px);
+  box-shadow:0 12px 32px rgba(255,214,10,.32);
+}
+
+/* ── PRICING ── */
+.pricing{
+  padding:clamp(64px,7vw,100px) 24px;
+  position:relative;z-index:1;
+  border-top:1px solid var(--border);
+}
+.pricing-inner{max-width:960px;margin:0 auto;text-align:center}
+.section-label{
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;
+  text-transform:uppercase;color:var(--green);margin-bottom:12px;display:block;
+}
+.pricing-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(32px,5vw,56px);letter-spacing:3px;margin-bottom:40px;color:#fff;
+}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.p-card{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:20px;padding:28px 20px;
+  transition:border-color .2s,transform .2s;text-align:left;
+}
+.p-card:hover{border-color:rgba(52,199,89,.22);transform:translateY(-2px)}
+.p-card.featured{border-color:rgba(52,199,89,.35)}
+.p-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;margin-bottom:6px}
+.p-price{
+  font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:2px;
+  color:#fff;line-height:1;margin-bottom:4px;
+}
+.p-price sup{font-size:18px;color:var(--muted);vertical-align:top;margin-top:8px}
+.p-price sub{font-size:14px;color:var(--muted)}
+.p-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px}
+.p-btn{
+  display:block;width:100%;padding:13px;border:none;border-radius:12px;
+  font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;
+  cursor:pointer;transition:all .2s;text-align:center;text-decoration:none;
+  color:#fff;background:var(--green-dark);box-sizing:border-box;
+}
+.p-btn:hover{background:var(--green);color:#080c09}
+
+/* Trust line */
+.trust-line{
+  padding:24px;text-align:center;
+  font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;
+  color:rgba(142,166,150,.45);
+  border-top:1px solid var(--border);
+  position:relative;z-index:1;
+}
+.trust-line strong{color:rgba(52,199,89,.65);font-weight:400}
+
+/* Footer */
+footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index:1}
+.footer-inner{
+  max-width:1160px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.footer-links{display:flex;gap:16px;flex-wrap:wrap}
+.footer-links a{font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(--text)}
+.footer-copy{font-size:11px;color:rgba(122,144,128,.38);font-family:'DM Mono',monospace}
+
+/* Responsive */
+@media(max-width:768px){
+  .pricing-grid{grid-template-columns:1fr;max-width:400px;margin:0 auto}
+}
+@media(max-width:600px){
+  /* Shrink nav CTA to fit beside logo without crowding */
+  .nav-cta{padding:7px 13px;font-size:12px;border-radius:8px}
+}
+/* Member link */
+.demo-member-link{text-align:center;padding:12px 24px 16px}
+.demo-member-link a{font-family:'DM Sans',sans-serif;font-size:13px;color:rgba(255,255,255,.45);text-decoration:none;transition:color .2s}
+.demo-member-link a:hover{color:rgba(255,255,255,.75);text-decoration:underline}
+
+/* League plan gold outlined CTA */
+.p-btn-league{color:#ffd60a;background:transparent;border:1.5px solid #ffd60a}
+.p-btn-league:hover{background:#ffd60a;color:#080c09}
+
+@media(max-width:540px){
+  .demo-hero{padding:74px 12px 40px}
+  .demo-header{padding:12px 16px}
+  .demo-body{padding:14px 16px 0}
+  .demo-opts{padding:0 16px 16px}
+  .demo-expl{margin:0 16px}
+  .demo-expl.show{margin:0 16px 12px}
+  .demo-cta-wrap{padding:0 16px 20px}
+  .demo-opt{padding:15px 14px} /* bigger touch target */
+  .demo-opt-text{font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-spacer"></div>
+    <a href="/" class="nav-logo">
+      <img src="icon-192.png" alt="RefIQ">
+      <span class="nav-logo-text">RefIQ</span>
+    </a>
+    <a href="/app" class="nav-cta">Start Free →</a>
+  </div>
+</nav>
+
+<!-- DEMO HERO -->
+<section class="demo-hero">
+
+  <div class="hero-text">
+    <h1 class="hero-headline">TRAIN YOUR MATCH IQ</h1>
+    <p class="hero-sub">AI-powered referee training. Real scenarios. Real Laws.</p>
+  </div>
+
+  <div class="demo-card-wrap">
+    <div class="demo-card">
+
+      <!-- Progress bar -->
+      <div class="demo-prog"><div class="demo-prog-fill" id="demo-prog-fill"></div></div>
+
+      <!-- Header -->
+      <div class="demo-header">
+        <span class="demo-label">▶ TEST YOUR KNOWLEDGE</span>
+      </div>
+
+      <!-- Question -->
+      <div class="demo-body">
+        <div class="demo-pills">
+          <span class="demo-pill pill-rules">⚽ Rules</span>
+          <span class="demo-pill pill-scenario">🎯 Scenario</span>
+          <span class="demo-pill pill-law">📚 Law 12</span>
+        </div>
+        <div class="demo-qtext">A GK holds the ball for 9 seconds. An opponent protests verbally. What is the correct call?</div>
+      </div>
+
+      <!-- Options -->
+      <div class="demo-opts">
+        <div class="demo-opt" onclick="selectAnswer(0)">
+          <div class="demo-letter">A</div>
+          <div class="demo-opt-text">Indirect free kick where GK possessed</div>
+        </div>
+        <div class="demo-opt" onclick="selectAnswer(1)">
+          <div class="demo-letter">B</div>
+          <div class="demo-opt-text">Caution for GK + indirect FK</div>
+        </div>
+        <div class="demo-opt" onclick="selectAnswer(2)">
+          <div class="demo-letter">C</div>
+          <div class="demo-opt-text">No foul — 10-second rule applies</div>
+        </div>
+      </div>
+
+      <!-- Member link -->
+      <div class="demo-member-link"><a href="/app">Already a member? Log in →</a></div>
+
+      <!-- Law explanation (hidden until answer) -->
+      <div class="demo-expl" id="demo-expl">
+        <div class="demo-expl-inner">
+          <span class="demo-expl-law">📚 Law 12 — GK Restrictions</span>
+          <p class="demo-expl-text">The 6-second rule applies (not 10). An IFK is awarded from where the GK possessed the ball. No caution is required for the first offense unless the GK is deliberately and persistently wasting time.</p>
+        </div>
+      </div>
+
+      <!-- Gold CTA (hidden until answer) -->
+      <div class="demo-cta-wrap" id="demo-cta">
+        <a href="/app" class="demo-cta-btn" id="demo-cta-btn">Unlock Full Training →</a>
+      </div>
+
+    </div><!-- /.demo-card -->
+  </div><!-- /.demo-card-wrap -->
+
+
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="pricing-inner">
+    <span class="section-label">Plans</span>
+    <h2 class="pricing-title">START FREE. GO FURTHER.</h2>
+    <div class="pricing-grid">
+
+      <div class="p-card">
+        <div class="p-name">REFEREE</div>
+        <div class="p-price"><sup>$</sup>9<sub>.99/mo</sub></div>
+        <p class="p-desc">Unlimited AI-generated scenarios for individual officials. Cancel anytime.</p>
+        <a href="/app" class="p-btn">GET REFEREE →</a>
+      </div>
+
+      <div class="p-card">
+        <div class="p-name">SEASON</div>
+        <div class="p-price"><sup>$</sup>49<sub>/season</sub></div>
+        <p class="p-desc">6-month season pass. Full access, one payment, no recurring charge.</p>
+        <a href="/admin?upgrade=price_1T8Z4lJlYByErfPaulsRF7EZ" class="p-btn">GET SEASON →</a>
+      </div>
+
+      <div class="p-card featured">
+        <div class="p-name">LEAGUE</div>
+        <div class="p-price"><sup>$</sup>149<sub>/season</sub></div>
+        <p class="p-desc">Admin dashboard, unlimited referees, white-label branding, rulebook upload.</p>
+        <a href="/admin?upgrade=price_1T8Z15JlYByErfPaTpRf3xic" class="p-btn p-btn-league">GET LEAGUE →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- TRUST LINE -->
+<div class="trust-line">
+  <strong>IFAB Laws 2025/26</strong> &nbsp;·&nbsp; AI-Powered &nbsp;·&nbsp; Used by referees at every level
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div style="display:flex;align-items:center;gap:8px">
+      <img src="RefIQ.PNG" alt="RefIQ" style="height:20px;width:20px;object-fit:contain;mix-blend-mode:screen;opacity:.45">
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:rgba(240,244,240,.28)">RefIQ</span>
+    </div>
+    <div class="footer-links">
+      <a href="#pricing">Pricing</a>
+      <a href="/admin">League Admin</a>
+      <a href="/app">Start Free</a>
+      <a href="mailto:cox.matthewb@gmail.com">Contact</a>
+    </div>
+    <div class="footer-copy">© 2026 RefIQ · Sharper officials. Smarter leagues.</div>
+  </div>
+</footer>
+
+<script>
+const CORRECT = 0; // A is correct
+let answered  = false;
+
+// ── ANSWER SELECTION ─────────────────────────────────────────────────────────
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+
+  const isCorrect = idx === CORRECT;
+  document.querySelectorAll('.demo-opt').forEach((opt, i) => {
+    opt.classList.add('answered');
+    if      (i === idx && isCorrect)  opt.classList.add('correct');
+    else if (i === idx && !isCorrect) opt.classList.add('wrong');
+    else if (i === CORRECT)           opt.classList.add('correct');
+    else                              opt.classList.add('faded');
+  });
+  showResult();
+}
+
+// Shared post-answer reveal
+function showResult() {
+  document.getElementById('demo-prog-fill').style.width = '100%';
+  document.getElementById('demo-expl').classList.add('show');
+  document.getElementById('demo-cta').classList.add('show');
+
+  // Scroll CTA into view on mobile after animation completes
+  setTimeout(() => {
+    document.getElementById('demo-cta').scrollIntoView({behavior:'smooth', block:'nearest'});
+  }, 480);
+}
+
+</script>
+
+</body>
+</html>

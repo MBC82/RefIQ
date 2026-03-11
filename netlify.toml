@@ -1,0 +1,69 @@
+[build]
+  functions = "netlify/functions"
+  publish = "."
+
+[build.environment]
+  SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
+
+[functions]
+  node_bundler = "esbuild"
+
+[functions."quiz"]
+  timeout = 30
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+
+[[redirects]]
+  from = "/__/auth/*"
+  to = "/__/auth/:splat"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/__/firebase/*"
+  to = "https://refiq-b8142.firebaseapp.com/__/firebase/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# Stripe webhook — also reachable at /.netlify/functions/stripe-webhook directly
+# Register this URL in Stripe Dashboard → Developers → Webhooks:
+#   https://www.myrefiq.com/api/stripe-webhook
+
+[[redirects]]
+  from = "/q/*"
+  to = "/quiz.html"
+  status = 200
+
+[[redirects]]
+  from = "/app"
+  to = "/app.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
+  status = 200
+
+[[headers]]
+  for = "/favicon*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/*.ico"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"

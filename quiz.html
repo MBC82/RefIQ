@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RefIQ Quiz</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#080c09">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--green:#ffd60a;--green-dark:#2a9d47;--gold:#ffd60a;--bg:#080c09;--surface:#111711;--surface2:#1a221b;--border:rgba(255,255,255,.08);--text:#f0f4f0;--muted:#7a9080;--red:#ff453a}
+html,body{height:100%}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(52,199,89,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(52,199,89,.025) 1px,transparent 1px);background-size:56px 56px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fadeUp .35s ease both}
+
+/* ── LOADING ── */
+#loading{position:fixed;inset:0;z-index:200;background:rgba(8,12,9,.97);display:flex;align-items:center;justify-content:center}
+#loading.hide{display:none}
+.load-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:36px 44px;text-align:center;max-width:290px;width:90%}
+.spinner{width:44px;height:44px;border:3px solid rgba(255,255,255,.07);border-top-color:var(--green);border-radius:50%;animation:spin .75s linear infinite;margin:0 auto 16px}
+.load-title{font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:3px;margin-bottom:6px}
+.load-sub{font-size:12px;color:var(--muted)}
+
+/* ── ERROR SCREEN ── */
+#scr-error{display:none;position:fixed;inset:0;z-index:50;background:var(--bg);align-items:center;justify-content:center;padding:24px;text-align:center}
+#scr-error.show{display:flex}
+.err-icon{font-size:52px;margin-bottom:16px}
+.err-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;margin-bottom:8px}
+.err-msg{font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.6;max-width:320px}
+.err-home{display:inline-block;padding:13px 28px;background:var(--green-dark);border-radius:14px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;text-decoration:none;transition:background .2s}
+.err-home:hover{background:var(--green);color:#080c09}
+
+/* ── NAME SCREEN ── */
+#name-screen{display:none;position:fixed;inset:0;z-index:100;background:var(--bg);align-items:center;justify-content:center;padding:24px}
+#name-screen.show{display:flex}
+.name-card{background:var(--surface);border:1px solid var(--border);border-radius:28px;padding:clamp(28px,6vw,48px) clamp(24px,5vw,48px);width:100%;max-width:420px;text-align:center}
+.name-league-logo{height:56px;max-width:140px;object-fit:contain;border-radius:8px;margin-bottom:12px;display:none}
+.name-league-name{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--gold);margin-bottom:2px;display:none}
+.name-refiq{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--gold);margin-bottom:4px}
+.name-badge{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:22px}
+.name-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;margin-bottom:6px}
+.name-sub{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.5}
+.quiz-info-box{background:rgba(255,214,10,.06);border:1px solid rgba(255,214,10,.18);border-radius:12px;padding:11px 14px;margin-bottom:18px;text-align:left}
+.quiz-info-name{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;color:var(--text);margin-bottom:3px}
+.quiz-info-meta{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.6}
+.field{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:12px;padding:15px 16px;font-family:'DM Sans',sans-serif;font-size:16px;outline:none;margin-bottom:12px;transition:border-color .2s;-webkit-appearance:none;text-align:center}
+.field:focus{border-color:var(--gold)}
+.start-btn{width:100%;padding:16px;background:var(--gold);border:none;border-radius:14px;color:#080c09;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;margin-bottom:8px;transition:opacity .2s}
+.start-btn:hover{opacity:.88}
+.start-btn:disabled{opacity:.5;cursor:not-allowed}
+.name-err{font-size:12px;color:var(--red);font-family:'DM Mono',monospace;margin-bottom:10px;display:none}
+
+/* ── APP SHELL ── */
+#main-app{display:none;position:relative;z-index:1}
+#app{max-width:640px;margin:0 auto;padding:0 16px 80px}
+@media(min-width:768px){#app{max-width:740px;padding:0 28px 80px}}
+@media(min-width:1024px){#app{max-width:780px;padding:0 40px 80px}}
+
+/* ── QUIZ SCREEN ── */
+.quiz-header{margin:0 -16px;padding:0 16px 28px;background:linear-gradient(160deg,var(--league-color-a,#1a3d22) 0%,var(--league-color-b,#0d2016) 60%,var(--bg) 100%);position:relative;overflow:hidden}
+.quiz-header::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 0%,rgba(52,199,89,.18) 0%,transparent 65%);pointer-events:none}
+.quiz-topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0 20px;gap:10px;position:relative;z-index:1}
+.back-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:9px 14px;color:rgba(255,255,255,.75);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;backdrop-filter:blur(8px)}
+.back-btn:hover{background:rgba(255,255,255,.18);color:#fff}
+.quiz-brand{display:flex;flex-direction:column;align-items:center;gap:4px}
+.quiz-league-logo{height:28px;max-width:80px;object-fit:contain;border-radius:6px;opacity:.9}
+.quiz-league-name{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:rgba(255,255,255,.85);line-height:1;text-align:center}
+.quiz-refiq-badge{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.4);text-transform:uppercase}
+.score-pill{background:rgba(52,199,89,.2);border:1px solid rgba(52,199,89,.35);color:#7dffa0;font-family:'DM Mono',monospace;font-size:12px;padding:5px 12px;border-radius:20px;white-space:nowrap;backdrop-filter:blur(8px)}
+.quiz-counter-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;z-index:1}
+.q-arc-outer{position:relative;width:100px;height:100px;margin-bottom:6px}
+.q-arc-outer svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.q-arc-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.q-arc-num{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:1px;line-height:1;color:#fff}
+.q-arc-of{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.45);margin-top:1px}
+.quiz-pos-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,.5);text-transform:uppercase}
+.prog-bar{height:4px;background:rgba(255,255,255,.08);border-radius:4px;margin:0 -16px 0;overflow:hidden;position:relative;z-index:1}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--gold));border-radius:4px;transition:width .5s cubic-bezier(.23,1,.32,1)}
+
+/* Timer */
+.timer-wrap{display:none;align-items:center;gap:8px;margin-top:8px}
+.timer-ring{position:relative;width:44px;height:44px;flex-shrink:0}
+.timer-ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.timer-ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:#fff}
+.timer-bar-wrap{flex:1;height:5px;background:rgba(255,255,255,.1);border-radius:5px;overflow:hidden}
+.timer-bar{height:100%;background:linear-gradient(90deg,var(--green),var(--gold));border-radius:5px;transition:width 1s linear}
+.timer-bar.urgent{background:var(--red)}
+@keyframes timerPulse{0%,100%{opacity:1}50%{opacity:.4}}
+.timer-ring-num.urgent{animation:timerPulse .6s ease infinite;color:var(--red)}
+
+/* Question card */
+.q-card{background:var(--surface);border:1px solid rgba(52,199,89,.14);border-radius:24px;padding:22px 20px 18px;margin:16px 0 12px;position:relative;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.q-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--league-accent,var(--green)),var(--gold))}
+.pills{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.pill{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:20px;font-weight:500}
+.pill-s{background:rgba(255,214,10,.1);color:var(--gold);border:1px solid rgba(255,214,10,.22)}
+.pill-r{background:rgba(52,199,89,.08);color:var(--green);border:1px solid rgba(52,199,89,.2)}
+.pill-l{background:rgba(255,214,10,.08);color:var(--gold);border:1px solid rgba(255,214,10,.2)}
+.pill-i{background:rgba(52,199,89,.1);color:var(--green);border:1px solid rgba(52,199,89,.22)}
+.q-text{font-size:clamp(16px,4vw,19px);font-weight:700;line-height:1.55;margin-bottom:14px;color:#f4f8f4;letter-spacing:-.01em;font-family:var(--quiz-font,'DM Sans',sans-serif)}
+.q-ref{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:5px 11px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px}
+
+/* Answer tiles */
+.answers{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+@keyframes ansIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.ans-btn{width:100%;border:1.5px solid rgba(255,255,255,.07);border-radius:18px;padding:15px 16px 15px 14px;display:flex;align-items:center;gap:13px;cursor:pointer;text-align:left;transition:border-color .18s,background .18s,transform .15s,box-shadow .18s;background:var(--surface);font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:transparent;animation:ansIn .28s ease both;position:relative;overflow:hidden}
+.ans-btn:not(:disabled):hover{border-color:rgba(52,199,89,.5);background:rgba(52,199,89,.06);transform:translateY(-1px);box-shadow:0 6px 24px rgba(52,199,89,.12)}
+.ans-btn:disabled{cursor:default}
+.ans-btn.correct{background:rgba(52,199,89,.12);border-color:var(--green);box-shadow:0 0 0 1px rgba(52,199,89,.2),0 8px 28px rgba(52,199,89,.18)}
+.ans-btn.wrong{background:rgba(255,69,58,.07);border-color:#ff453a;box-shadow:0 0 0 1px rgba(255,69,58,.15)}
+.ans-btn.faded{opacity:.18;transform:scale(.99)}
+.ans-letter{width:42px;height:42px;border-radius:14px;background:rgba(52,199,89,.07);border:1.5px solid rgba(52,199,89,.18);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:19px;color:var(--green);flex-shrink:0;transition:all .18s;letter-spacing:1px}
+.ans-btn.correct .ans-letter{background:var(--green);border-color:var(--green);color:#000;box-shadow:0 0 16px rgba(52,199,89,.5)}
+.ans-btn.wrong .ans-letter{background:#ff453a;border-color:#ff453a;color:#fff}
+.ans-btn:not(:disabled):hover .ans-letter{background:rgba(52,199,89,.14);border-color:rgba(52,199,89,.5)}
+.ans-text{font-size:15px;color:var(--text);line-height:1.4;font-weight:500;flex:1}
+.ans-radio{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.12);flex-shrink:0;margin-left:auto;display:flex;align-items:center;justify-content:center;transition:all .18s}
+.ans-btn.correct .ans-radio{background:var(--green);border-color:var(--green)}
+.ans-btn.wrong .ans-radio{background:#ff453a;border-color:#ff453a}
+.ans-btn:not(:disabled):hover .ans-radio{border-color:rgba(52,199,89,.5)}
+.ans-radio-dot{width:8px;height:8px;border-radius:50%;background:#fff;transform:scale(0);transition:transform .18s}
+.ans-btn.correct .ans-radio-dot,.ans-btn.wrong .ans-radio-dot{transform:scale(1)}
+
+/* Explanation */
+.exp-box{background:linear-gradient(135deg,rgba(52,199,89,.07),rgba(52,199,89,.03));border:1px solid rgba(52,199,89,.22);border-left:3px solid var(--green);border-radius:16px;padding:16px 18px;margin-bottom:14px;display:none;animation:ansIn .3s ease}
+.exp-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--green);margin-bottom:8px}
+.exp-txt{font-size:13px;line-height:1.75;color:rgba(240,244,240,.88)}
+
+/* Next button */
+.next-btn{width:100%;padding:18px;background:linear-gradient(135deg,var(--league-accent,var(--green-dark)),#1a6b2e);border:none;border-radius:18px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;display:none;transition:all .22s;box-shadow:0 8px 28px rgba(52,199,89,.28);position:relative;overflow:hidden}
+.next-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);pointer-events:none}
+.next-btn:hover{filter:brightness(1.12);transform:translateY(-2px);box-shadow:0 14px 36px rgba(52,199,89,.38)}
+
+/* Results */
+.results-hero{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:clamp(24px,5vw,36px) clamp(16px,4vw,24px);text-align:center;margin-bottom:12px}
+.result-emoji{font-size:48px;margin-bottom:10px}
+.result-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,10vw,52px);letter-spacing:3px;line-height:1;margin-bottom:5px}
+.result-sub{font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.5}
+.ring-wrap{width:140px;height:140px;margin:0 auto 20px;position:relative}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-pct{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:2px;line-height:1}
+.ring-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);margin-top:2px}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}
+.stat-box{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 8px;text-align:center}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;margin-bottom:3px}
+.stat-lbl{font-size:11px;color:var(--muted)}
+.pass-badge{display:inline-flex;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600}
+.pass{background:rgba(52,199,89,.15);color:var(--green);border:1px solid rgba(52,199,89,.28)}
+.fail{background:rgba(255,69,58,.08);color:var(--red);border:1px solid rgba(255,69,58,.22)}
+.review-card{background:var(--surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;margin-bottom:12px}
+.review-hdr{padding:13px 18px;border-bottom:1px solid var(--border);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--muted)}
+.review-item{display:flex;align-items:flex-start;gap:10px;padding:12px 18px;border-bottom:1px solid var(--border)}
+.review-item:last-child{border-bottom:none}
+.rev-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:2px}
+.rev-ok{background:rgba(52,199,89,.15);color:var(--green)}
+.rev-fail{background:rgba(255,69,58,.1);color:var(--red)}
+.rev-q{font-size:13px;font-weight:500;line-height:1.45}
+.rev-ans{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:3px}
+.action-btn{width:100%;padding:17px;background:var(--green-dark);border:none;border-radius:18px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:3px;cursor:pointer;transition:all .2s;margin-bottom:9px;display:block;text-align:center;text-decoration:none}
+.action-btn:hover{background:var(--green);color:#080c09}
+.home-link{display:block;text-align:center;padding:13px;border:1.5px solid var(--border);border-radius:18px;color:var(--muted);font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;text-decoration:none;transition:all .2s;margin-bottom:9px}
+.home-link:hover{border-color:rgba(255,255,255,.2);color:var(--text)}
+
+/* Screens */
+.screen{display:none}
+.screen.active{display:block;animation:fadeUp .3s ease}
+
+/* Gen loading overlay */
+#gen-loading{position:fixed;inset:0;z-index:200;background:rgba(8,12,9,.94);backdrop-filter:blur(20px);display:none;align-items:center;justify-content:center}
+#gen-loading.show{display:flex}
+
+/* Exit modal */
+.modal-bg{position:fixed;inset:0;z-index:300;background:rgba(8,12,9,.88);backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--surface);border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:28px 22px;text-align:center;max-width:300px;width:90%}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;margin-bottom:8px}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.55}
+.modal-btns{display:flex;flex-direction:column;gap:9px}
+.m-btn{padding:13px;border:none;border-radius:13px;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;cursor:pointer}
+.m-danger{background:var(--red);color:#fff}
+.m-cancel{background:rgba(255,255,255,.06);color:var(--muted)}
+</style>
+</head>
+<body>
+
+<!-- INITIAL LOADING -->
+<div id="loading">
+  <div class="load-card">
+    <div class="spinner"></div>
+    <div class="load-title">REFIQ</div>
+    <div class="load-sub" id="load-sub">Loading quiz…</div>
+  </div>
+</div>
+
+<!-- ERROR SCREEN -->
+<div id="scr-error">
+  <div>
+    <div class="err-icon">🔍</div>
+    <div class="err-title" id="err-title">QUIZ NOT FOUND</div>
+    <div class="err-msg" id="err-msg">This quiz link was not found or has been removed.</div>
+    <a href="/" class="err-home">← Back to RefIQ</a>
+  </div>
+</div>
+
+<!-- NAME SCREEN -->
+<div id="name-screen">
+  <div class="name-card fu">
+    <img class="name-league-logo" id="name-league-logo" alt="">
+    <div class="name-league-name" id="name-league-name"></div>
+    <div class="name-refiq">REFIQ</div>
+    <div class="name-badge">REFEREE TRAINING QUIZ</div>
+    <div class="quiz-info-box" id="quiz-info-box" style="display:none">
+      <div class="quiz-info-name" id="qi-name"></div>
+      <div class="quiz-info-meta" id="qi-meta"></div>
+    </div>
+    <div class="name-title">ENTER YOUR NAME</div>
+    <div class="name-sub">Your name appears on your quiz result</div>
+    <div class="name-err" id="name-err">Please enter your name to continue.</div>
+    <input type="text" class="field" id="referee-name" placeholder="Your name" autocomplete="given-name" maxlength="60">
+    <button class="start-btn" id="start-btn">START QUIZ →</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="main-app">
+<div id="app">
+
+  <!-- QUIZ SCREEN -->
+  <div id="scr-quiz" class="screen active">
+    <div class="quiz-header">
+      <div class="quiz-topbar">
+        <button class="back-btn" id="back-btn">← Exit</button>
+        <div class="quiz-brand">
+          <img class="quiz-league-logo" id="quiz-league-logo" src="" alt="" style="display:none">
+          <span class="quiz-league-name" id="quiz-league-name" style="display:none"></span>
+          <span class="quiz-refiq-badge" id="quiz-refiq-badge">POWERED BY REFIQ</span>
+        </div>
+        <span class="score-pill" id="quiz-score">0 / 0</span>
+      </div>
+      <div class="quiz-counter-wrap">
+        <div class="q-arc-outer">
+          <svg width="100" height="100" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="7"/>
+            <circle id="quiz-arc" cx="50" cy="50" r="42" fill="none"
+              stroke="url(#qarc-grad)" stroke-width="7"
+              stroke-linecap="round"
+              stroke-dasharray="263.9" stroke-dashoffset="263.9"
+              style="transition:stroke-dashoffset .6s cubic-bezier(.23,1,.32,1)"/>
+            <defs>
+              <linearGradient id="qarc-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ffd60a"/>
+                <stop offset="100%" stop-color="#ffd60a"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="q-arc-inner">
+            <span class="q-arc-num" id="q-arc-num">1</span>
+            <span class="q-arc-of" id="q-arc-of">OF 10</span>
+          </div>
+        </div>
+        <span class="quiz-pos-label" id="quiz-pos">QUESTION 1</span>
+      </div>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+
+    <!-- Timer -->
+    <div class="timer-wrap" id="timer-wrap">
+      <div class="timer-ring">
+        <svg width="44" height="44" viewBox="0 0 44 44">
+          <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="3"/>
+          <circle id="timer-ring-arc" cx="22" cy="22" r="18" fill="none" stroke="url(#tg)" stroke-width="3"
+            stroke-linecap="round" stroke-dasharray="113.1" stroke-dashoffset="0"
+            style="transition:stroke-dashoffset 1s linear"/>
+          <defs><linearGradient id="tg" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ffd60a"/><stop offset="100%" stop-color="#ffd60a"/>
+          </linearGradient></defs>
+        </svg>
+        <span class="timer-ring-num" id="timer-num">30</span>
+      </div>
+      <div class="timer-bar-wrap"><div class="timer-bar" id="timer-bar" style="width:100%"></div></div>
+    </div>
+
+    <!-- Question card -->
+    <div class="q-card">
+      <div class="pills"><span class="pill" id="pill-type"></span><span class="pill" id="pill-src"></span></div>
+      <div class="q-text" id="q-text"></div>
+      <span class="q-ref" id="q-ref"></span>
+    </div>
+
+    <div class="answers" id="answers"></div>
+
+    <div class="exp-box" id="exp-box">
+      <div class="exp-lbl">📖 Official Ruling</div>
+      <div class="exp-txt" id="exp-txt"></div>
+    </div>
+
+    <button class="next-btn" id="next-btn">NEXT QUESTION →</button>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="scr-results" class="screen">
+    <div style="padding:14px 0 10px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--muted);text-align:center" id="res-league-label"></div>
+    </div>
+    <div class="results-hero fu">
+      <div class="result-emoji" id="res-emoji">✅</div>
+      <div class="result-title" id="res-title">WELL DONE</div>
+      <div class="result-sub" id="res-sub"></div>
+      <div class="ring-wrap">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="54" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="10"/>
+          <circle id="ring-c" cx="70" cy="70" r="54" fill="none" stroke="url(#rg)" stroke-width="10"
+            stroke-dasharray="339.3" stroke-dashoffset="339.3" stroke-linecap="round"
+            style="transition:stroke-dashoffset 1.1s cubic-bezier(.23,1,.32,1)"/>
+          <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ffd60a"/><stop offset="100%" stop-color="#ffd60a"/>
+          </linearGradient></defs>
+        </svg>
+        <div class="ring-center"><span class="ring-pct" id="ring-pct">0%</span><span class="ring-lbl">CORRECT</span></div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-num" id="s-right" style="color:var(--green)">0</div><div class="stat-lbl">Correct</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-wrong" style="color:var(--red)">0</div><div class="stat-lbl">Wrong</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">Total</div></div>
+      </div>
+      <div class="pass-badge" id="pass-badge"></div>
+    </div>
+    <div class="review-card fu">
+      <div class="review-hdr">QUESTION REVIEW</div>
+      <div id="rev-list"></div>
+    </div>
+    <a href="/app" class="action-btn">TRAIN ON REFIQ →</a>
+    <a href="/" class="home-link">← Back to Home</a>
+  </div>
+
+</div><!-- #app -->
+</div><!-- #main-app -->
+
+<!-- QUIZ GENERATION LOADING -->
+<div id="gen-loading">
+  <div class="load-card">
+    <div class="spinner"></div>
+    <div class="load-title">GENERATING</div>
+    <div class="load-sub" id="gen-sub">Building your quiz…</div>
+  </div>
+</div>
+
+<!-- EXIT MODAL -->
+<div class="modal-bg" id="exit-modal">
+  <div class="modal">
+    <div class="modal-title">EXIT QUIZ?</div>
+    <div class="modal-sub">Your progress will be lost.</div>
+    <div class="modal-btns">
+      <button class="m-btn m-danger" id="modal-yes">Yes, Exit</button>
+      <button class="m-btn m-cancel" id="modal-no">Keep Going</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, doc, getDoc, addDoc, collection, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const FB = { apiKey:"AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM",authDomain:"refiq-b8142.firebaseapp.com",
+  projectId:"refiq-b8142",storageBucket:"refiq-b8142.firebasestorage.app",
+  messagingSenderId:"62305657245",appId:"1:62305657245:web:d6e35a80859ee8fdd08f74" };
+const fbApp = initializeApp(FB);
+const db    = getFirestore(fbApp);
+
+const IFAB = `IFAB 2025/26 Laws Summary:
+LAW 3: Min 7 players. Only captain speaks to referee.
+LAW 7: 45min halves. Min 3min added H1, 5min H2.
+LAW 8: Kick-off can score directly. Drop ball to GK if in penalty area; otherwise to last-touching team.
+LAW 11: Offside = head/body/feet only (not arms). Active involvement required. No offside from goal kick, throw-in, corner.
+LAW 12: DFK offenses: kicking, tripping, jumping at, charging, striking, pushing, tackling from behind, deliberate handball, holding, spitting, biting. Handball: deliberate = DFK. Accidental handball leading to goal or clear opportunity = penalised. Natural arm position = not handball. IFK: GK re-handles after release; GK handles deliberate back-pass with feet.
+NEW 2025/26 - GK 8-SECOND RULE: If GK holds ball 8+ seconds = CORNER KICK awarded to opponents. Referee counts last 5 seconds visually. Corner taken from nearest corner arc. (Previously IFK, now Corner Kick.)
+NEW 2025/26 - CORNER FOR TIME-WASTING: Corner kick can be awarded for deliberate time wasting by GK.
+NEW 2025/26 - DOGSO ADVANTAGE: If DOGSO foul occurs but advantage is played and results in a goal, NO red card is issued.
+LAW 13: Opponents 9.15m from free kick. Attackers 1m from defensive wall of 3+ players.
+LAW 14: GK must have one foot on line until ball kicked. One step forward allowed. Encroach + miss = retake.
+LAW 15: Throw-in: both feet on/behind line, both hands, over head.
+LAW 16: Goal kick: anywhere in goal area, in play when clearly moving.
+LAW 17: Corner kick: goal can be scored directly. As of 2025/26, corner kick (NOT IFK) for GK 8-second violation.
+YELLOW CARD: Unsporting behavior, simulation, dissent, persistent infringement, encroachment, delaying restart.
+RED CARD: Serious foul play, violent conduct, spitting, DOGSO (except 2025/26 advantage rule), second yellow, offensive/abusive language.`;
+
+const DIV_LABELS = {
+  rec_young:'Recreational — Young (PreK–2nd)',
+  rec_mid:'Recreational — Mid (3rd–6th)',
+  rec_upper:'Recreational — Upper (7th–8th)',
+  high_school:'High School (11v11)',
+  adult_amateur:'Adult Amateur',
+  competitive:'Competitive / Travel'
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let refereeName = '';
+let quizLink = null, quizLinkId = null;
+let leagueBranding = null;
+let qs = [], cur = 0, score = 0, answered = false, rev = [];
+let quizTimeLimit = 0;
+let timerInterval = null;
+let resultSaved = false;
+
+// ── SHORT CODE ────────────────────────────────────────────────────────────────
+const pathParts = window.location.pathname.split('/').filter(Boolean);
+// /q/{shortCode} → pathParts = ['q', 'shortCode']
+const shortCode = pathParts[1] || '';
+
+// ── TIMER ─────────────────────────────────────────────────────────────────────
+function startTimer(seconds) {
+  clearTimer();
+  if (!seconds) return;
+  let remaining = seconds;
+  const circumference = 113.1;
+  const arc = document.getElementById('timer-ring-arc');
+  const num = document.getElementById('timer-num');
+  const bar = document.getElementById('timer-bar');
+  document.getElementById('timer-wrap').style.display = 'flex';
+
+  const update = () => {
+    const frac = remaining / seconds;
+    arc.style.strokeDashoffset = circumference * (1 - frac);
+    bar.style.width = (frac * 100) + '%';
+    num.textContent = remaining;
+    const urgent = remaining <= Math.min(5, Math.floor(seconds * 0.25));
+    num.classList.toggle('urgent', urgent);
+    bar.classList.toggle('urgent', urgent);
+    arc.style.stroke = urgent ? 'var(--red)' : 'url(#tg)';
+  };
+  update();
+
+  timerInterval = setInterval(() => {
+    remaining--;
+    update();
+    if (remaining <= 0) {
+      clearTimer();
+      if (!answered) {
+        answered = true;
+        const btns = document.querySelectorAll('.ans-btn');
+        btns.forEach(b => { b.disabled = true; b.classList.add('faded'); });
+        btns.forEach(b => {
+          if (b.querySelector('.ans-text')?.textContent === qs[cur].options[qs[cur].correct]) {
+            b.classList.remove('faded'); b.classList.add('correct');
+          }
+        });
+        rev.push({question:qs[cur].question,correctText:qs[cur].options[qs[cur].correct],correct:false,source:qs[cur].source||'ifab',timedOut:true});
+        if (qs[cur].explanation) {
+          document.getElementById('exp-txt').textContent = qs[cur].explanation;
+          document.getElementById('exp-box').style.display = 'block';
+        }
+        const nb = document.getElementById('next-btn');
+        nb.textContent = cur < qs.length - 1 ? 'NEXT QUESTION →' : 'SEE RESULTS →';
+        nb.style.display = 'block';
+        document.getElementById('quiz-score').textContent = `${score}/${cur+1}`;
+      }
+    }
+  }, 1000);
+}
+
+function clearTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  document.getElementById('timer-wrap').style.display = 'none';
+}
+
+// ── BRANDING ──────────────────────────────────────────────────────────────────
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function applyBrandingToNameScreen() {
+  const b = leagueBranding;
+  if (!b) return;
+  if (b.logoDataUrl) {
+    const logo = document.getElementById('name-league-logo');
+    logo.src = b.logoDataUrl;
+    logo.style.display = 'block';
+  }
+  if (b.name) {
+    const el = document.getElementById('name-league-name');
+    el.textContent = b.name.toUpperCase();
+    el.style.display = 'block';
+  }
+}
+
+function applyBrandingToQuiz() {
+  const b = leagueBranding;
+  if (!b) return;
+  const logoEl = document.getElementById('quiz-league-logo');
+  if (b.logoDataUrl) { logoEl.src = b.logoDataUrl; logoEl.style.display = 'block'; }
+  const nameEl = document.getElementById('quiz-league-name');
+  const badgeEl = document.getElementById('quiz-refiq-badge');
+  if (b.name) { nameEl.textContent = b.name.toUpperCase(); nameEl.style.display = 'block'; badgeEl.style.display = 'none'; }
+  const primary = b.brandColor || '#ffd60a';
+  const accent  = b.brandAccent || '#ffd60a';
+  document.documentElement.style.setProperty('--league-accent', primary);
+  document.documentElement.style.setProperty('--brand-primary', primary);
+  document.documentElement.style.setProperty('--brand-accent', accent);
+  const qh = document.getElementById('scr-quiz').querySelector('.quiz-header');
+  qh.style.setProperty('--league-color-a', hexToRgba(primary, .22));
+  qh.style.setProperty('--league-color-b', hexToRgba(primary, .08));
+  const quizScr = document.getElementById('scr-quiz');
+  if (b.brandBg === 'light') { quizScr.style.background = '#f5f5f0'; }
+  else if (b.brandBg === 'custom' && b.brandBgColor) { quizScr.style.background = b.brandBgColor; }
+  const font = b.brandFont;
+  if (font && font !== 'Bebas Neue') {
+    const fontId = 'gf-' + font.replace(/\s+/g,'-');
+    if (!document.getElementById(fontId)) {
+      const link = document.createElement('link');
+      link.id = fontId; link.rel = 'stylesheet';
+      link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(font)}:wght@600;700&display=swap`;
+      document.head.appendChild(link);
+    }
+    document.getElementById('scr-quiz').style.setProperty('--quiz-font', `'${font}', sans-serif`);
+  }
+}
+
+// ── FETCH QUIZ LINK ────────────────────────────────────────────────────────────
+async function fetchQuizLink() {
+  if (!shortCode) return false;
+  const snap = await getDoc(doc(db, 'quizLinks', shortCode));
+  if (!snap.exists()) return false;
+  quizLinkId = snap.id;
+  quizLink = snap.data();
+  return true;
+}
+
+async function fetchLeagueBranding(leagueId) {
+  // Prefer embedded branding from quizLinks doc (new format)
+  if (quizLink?.branding) {
+    const b = quizLink.branding;
+    leagueBranding = {
+      logoDataUrl: b.logoUrl || null,
+      name: b.leagueName || null,
+      brandColor: (b.primaryColor && b.primaryColor !== '#ffffff') ? b.primaryColor : '#ffd60a',
+      brandAccent: '#ffd60a'
+    };
+    return;
+  }
+  // Fallback: fetch from leagues collection (legacy quiz_links format)
+  try {
+    const snap = await getDoc(doc(db, 'leagues', leagueId));
+    if (snap.exists()) leagueBranding = snap.data();
+  } catch(e) { console.warn('Branding load error', e); }
+}
+
+function showQuizInfo() {
+  if (!quizLink) return;
+  const box = document.getElementById('quiz-info-box');
+  box.style.display = 'block';
+  document.getElementById('qi-name').textContent = quizLink.linkName || quizLink.name || 'Quiz';
+  const parts = [];
+  const numQ = quizLink.numberOfQuestions || quizLink.settings?.num;
+  const div  = quizLink.division || quizLink.settings?.division;
+  const tl   = quizLink.timePerQuestion || quizLink.settings?.timeLimit;
+  if (numQ) parts.push(`${numQ} Questions`);
+  if (div && DIV_LABELS[div]) parts.push(DIV_LABELS[div]);
+  if (tl && tl !== 'none' && parseInt(tl) > 0) parts.push(`${parseInt(tl)}s per question`);
+  document.getElementById('qi-meta').textContent = parts.join(' · ');
+}
+
+// ── NAME SCREEN SHOW ──────────────────────────────────────────────────────────
+function showNameScreen() {
+  hideInitialLoading();
+  applyBrandingToNameScreen();
+  showQuizInfo();
+  document.getElementById('name-screen').classList.add('show');
+}
+
+document.getElementById('start-btn').addEventListener('click', async () => {
+  const name = document.getElementById('referee-name').value.trim();
+  if (!name) {
+    document.getElementById('name-err').style.display = 'block';
+    document.getElementById('referee-name').focus();
+    return;
+  }
+  refereeName = name;
+  document.getElementById('name-screen').classList.remove('show');
+  document.getElementById('main-app').style.display = 'block';
+  await generateAndStartQuiz();
+});
+
+document.getElementById('referee-name').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('start-btn').click();
+});
+
+// ── GENERATE AND START QUIZ ────────────────────────────────────────────────────
+async function generateAndStartQuiz() {
+  // Support both new quizLinks field names and legacy quiz_links settings object
+  const num      = parseInt(quizLink.numberOfQuestions || quizLink.settings?.num) || 10;
+  const division = quizLink.division || quizLink.settings?.division || 'rec-7th8th';
+  const focusRaw = (quizLink.focus || quizLink.settings?.source || 'both').toLowerCase();
+  const src      = focusRaw.includes('ifab') ? 'ifab' : focusRaw.includes('league') ? 'league' : 'both';
+  const modeRaw  = (quizLink.mode || quizLink.settings?.mode || 'mixed').toLowerCase();
+  const mode     = modeRaw.includes('scenario') ? 'scenarios' : modeRaw.includes('rule') ? 'rules' : 'mixed';
+  const tlRaw    = quizLink.timePerQuestion || quizLink.settings?.timeLimit;
+  quizTimeLimit  = (tlRaw && tlRaw !== 'none') ? parseInt(tlRaw) || 0 : 0;
+
+  const divLabel = DIV_LABELS[division] || division;
+  const modeStr = {
+    mixed: 'Mix rules recall and game scenarios.',
+    scenarios: 'ALL questions must be game scenarios.',
+    rules: 'ALL questions must be rules recall.'
+  }[mode] || 'Mix rules recall and game scenarios.';
+  const srcStr = src === 'ifab' ? 'Use IFAB Laws only.' :
+    src === 'league' ? 'Use league rules ONLY (no IFAB).' :
+    'Mix IFAB Laws and league rules.';
+
+  const resources = quizLink.resources || [];
+  const leagueSec = resources.map(r => `\n\n--- LEAGUE RULE DOCUMENT: ${r.name} ---\n${r.text}`).join('');
+
+  const prompt = `You are an expert soccer referee examiner. Generate exactly ${num} quiz questions for referees working in: ${divLabel}.
+
+${modeStr} ${srcStr}
+
+IFAB LAWS REFERENCE:\n${IFAB}${leagueSec}
+
+REQUIREMENTS:
+- Questions must be accurate, specific, and test real understanding
+- Include 2025/26 rule changes where relevant
+- Each question must have exactly 4 answer options
+- Only one correct answer per question
+- The correct field is the 0-based index of the correct option in the options array
+- Vary difficulty: some straightforward, some tricky edge cases
+- lawRef should cite the specific law or rule document section
+
+Return ONLY a valid JSON array. No markdown, no explanation, no code blocks. Start with [ and end with ].
+
+Format:
+[{"type":"rules|scenario","source":"ifab|league","question":"...","options":["A text","B text","C text","D text"],"correct":0,"lawRef":"Law 12","explanation":"..."}]`;
+
+  document.getElementById('gen-loading').classList.add('show');
+  document.getElementById('gen-sub').textContent = resources.length ? 'Referencing IFAB + league rules…' : 'Referencing IFAB Laws 2025/26…';
+
+  try {
+    const res = await fetch('/api/quiz', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: Math.min(Math.max(num * 350, 1500), 8000),
+        system: 'Return ONLY valid JSON array. No markdown. No preamble. Start with [ end with ].',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    let data;
+    try { data = await res.json(); }
+    catch { throw new Error('Quiz generation timed out. Please try again.'); }
+    if (!res.ok) throw new Error(data?.error || `Error ${res.status}`);
+
+    const blocks = (data?.content || []).filter(b => b.type === 'text');
+    if (!blocks.length) throw new Error('No response from AI.');
+
+    const text = blocks.map(b => b.text).join('');
+    const match = text.match(/\[[\s\S]*\]/);
+    if (!match) throw new Error('No valid JSON array found in response');
+
+    let arr;
+    try { arr = JSON.parse(match[0]); }
+    catch(e) { throw new Error('Could not parse AI response.'); }
+
+    const valid = arr.filter(q =>
+      q?.question && typeof q.question === 'string' &&
+      Array.isArray(q.options) && q.options.length === 4 &&
+      typeof q.correct === 'number' && q.correct >= 0 && q.correct <= 3
+    );
+    if (!valid.length) throw new Error('No valid questions returned.');
+
+    qs = valid.slice(0, num);
+    cur = 0; score = 0; rev = []; resultSaved = false;
+
+    applyBrandingToQuiz();
+    renderQ();
+
+  } catch(err) {
+    showError('QUIZ FAILED', err.message || 'Could not generate quiz. Please try again.', true);
+  } finally {
+    document.getElementById('gen-loading').classList.remove('show');
+  }
+}
+
+// ── RENDER QUESTION ────────────────────────────────────────────────────────────
+function renderQ() {
+  answered = false;
+  clearTimer();
+  const q = qs[cur], total = qs.length;
+
+  const circumference = 263.9;
+  const progress = (cur / total) * circumference;
+  document.getElementById('quiz-arc').style.strokeDashoffset = circumference - progress;
+  document.getElementById('q-arc-num').textContent = cur + 1;
+  document.getElementById('q-arc-of').textContent = `OF ${total}`;
+  document.getElementById('quiz-pos').textContent = `QUESTION ${cur + 1}`;
+  document.getElementById('quiz-score').textContent = `${score} / ${cur}`;
+  document.getElementById('prog-fill').style.width = `${(cur / total) * 100}%`;
+
+  const pt = document.getElementById('pill-type');
+  pt.textContent = q.type === 'scenario' ? '🎯 Scenario' : '📋 Rules';
+  pt.className = 'pill ' + (q.type === 'scenario' ? 'pill-s' : 'pill-r');
+
+  const ps = document.getElementById('pill-src');
+  const isL = q.source === 'league';
+  ps.textContent = isL ? '📋 League Rules' : '📖 IFAB 2025/26';
+  ps.className = 'pill ' + (isL ? 'pill-l' : 'pill-i');
+
+  document.getElementById('q-text').textContent = q.question;
+  document.getElementById('q-ref').textContent = '📚 ' + (q.lawRef || 'IFAB');
+  document.getElementById('exp-box').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'none';
+
+  const opts = q.options.map((text, i) => ({ text, correct: i === q.correct })).sort(() => Math.random() - .5);
+  const container = document.getElementById('answers');
+  container.innerHTML = '';
+  opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'ans-btn';
+    btn.style.animationDelay = `${i * 0.06}s`;
+    btn.innerHTML = `
+      <div class="ans-letter">${['A','B','C','D'][i]}</div>
+      <div class="ans-text">${opt.text}</div>
+      <div class="ans-radio"><div class="ans-radio-dot"></div></div>`;
+    btn.addEventListener('click', () => {
+      if (answered) return;
+      answered = true;
+      handleAnswer(opt, opts, q, i);
+    });
+    container.appendChild(btn);
+  });
+  startTimer(quizTimeLimit);
+}
+
+function handleAnswer(chosen, opts, q, chosenIdx) {
+  clearTimer();
+  if (chosen.correct) score++;
+  rev.push({ question: q.question, correctText: q.options[q.correct], correct: chosen.correct, source: q.source || 'ifab' });
+
+  document.querySelectorAll('.ans-btn').forEach((btn, i) => {
+    btn.disabled = true;
+    if (opts[i].correct) btn.classList.add('correct');
+    else if (i === chosenIdx) btn.classList.add('wrong');
+    else btn.classList.add('faded');
+  });
+
+  if (q.explanation) {
+    document.getElementById('exp-txt').textContent = q.explanation;
+    document.getElementById('exp-box').style.display = 'block';
+  }
+
+  const nb = document.getElementById('next-btn');
+  nb.textContent = cur < qs.length - 1 ? 'NEXT QUESTION →' : 'SEE RESULTS →';
+  nb.style.display = 'block';
+  document.getElementById('quiz-score').textContent = `${score}/${cur + 1}`;
+}
+
+document.getElementById('next-btn').addEventListener('click', () => {
+  cur++;
+  if (cur >= qs.length) showResults();
+  else renderQ();
+});
+
+// ── RESULTS ────────────────────────────────────────────────────────────────────
+function showResults() {
+  clearTimer();
+  const total = qs.length, pct = Math.round(score / total * 100), pass = pct >= 70;
+
+  document.getElementById('ring-pct').textContent = pct + '%';
+  setTimeout(() => { document.getElementById('ring-c').style.strokeDashoffset = 339.3 * (1 - pct / 100); }, 100);
+
+  document.getElementById('res-emoji').textContent = pct === 100 ? '🏆' : pass ? '✅' : '📚';
+  document.getElementById('res-title').textContent = pct === 100 ? 'PERFECT!' : pass ? 'WELL DONE' : 'KEEP STUDYING';
+  document.getElementById('res-sub').textContent = pass
+    ? `Passed with ${pct}% — you're ready to call.`
+    : `Scored ${pct}%. Review below and try again.`;
+  document.getElementById('s-right').textContent = score;
+  document.getElementById('s-wrong').textContent = total - score;
+  document.getElementById('s-total').textContent = total;
+
+  const pb = document.getElementById('pass-badge');
+  pb.textContent = pass ? '✅ Passed — 70% threshold met' : '❌ Below 70% — try again';
+  pb.className = 'pass-badge ' + (pass ? 'pass' : 'fail');
+
+  const qName = quizLink?.linkName || quizLink?.name;
+  if (qName) document.getElementById('res-league-label').textContent = qName.toUpperCase();
+
+  document.getElementById('rev-list').innerHTML = rev.map((r, i) =>
+    `<div class="review-item">
+      <div class="rev-dot ${r.correct ? 'rev-ok' : 'rev-fail'}">${r.correct ? '✓' : '✗'}</div>
+      <div>
+        <div class="rev-q">Q${i+1}: ${r.question.length > 90 ? r.question.substring(0,90) + '…' : r.question}</div>
+        <div class="rev-ans">✓ ${r.correctText}</div>
+      </div>
+    </div>`
+  ).join('');
+
+  showScr('results');
+  saveResult(score, total, pass);
+}
+
+async function saveResult(score, total, passed) {
+  if (resultSaved || !quizLink) return;
+  resultSaved = true;
+  try {
+    await addDoc(collection(db, 'quizResults'), {
+      leagueId: quizLink.leagueId || null,
+      refereeName: refereeName || 'Anonymous',
+      userId: null,
+      score,
+      total,
+      passed,
+      quizLinkId,
+      quizLinkName: quizLink.linkName || quizLink.name || '',
+      createdAt: serverTimestamp()
+    });
+  } catch(e) { console.warn('Result save error', e); }
+}
+
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────────────
+function showScr(n) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('scr-' + n).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.getElementById('back-btn').addEventListener('click', () => document.getElementById('exit-modal').classList.add('show'));
+document.getElementById('modal-yes').addEventListener('click', () => {
+  clearTimer();
+  document.getElementById('exit-modal').classList.remove('show');
+  window.location.href = '/';
+});
+document.getElementById('modal-no').addEventListener('click', () => document.getElementById('exit-modal').classList.remove('show'));
+
+function hideInitialLoading() { document.getElementById('loading').classList.add('hide'); }
+
+function showError(title, msg) {
+  document.getElementById('loading').classList.add('hide');
+  document.getElementById('name-screen').classList.remove('show');
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('gen-loading').classList.remove('show');
+  document.getElementById('err-title').textContent = title;
+  document.getElementById('err-msg').textContent = msg;
+  document.getElementById('scr-error').classList.add('show');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+(async () => {
+  if (!shortCode) { showError('INVALID LINK', 'This quiz link is missing a code. Contact your league administrator.'); return; }
+  try {
+    const found = await fetchQuizLink();
+    if (!found) { showError('QUIZ NOT FOUND', 'This quiz link was not found or has been removed.'); return; }
+    if (quizLink.active === false) { showError('LINK DEACTIVATED', 'This quiz link has been deactivated.'); return; }
+    if (quizLink.leagueId) await fetchLeagueBranding(quizLink.leagueId);
+    showNameScreen();
+  } catch(e) {
+    showError('LOAD ERROR', 'Could not load the quiz. Please check your connection and try again.');
+  }
+})();
+</script>
+</body>
+</html>

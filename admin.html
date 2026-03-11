@@ -1,0 +1,2885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>RefIQ Admin</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#080c09">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="RefIQ Admin">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Rajdhani:wght@600;700&family=Oswald:wght@500;600&family=Barlow+Condensed:wght@600;700&family=Exo+2:wght@600;700&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#ffd60a;--green-dark:#2a9d47;--green-dim:rgba(52,199,89,.12);
+  --gold:#ffd60a;--gold-dim:rgba(255,214,10,.1);
+  --red:#ff453a;--blue:#0a84ff;
+  --bg:#080c09;--s1:#111711;--s2:#1a221b;--s3:#222e23;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);
+  --text:#f0f4f0;--muted:#7a9080;--muted2:#5a6e5f
+}
+html,body{height:100%}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(52,199,89,.018) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(52,199,89,.018) 1px,transparent 1px);
+  background-size:60px 60px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.fu{animation:fadeUp .4s ease both}
+.fu1{animation:fadeUp .4s .08s ease both}
+.fu2{animation:fadeUp .4s .16s ease both}
+
+/* ── AUTH ─────────────────────────────────────────────── */
+#auth-screen{position:fixed;inset:0;z-index:100;display:none;background:var(--bg);background-image:linear-gradient(rgba(52,199,89,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(52,199,89,.018) 1px,transparent 1px);background-size:60px 60px;overflow-y:auto}
+#auth-screen.show{display:flex}
+.auth-wrap{width:100%;min-height:100vh;display:flex;align-items:stretch;position:relative;z-index:1}
+.auth-left{display:none}
+.auth-right{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.auth-brand{display:none}
+.auth-features{list-style:none;display:flex;flex-direction:column;gap:12px;margin-top:28px}
+.auth-features li{font-size:13px;color:var(--muted);padding-left:22px;position:relative;line-height:1.5}
+.auth-features li::before{content:'✓';position:absolute;left:0;color:var(--green);font-weight:700}
+.auth-card{background:var(--s1);border:1px solid var(--border2);border-radius:28px;padding:clamp(32px,5vw,44px) clamp(28px,4vw,40px);width:100%;max-width:460px}
+.auth-icon{text-align:center;margin-bottom:12px}
+.auth-icon img{height:80px;width:80px;object-fit:contain;filter:drop-shadow(0 0 36px rgba(52,199,89,.55))}
+.auth-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;text-align:center;margin-bottom:4px}
+.auth-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px;line-height:1.5}
+.field{width:100%;background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:12px;padding:13px 15px;font-family:'DM Sans',sans-serif;font-size:15px;outline:none;margin-bottom:10px;transition:border-color .2s;-webkit-appearance:none}
+.field:focus{border-color:var(--green)}
+.auth-btn{width:100%;padding:15px;background:var(--green-dark);border:none;border-radius:14px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;margin-bottom:12px;transition:all .2s}
+.auth-btn:hover{background:var(--green);color:#080c09}
+.divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;margin:4px 0 12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.google-btn{width:100%;padding:13px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .2s}
+.google-btn:hover{background:rgba(255,255,255,.08)}
+.auth-err{font-size:12px;color:var(--red);padding:10px 13px;background:rgba(255,69,58,.08);border:1px solid rgba(255,69,58,.2);border-radius:10px;margin-bottom:10px;display:none;font-family:'DM Mono',monospace}
+.auth-tabs{display:flex;background:#0d120e;border-radius:12px;padding:3px;gap:3px;margin-bottom:20px}
+.auth-tab{flex:1;padding:10px;background:transparent;border:none;border-radius:9px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.auth-tab.active{background:var(--s2);color:var(--text)}
+.back-home{display:block;text-align:center;margin-top:14px;font-size:13px;color:var(--muted);text-decoration:none}
+.back-home:hover{color:var(--text)}
+@media(min-width:768px){
+  .auth-left{display:none}
+  .auth-brand{display:flex;flex-direction:column;align-items:center;margin-bottom:24px}
+  .auth-brand img{height:40px;width:auto;max-width:160px;object-fit:contain;filter:drop-shadow(0 0 28px rgba(52,199,89,.5))}
+  .auth-icon{display:none}
+  .auth-card{max-width:440px;padding:40px}
+}
+
+/* ── LAYOUT ───────────────────────────────────────────── */
+#shell{display:none;min-height:100vh;position:relative;z-index:1}
+
+/* SIDEBAR */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:180px;
+  background:rgba(8,12,9,.97);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;z-index:50;transition:transform .3s}
+.sidebar-logo{padding:20px 18px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px}
+.sidebar-logo img{height:28px;width:auto;max-width:120px;object-fit:contain}
+.sidebar-logo-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--green)}
+.sidebar-logo-sub{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px}
+.sidebar-nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;
+  cursor:pointer;transition:all .2s;border:none;background:none;width:100%;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:var(--muted);text-align:left}
+.nav-item:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.nav-item.active{background:var(--green-dim);color:var(--green)}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.nav-divider{height:1px;background:var(--border);margin:8px 0}
+.sidebar-bottom{padding:14px 10px;border-top:1px solid var(--border)}
+.user-block{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--s2)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--green-dim);border:1.5px solid rgba(52,199,89,.3);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--green);flex-shrink:0}
+.user-name{font-size:13px;font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-role{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace}
+.signout-btn{margin-top:6px;width:100%;padding:9px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.signout-btn:hover{border-color:var(--red);color:var(--red)}
+
+/* MOBILE HEADER */
+.mobile-header{display:none;position:fixed;top:0;left:0;right:0;z-index:60;
+  background:rgba(8,12,9,.97);border-bottom:1px solid var(--border);
+  padding:12px 16px;align-items:center;justify-content:space-between}
+.mobile-logo{display:flex;align-items:center;gap:8px}
+.mobile-logo img{height:28px;width:auto;max-width:110px;object-fit:contain}
+.mobile-logo span{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--green)}
+.hamburger{display:flex;flex-direction:column;gap:5px;cursor:pointer;padding:4px;border:none;background:none}
+.hamburger span{display:block;width:22px;height:2px;background:var(--muted);border-radius:2px;transition:all .3s}
+.mobile-overlay{display:none;position:fixed;inset:0;z-index:49;background:rgba(0,0,0,.6)}
+.mobile-overlay.show{display:block}
+
+/* MAIN CONTENT */
+.main{margin-left:180px;min-height:100vh;padding:0 0 60px}
+.page-header{padding:28px 32px 0;border-bottom:1px solid var(--border);margin-bottom:0}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
+.page-content{padding:28px 32px}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .mobile-header{display:flex}
+  .main{margin-left:0;padding-top:60px}
+  .page-header{padding:20px 16px 0}
+  .page-content{padding:20px 16px}
+}
+@media(min-width:1280px){
+  .sidebar{width:220px}
+  .main{margin-left:220px}
+  .page-header{padding:32px 40px 0}
+  .page-content{padding:32px 40px}
+}
+@media(min-width:1600px){
+  .page-header{padding:32px 56px 0}
+  .page-content{padding:32px 56px}
+}
+
+/* ── COMPONENTS ───────────────────────────────────────── */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.3),0 1px 0 rgba(255,255,255,.04) inset}
+.card-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.card-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:var(--text)}
+.card-body{padding:24px 26px}
+.btn{padding:10px 18px;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px;line-height:1;text-decoration:none}
+.btn-primary{background:var(--green-dark);color:#fff}
+.btn-primary:hover{background:var(--green);color:#080c09;transform:translateY(-1px)}
+.btn-secondary{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:rgba(255,255,255,.1)}
+.btn-danger{background:rgba(255,69,58,.12);color:var(--red);border:1px solid rgba(255,69,58,.2)}
+.btn-danger:hover{background:rgba(255,69,58,.2)}
+.btn-gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(255,214,10,.25)}
+.btn-gold:hover{background:rgba(255,214,10,.18)}
+.btn-sm{padding:7px 13px;font-size:12px;border-radius:9px}
+.btn-lg{padding:14px 28px;font-size:15px;border-radius:14px}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:1.2px;text-transform:uppercase;font-weight:500}
+.badge-green{background:var(--green-dim);color:var(--green);border:1px solid rgba(52,199,89,.2)}
+.badge-gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(255,214,10,.2)}
+.badge-muted{background:rgba(122,144,128,.08);color:var(--muted);border:1px solid rgba(122,144,128,.15)}
+.field-wrap{margin-bottom:14px}
+.field-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--green);margin-bottom:7px;display:block}
+.field-hint{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}
+.sel-wrap{position:relative}
+.sel-wrap select{width:100%;appearance:none;-webkit-appearance:none;background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:12px;outline:none;padding:12px 36px 12px 14px;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;transition:border-color .2s}
+.sel-wrap select:focus{border-color:var(--green)}
+.sel-wrap::after{content:'▾';position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none}
+select option{background:#111711}
+.seg{display:flex;background:#0d120e;border-radius:12px;padding:3px;gap:3px}
+.seg-btn{flex:1;padding:9px 8px;background:transparent;border:none;border-radius:9px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;line-height:1}
+.seg-btn.active{background:var(--s2);color:var(--text)}
+.success-toast{padding:11px 15px;background:rgba(52,199,89,.1);border:1px solid rgba(52,199,89,.25);border-radius:11px;font-size:13px;color:var(--green);margin-bottom:16px;display:none;align-items:center;gap:8px}
+.success-toast.show{display:flex}
+.err-toast{padding:11px 15px;background:rgba(255,69,58,.08);border:1px solid rgba(255,69,58,.2);border-radius:11px;font-size:13px;color:var(--red);margin-bottom:16px;display:none}
+.err-toast.show{display:block}
+
+/* ── OVERVIEW ─────────────────────────────────────────── */
+.empty-state{text-align:center;padding:36px 24px}
+.empty-icon{font-size:56px;margin-bottom:16px;display:block;filter:grayscale(.3)}
+.empty-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;margin-bottom:8px}
+.empty-sub{font-size:14px;color:var(--muted);line-height:1.6;max-width:360px;margin:0 auto 24px}
+.stat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+@media(max-width:640px){.stat-strip{grid-template-columns:repeat(2,1fr)}}
+.stat-tile{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-left:3px solid var(--green);border-radius:16px;padding:18px 16px}
+.stat-tile-num{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:2px;line-height:1;margin-bottom:3px;color:#fff}
+.stat-tile-lbl{font-size:12px;color:rgba(255,255,255,.5);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+@media(max-width:480px){.quick-actions{grid-template-columns:1fr}}
+.quick-card{background:var(--s1);border:1.5px solid var(--border);border-radius:20px;padding:22px 20px;cursor:pointer;transition:all .25s;text-align:left;position:relative;overflow:hidden}
+.quick-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .25s}
+.quick-card:hover{transform:translateY(-3px)}
+.quick-card-green{border-color:rgba(52,199,89,.2)}
+.quick-card-green::before{background:radial-gradient(circle at 0% 50%,rgba(52,199,89,.07),transparent 70%)}
+.quick-card-green:hover{border-color:rgba(52,199,89,.4);box-shadow:0 16px 48px rgba(52,199,89,.1)}
+.quick-card-green:hover::before{opacity:1}
+.quick-card-gold{border-color:rgba(255,214,10,.15)}
+.quick-card-gold::before{background:radial-gradient(circle at 0% 50%,rgba(255,214,10,.07),transparent 70%)}
+.quick-card-gold:hover{border-color:rgba(255,214,10,.35)}
+.quick-card-gold:hover::before{opacity:1}
+.quick-card-icon{font-size:28px;margin-bottom:10px;display:block}
+.quick-card-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;margin-bottom:5px}
+.quick-card-desc{font-size:12px;color:var(--muted);line-height:1.55}
+.quick-card-arrow{position:absolute;top:18px;right:18px;font-size:16px;opacity:.3;transition:all .2s}
+.quick-card:hover .quick-card-arrow{opacity:1;transform:translate(2px,-2px)}
+.activity-list{display:flex;flex-direction:column;gap:0}
+.activity-item{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.activity-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.activity-dot-green{background:var(--green);box-shadow:0 0 8px rgba(52,199,89,.4)}
+.activity-dot-gold{background:var(--gold)}
+.activity-dot-muted{background:var(--muted)}
+.activity-text{font-size:13px;flex:1;line-height:1.4}
+.activity-time{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;flex-shrink:0}
+
+/* ── QUIZ LINKS ───────────────────────────────────────── */
+.link-grid{display:grid;gap:12px}
+.link-card{background:var(--s1);border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:all .2s}
+.link-card:hover{border-color:rgba(52,199,89,.2)}
+.link-card-header{padding:16px 18px;display:flex;align-items:center;gap:12px}
+.link-card-icon{width:40px;height:40px;border-radius:11px;background:var(--green-dim);border:1px solid rgba(52,199,89,.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.link-card-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;margin-bottom:2px}
+.link-card-url{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace}
+.link-card-body{padding:0 18px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.copy-btn{display:flex;align-items:center;gap:6px;padding:7px 13px;background:var(--s2);border:1px solid var(--border);border-radius:9px;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.copy-btn:hover{border-color:var(--green);color:var(--green)}
+.copy-btn.copied{border-color:var(--green);color:var(--green);background:var(--green-dim)}
+.delete-link-btn{display:flex;align-items:center;gap:5px;padding:7px 13px;background:transparent;border:1px solid transparent;border-radius:9px;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;margin-left:auto}
+.delete-link-btn:hover{border-color:rgba(255,69,58,.3);color:var(--red)}
+
+/* ── CREATE QUIZ MODAL ────────────────────────────────── */
+.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);backdrop-filter:blur(16px);display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--s1);border:1px solid var(--border2);border-radius:28px;width:100%;max-width:560px;margin:auto;animation:fadeUp .3s ease}
+.modal-header{padding:22px 24px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px}
+.modal-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.06);border:none;color:var(--muted);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-close:hover{background:rgba(255,69,58,.12);color:var(--red)}
+.modal-body{padding:22px 24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+
+/* ── RESOURCES ────────────────────────────────────────── */
+.res-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.res-chip{display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--border);border-radius:11px;padding:10px 14px}
+.res-chip-icon{font-size:16px;flex-shrink:0}
+.res-chip-name{font-size:12px;font-family:'DM Mono',monospace;color:var(--green);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.res-chip-size{font-size:10px;color:var(--muted);flex-shrink:0}
+.res-chip-rm{background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;flex-shrink:0;padding:0;line-height:1;transition:color .2s}
+.res-chip-rm:hover{color:var(--red)}
+.drop-zone{border:2px dashed rgba(255,255,255,.1);border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.drop-zone:hover,.drop-zone.over{border-color:var(--green);background:rgba(52,199,89,.03)}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-zone-icon{font-size:28px;margin-bottom:8px}
+.drop-zone-title{font-size:13px;font-weight:600;margin-bottom:3px}
+.drop-zone-sub{font-size:11px;color:var(--muted)}
+
+/* ── RESULTS TABLE ────────────────────────────────────── */
+.results-table{width:100%;border-collapse:collapse}
+.results-table th{padding:10px 16px;text-align:left;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);font-weight:500}
+.results-table td{padding:13px 16px;border-bottom:1px solid var(--border);font-size:13px}
+.results-table tr:last-child td{border-bottom:none}
+.results-table tr:hover td{background:rgba(255,255,255,.02)}
+.score-bar-wrap{display:flex;align-items:center;gap:8px}
+.score-bar{height:4px;background:rgba(255,255,255,.06);border-radius:4px;flex:1;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:4px;background:var(--green)}
+.score-bar-fill.mid{background:var(--gold)}
+.score-bar-fill.low{background:var(--red)}
+.pass-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* ── BRANDING STUDIO ──────────────────────────────────── */
+.brand-layout{display:grid;grid-template-columns:1fr 380px;gap:24px;align-items:start}
+@media(max-width:900px){.brand-layout{grid-template-columns:1fr}}
+.brand-section-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--green);margin-bottom:12px;display:block}
+.color-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.color-pick{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;transition:border-color .2s}
+.color-pick:hover{border-color:rgba(52,199,89,.25)}
+.color-swatch{width:40px;height:40px;border-radius:8px;border:2px solid rgba(255,255,255,.1);flex-shrink:0;overflow:hidden;cursor:pointer;position:relative}
+.color-swatch input[type=color]{position:absolute;inset:-4px;width:calc(100%+8px);height:calc(100%+8px);opacity:0;cursor:pointer}
+.color-info-lbl{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px}
+.color-info-hex{font-size:14px;font-family:'DM Mono',monospace;font-weight:500}
+.font-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+@media(max-width:600px){.font-grid{grid-template-columns:repeat(2,1fr)}}
+.font-opt{padding:12px 10px;background:var(--s2);border:2px solid var(--border);border-radius:12px;cursor:pointer;transition:all .2s;text-align:center}
+.font-opt:hover{border-color:rgba(52,199,89,.3)}
+.font-opt.sel{border-color:var(--green);background:var(--green-dim)}
+.font-opt-preview{font-size:20px;color:var(--green);margin-bottom:4px;line-height:1}
+.font-opt-name{font-size:11px;color:var(--muted);font-weight:600}
+.font-opt-tag{font-size:9px;color:var(--muted2);margin-top:1px}
+.bg-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.bg-opt{padding:12px 10px;border-radius:12px;border:2px solid transparent;cursor:pointer;transition:all .2s;text-align:center;font-size:12px;font-weight:700}
+.bg-opt.sel{border-color:var(--green)}
+.logo-upload{border:2px dashed rgba(255,255,255,.1);border-radius:14px;padding:20px;text-align:center;cursor:pointer;position:relative;transition:all .2s;margin-bottom:16px}
+.logo-upload:hover,.logo-upload.over{border-color:var(--green);background:rgba(52,199,89,.03)}
+.logo-upload input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.logo-preview{max-height:60px;max-width:200px;object-fit:contain;margin:8px auto 0;display:none;border-radius:6px}
+
+/* LIVE PREVIEW PHONE */
+.preview-frame{background:var(--s2);border:1.5px solid var(--border2);border-radius:24px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5)}
+.preview-topbar{height:3px}
+.preview-head{padding:13px 16px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px}
+.preview-league-logo{width:34px;height:34px;border-radius:8px;object-fit:contain;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden}
+.preview-league-name{font-size:15px;font-weight:700;line-height:1}
+.preview-league-sub{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace}
+.preview-body{padding:14px 16px}
+.preview-prog{height:2px;border-radius:2px;width:45%;margin-bottom:12px}
+.preview-q{font-size:13px;font-weight:600;line-height:1.5;margin-bottom:10px}
+.preview-opts{display:flex;flex-direction:column;gap:6px}
+.preview-opt{padding:9px 12px;border-radius:9px;font-size:11px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.03)}
+.preview-opt.hi{border-color:var(--green);background:rgba(52,199,89,.1)}
+.preview-opt-letter{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.preview-opt.hi .preview-opt-letter{background:var(--green);color:#000}
+.preview-note{font-size:10px;color:var(--muted);text-align:center;padding:10px;font-family:'DM Mono',monospace}
+
+/* ── SCREENS ──────────────────────────────────────────── */
+.page{display:none}
+.page.active{display:block}
+
+/* ── LOADING ──────────────────────────────────────────── */
+#loading{position:fixed;inset:0;z-index:500;background:rgba(8,12,9,.94);backdrop-filter:blur(20px);display:none;align-items:center;justify-content:center}
+#loading.show{display:flex}
+.load-card{background:var(--s1);border:1px solid var(--border);border-radius:22px;padding:32px 40px;text-align:center}
+.spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.07);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
+.load-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;margin-bottom:4px}
+.load-sub{font-size:12px;color:var(--muted)}
+
+/* ── TRIAL BANNER ─────────────────────────────────────── */
+.trial-banner{display:none;align-items:center;justify-content:space-between;gap:12px;padding:10px 32px;position:sticky;top:0;z-index:40;font-size:13px;font-weight:600}
+.trial-banner.show{display:flex}
+.trial-banner.trial-active{background:rgba(52,199,89,.1);border-bottom:1px solid rgba(52,199,89,.18)}
+.trial-banner.trial-warning{background:rgba(255,214,10,.1);border-bottom:1px solid rgba(255,214,10,.22)}
+.trial-days{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;line-height:1}
+.trial-days.trial-active{color:var(--green)}
+.trial-days.trial-warning{color:var(--gold)}
+.trial-contact{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px;white-space:nowrap}
+.trial-contact a{color:inherit;text-decoration:underline}
+@media(max-width:768px){.trial-banner{padding:10px 16px;flex-wrap:wrap;gap:6px}.trial-contact{display:none}}
+
+/* ── TRIAL EXPIRED OVERLAY ────────────────────────────── */
+.trial-expired-overlay{display:none;position:fixed;top:0;left:180px;right:0;bottom:0;z-index:45;background:rgba(8,12,9,.88);backdrop-filter:blur(14px);align-items:center;justify-content:center;padding:24px}
+.trial-expired-overlay.show{display:flex}
+@media(max-width:768px){.trial-expired-overlay{left:0;top:60px}}
+.expired-card{background:var(--s1);border:1px solid rgba(255,69,58,.22);border-radius:28px;padding:40px 36px;max-width:480px;width:100%;text-align:center}
+.expired-icon{font-size:52px;margin-bottom:16px}
+.expired-title{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:3px;margin-bottom:8px;color:var(--red)}
+.expired-msg{font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:28px;max-width:380px;margin-left:auto;margin-right:auto}
+.expired-cta{display:inline-block;padding:15px 32px;background:var(--green-dark);border:none;border-radius:14px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;text-decoration:none;transition:background .2s;margin-bottom:12px}
+.expired-cta:hover{background:var(--green);color:#080c09}
+.expired-email{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace}
+
+/* ── ACTION BAR ──────────────────────────────────────── */
+.action-bar{display:flex;align-items:center;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+.btn-create{height:52px;padding:0 24px;background:var(--green);border:none;border-radius:10px;color:#080c09;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2.5px;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn-create:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-brand-link{height:52px;padding:0 22px;background:transparent;border:1.5px solid var(--gold);border-radius:10px;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn-brand-link:hover{background:rgba(255,214,10,.08);transform:translateY(-1px)}
+
+/* ── STAT TILE GOLD ACCENT ───────────────────────────── */
+.stat-tile-gold{border-left-color:var(--gold)!important}
+.stat-num-muted{color:rgba(255,255,255,.3)!important}
+
+/* ── USER ROLE BADGE ─────────────────────────────────── */
+.user-role{font-size:10px;font-family:'DM Mono',monospace;margin-top:1px}
+.role-admin{color:var(--gold);border:1px solid rgba(255,214,10,.3);border-radius:20px;padding:1px 7px;display:inline-block;letter-spacing:.5px}
+.role-league{color:var(--green);border:1px solid rgba(52,199,89,.3);border-radius:20px;padding:1px 7px;display:inline-block;letter-spacing:.5px}
+
+/* ── NAV ICON SVG ────────────────────────────────────── */
+.nav-icon{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0}
+.nav-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── EMPTY STATE DASHED BORDER ───────────────────────── */
+.empty-state-dashed{border:1px dashed rgba(255,255,255,.1);border-radius:20px;margin-bottom:24px;overflow:hidden}
+.btn-gold-cta{padding:13px 28px;background:var(--gold);color:#080c09;border:none;border-radius:12px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;transition:all .2s;display:inline-block}
+.btn-gold-cta:hover{background:#ffe033;transform:translateY(-1px)}
+
+/* ── FORGOT PASSWORD ─────────────────────────────────── */
+.forgot-link{display:block;text-align:right;font-size:12px;color:var(--muted);cursor:pointer;background:none;border:none;padding:0 0 10px;font-family:'DM Sans',sans-serif;text-decoration:underline;text-underline-offset:2px;transition:color .2s;width:100%}
+.forgot-link:hover{color:var(--text)}
+.auth-msg{font-size:12px;padding:10px 13px;border-radius:10px;margin-bottom:10px;display:none;font-family:'DM Mono',monospace}
+.auth-msg.success{background:rgba(52,199,89,.1);border:1px solid rgba(52,199,89,.25);color:var(--green)}
+.auth-msg.error{background:rgba(255,69,58,.08);border:1px solid rgba(255,69,58,.2);color:var(--red)}
+
+/* ── GETTING STARTED CARD ────────────────────────────── */
+.setup-card{background:linear-gradient(135deg,rgba(52,199,89,.06) 0%,rgba(255,214,10,.04) 100%);border:1px solid rgba(52,199,89,.18);border-radius:20px;padding:20px 22px;margin-bottom:20px;position:relative}
+.setup-card-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--green);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.setup-dismiss{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;padding:0;opacity:.6;transition:opacity .2s}
+.setup-dismiss:hover{opacity:1}
+.setup-steps{display:flex;flex-direction:column;gap:10px}
+.setup-step{display:flex;align-items:center;gap:12px;padding:11px 14px;background:rgba(0,0,0,.2);border-radius:12px;border:1px solid rgba(255,255,255,.05)}
+.setup-step.done{opacity:.55}
+.setup-step-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;border:1.5px solid}
+.setup-step.done .setup-step-icon{background:rgba(52,199,89,.15);border-color:rgba(52,199,89,.4);color:var(--green)}
+.setup-step:not(.done) .setup-step-icon{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);color:var(--muted)}
+.setup-step-text{flex:1}
+.setup-step-title{font-size:13px;font-weight:600;line-height:1.3;color:var(--text)}
+.setup-step.done .setup-step-title{color:var(--muted)}
+.setup-step-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
+.setup-step-cta{font-size:12px;font-family:'DM Sans',sans-serif;font-weight:600;color:var(--green);background:none;border:1px solid rgba(52,199,89,.3);border-radius:8px;padding:5px 11px;cursor:pointer;white-space:nowrap;transition:all .2s}
+.setup-step-cta:hover{background:rgba(52,199,89,.1);border-color:var(--green)}
+.setup-progress{height:3px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;margin-bottom:14px}
+.setup-progress-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--gold));border-radius:3px;transition:width .4s ease}
+
+/* ── RESULTS FILTER BAR ──────────────────────────────── */
+.results-filter{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.rf-search{flex:1;min-width:180px;background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px 13px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.rf-search:focus{border-color:var(--green)}
+.rf-select{background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px 13px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;cursor:pointer;-webkit-appearance:none;min-width:140px;transition:border-color .2s}
+.rf-select:focus{border-color:var(--green)}
+.rf-seg{display:flex;background:var(--s2);border-radius:10px;padding:3px;gap:3px;border:1px solid var(--border)}
+.rf-seg button{padding:6px 12px;background:transparent;border:none;border-radius:7px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.rf-seg button.active{background:var(--s1);color:var(--text)}
+.rf-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);white-space:nowrap;align-self:center}
+
+/* ── LINK CARD STATS ─────────────────────────────────── */
+.link-card-stats{display:flex;gap:12px;padding:10px 14px;border-top:1px solid var(--border);background:rgba(0,0,0,.15)}
+.link-stat{display:flex;flex-direction:column;align-items:center;flex:1}
+.link-stat-num{font-family:'Bebas Neue',sans-serif;font-size:18px;line-height:1;margin-bottom:2px}
+.link-stat-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+
+/* ── MOBILE LOGO FIX ─────────────────────────────────── */
+@media(max-width:768px){.sidebar-logo{display:none}}
+
+/* ── QUIZ PREVIEW OVERLAY ────────────────────────────── */
+.preview-overlay{position:fixed;inset:0;z-index:400;background:var(--bg);display:none;flex-direction:column;overflow:hidden}
+.preview-overlay.show{display:flex}
+.prev-brand-topbar{height:3px;flex-shrink:0;background:linear-gradient(90deg,var(--green),var(--gold))}
+.prev-control-bar{display:flex;align-items:center;justify-content:space-between;padding:11px 20px;border-bottom:1px solid var(--border);background:rgba(8,12,9,.95);backdrop-filter:blur(20px);flex-shrink:0;gap:12px}
+.prev-control-left{display:flex;align-items:center;gap:10px}
+.prev-header-logo{width:24px;height:24px;border-radius:5px;overflow:hidden;display:none;flex-shrink:0}
+.prev-header-logo img{width:100%;height:100%;object-fit:contain}
+.prev-league-label{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;line-height:1;color:var(--green)}
+.prev-mode-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);margin-top:1px}
+.prev-close-btn{padding:7px 15px;background:transparent;border:1px solid var(--border);border-radius:9px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;flex-shrink:0}
+.prev-close-btn:hover{border-color:rgba(255,69,58,.4);color:var(--red)}
+.preview-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.preview-inner{max-width:640px;margin:0 auto;padding:0 16px 60px}
+/* Preview quiz header */
+.prev-qheader{margin:0 -16px;padding:0 16px 22px;position:relative;overflow:hidden}
+.prev-qheader::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 0%,rgba(52,199,89,.18) 0%,transparent 65%);pointer-events:none}
+.prev-toprow{display:flex;align-items:center;justify-content:space-between;padding:14px 0 14px;position:relative;z-index:1;gap:8px}
+.prev-brand-ctr{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
+.prev-ql{height:26px;max-width:72px;object-fit:contain;border-radius:5px;display:block}
+.prev-qln{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;line-height:1;color:rgba(255,255,255,.85)}
+.prev-refiq-badge{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.35)}
+.prev-score-pill{background:rgba(52,199,89,.2);border:1px solid rgba(52,199,89,.35);color:#7dffa0;font-family:'DM Mono',monospace;font-size:11px;padding:4px 11px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.prev-arc-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;z-index:1}
+.prev-arc-outer{position:relative;width:80px;height:80px;margin-bottom:4px}
+.prev-arc-outer svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.prev-arc-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.prev-arc-num{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;color:#fff}
+.prev-arc-of{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,.45);margin-top:1px}
+.prev-pos-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,.5)}
+.prev-prog-bar{height:3px;background:rgba(255,255,255,.08);border-radius:4px;margin:0 -16px;overflow:hidden}
+.prev-prog-fill{height:100%;border-radius:4px;transition:width .5s cubic-bezier(.23,1,.32,1)}
+/* Preview question & answers */
+.prev-q-card{background:var(--s1);border:1px solid rgba(52,199,89,.14);border-radius:22px;padding:20px 18px 16px;margin:14px 0 10px;position:relative;overflow:hidden;box-shadow:0 8px 28px rgba(0,0,0,.4)}
+.prev-q-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.prev-q-text{font-size:clamp(15px,4vw,18px);font-weight:700;line-height:1.55;color:#f4f8f4;margin-bottom:10px}
+.prev-answers{display:flex;flex-direction:column;gap:9px;margin-bottom:12px}
+.prev-ans-btn{width:100%;border:1.5px solid rgba(255,255,255,.07);border-radius:16px;padding:13px 14px;display:flex;align-items:center;gap:11px;cursor:pointer;text-align:left;transition:border-color .18s,background .18s,transform .15s;background:var(--s1);font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:transparent}
+.prev-ans-btn:not(:disabled):hover{transform:translateY(-1px)}
+.prev-ans-btn:disabled{cursor:default}
+.prev-ans-btn.correct{background:rgba(52,199,89,.12);border-color:var(--green)}
+.prev-ans-btn.wrong{background:rgba(255,69,58,.07);border-color:#ff453a}
+.prev-ans-btn.faded{opacity:.18}
+.prev-ans-letter{width:36px;height:36px;border-radius:11px;background:rgba(52,199,89,.07);border:1.5px solid rgba(52,199,89,.18);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--green);flex-shrink:0;transition:all .18s}
+.prev-ans-btn.correct .prev-ans-letter{background:var(--green);border-color:var(--green);color:#000}
+.prev-ans-btn.wrong .prev-ans-letter{background:#ff453a;border-color:#ff453a;color:#fff}
+.prev-ans-text{font-size:14px;color:var(--text);line-height:1.4;font-weight:500;flex:1}
+.prev-exp{background:linear-gradient(135deg,rgba(52,199,89,.07),rgba(52,199,89,.03));border:1px solid rgba(52,199,89,.22);border-left:3px solid var(--green);border-radius:14px;padding:14px 16px;margin-bottom:12px;display:none}
+.prev-exp-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--green);margin-bottom:6px;text-transform:uppercase}
+.prev-exp-txt{font-size:12px;line-height:1.75;color:rgba(240,244,240,.85)}
+.prev-next-btn{width:100%;padding:16px;border:none;border-radius:16px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;cursor:pointer;transition:all .22s;display:none;box-shadow:0 8px 28px rgba(52,199,89,.28)}
+.prev-next-btn:hover{filter:brightness(1.1);transform:translateY(-2px)}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-wrap">
+    <!-- LEFT: branding panel — desktop only -->
+    <div class="auth-left">
+      <img src="RefIQ.PNG" alt="RefIQ" style="height:52px;width:52px;object-fit:contain;filter:drop-shadow(0 0 24px rgba(52,199,89,.5));margin-bottom:20px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:5px;color:var(--green);line-height:1;margin-bottom:4px">REFIQ</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:36px">LEAGUE ADMIN PORTAL</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:2px;line-height:1.25">Train smarter.</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:2px;line-height:1.25;color:var(--muted)">Referee better.</div>
+      <ul class="auth-features">
+        <li>AI-generated quiz questions from your rulebooks</li>
+        <li>Custom branding for your league</li>
+        <li>Shareable quizzes for every official</li>
+        <li>Real-time referee results &amp; analytics</li>
+      </ul>
+    </div>
+    <!-- RIGHT: auth form -->
+    <div class="auth-right">
+      <div class="auth-brand">
+        <img src="RefIQ.PNG" alt="RefIQ">
+      </div>
+      <div class="auth-card fu">
+        <div class="auth-icon"><img src="RefIQ.PNG" alt="RefIQ"></div>
+        <div class="auth-title">LEAGUE ADMIN</div>
+        <div class="auth-sub">Sign in to manage your league's referee training</div>
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tab-in">Sign In</button>
+          <button class="auth-tab" id="tab-up">Create Account</button>
+        </div>
+        <div class="auth-err" id="auth-err"></div>
+        <div class="auth-msg" id="auth-msg"></div>
+        <div id="form-in">
+          <input type="email" class="field" id="li-email" placeholder="Email address" autocomplete="email">
+          <input type="password" class="field" id="li-pass" placeholder="Password" autocomplete="current-password">
+          <button class="auth-btn" id="li-btn">SIGN IN</button>
+          <button class="forgot-link" id="forgot-btn" type="button">Forgot password?</button>
+        </div>
+        <div id="form-up" style="display:none">
+          <input type="text" class="field" id="reg-name" placeholder="Your name" autocomplete="name">
+          <input type="email" class="field" id="reg-email" placeholder="Email address" autocomplete="email">
+          <input type="password" class="field" id="reg-pass" placeholder="Password (6+ characters)" autocomplete="new-password">
+          <button class="auth-btn" id="reg-btn">CREATE ACCOUNT</button>
+        </div>
+        <div class="divider">or</div>
+        <button class="google-btn" id="google-btn">
+          <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.706c-.18-.54-.282-1.117-.282-1.706s.102-1.166.282-1.706V4.962H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.038l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.962L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+          Continue with Google
+        </button>
+        <a href="/" class="back-home">← Back to home</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="shell">
+
+  <!-- MOBILE HEADER -->
+  <div class="mobile-header">
+    <div class="mobile-logo">
+      <img src="RefIQ.PNG" alt="RefIQ">
+    </div>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+  </div>
+  <div class="mobile-overlay" id="mobile-overlay"></div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <img src="RefIQ.PNG" alt="">
+      <div><div class="sidebar-logo-sub" style="font-size:10px;margin-top:2px">Admin Dashboard</div></div>
+    </div>
+    <div class="sidebar-nav">
+      <button class="nav-item active" data-page="overview"><span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="18" y="3" width="4" height="18" rx="1"/><rect x="10" y="8" width="4" height="13" rx="1"/><rect x="2" y="13" width="4" height="8" rx="1"/></svg></span>Overview</button>
+      <button class="nav-item" data-page="create"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></span>Create Quiz</button>
+      <button class="nav-item" data-page="links"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>My Quizzes</button>
+      <button class="nav-item" data-page="results"><span class="nav-icon"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span>Results</button>
+      <button class="nav-item" data-page="resources"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Rule Documents</button>
+      <div class="nav-divider"></div>
+      <button class="nav-item" data-page="branding"><span class="nav-icon"><svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span>Branding Studio</button>
+      <button class="nav-item" data-page="settings"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>Settings</button>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="user-block">
+        <div class="user-avatar" id="user-avatar">M</div>
+        <div><div class="user-name" id="user-name-display">Admin</div><div class="user-role" id="user-role-display">League Admin</div></div>
+      </div>
+      <button class="signout-btn" id="signout-btn">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- PLAN EXPIRED OVERLAY -->
+  <div class="trial-expired-overlay" id="trial-expired-overlay">
+    <div class="expired-card fu">
+      <div class="expired-icon">⏰</div>
+      <div class="expired-title" id="expired-title">TRIAL ENDED</div>
+      <div class="expired-msg" id="expired-msg">Your 7-day free trial has ended. Your league data and quizzes are safely preserved.</div>
+      <button class="expired-cta" id="expired-cta-btn" onclick="handleExpiredCta()">GET LEAGUE — $149/SEASON →</button>
+      <div style="margin-top:12px">
+        <div class="expired-email">Questions? cox.matthewb@gmail.com</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TRIAL BANNER -->
+    <div class="trial-banner" id="trial-banner">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="trial-days" id="trial-days">7 DAYS</span>
+        <span id="trial-label" style="font-size:12px;color:var(--muted)">of free trial remaining</span>
+      </div>
+      <button class="trial-contact" onclick="redirectToCheckout('price_1T8Z15JlYByErfPaTpRf3xic',this)" style="background:var(--green-dark);border:none;border-radius:10px;color:#fff;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:background .2s" onmouseover="this.style.background='var(--green)';this.style.color='#080c09'" onmouseout="this.style.background='var(--green-dark)';this.style.color='#fff'">UPGRADE — $149/SEASON →</button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div id="page-overview" class="page active">
+      <div class="page-header">
+        <div class="page-title">OVERVIEW</div>
+        <div class="page-sub">Your league training at a glance</div>
+      </div>
+      <div class="page-content">
+    <!-- ACTION BAR -->
+    <div class="action-bar">
+      <button class="btn-create" onclick="showPage('create')">✦ CREATE QUIZ →</button>
+      <button class="btn-brand-link" onclick="showPage('branding')">🎨 Brand Your Quizzes</button>
+    </div>
+        <!-- GETTING STARTED CARD — hidden once all steps done or dismissed -->
+        <div class="setup-card" id="setup-card" style="display:none">
+          <div class="setup-card-title">
+            <span>⚡ GETTING STARTED</span>
+            <button class="setup-dismiss" id="setup-dismiss" title="Dismiss">✕</button>
+          </div>
+          <div class="setup-progress"><div class="setup-progress-fill" id="setup-progress-fill" style="width:25%"></div></div>
+          <div class="setup-steps">
+            <div class="setup-step done" id="ss-account">
+              <div class="setup-step-icon">✓</div>
+              <div class="setup-step-text"><div class="setup-step-title">Account created</div></div>
+            </div>
+            <div class="setup-step" id="ss-branding">
+              <div class="setup-step-icon">2</div>
+              <div class="setup-step-text">
+                <div class="setup-step-title">Customize your branding</div>
+                <div class="setup-step-sub">Add your league logo, colors, and name</div>
+              </div>
+              <button class="setup-step-cta" onclick="showPage('branding')">Add Branding →</button>
+            </div>
+            <div class="setup-step" id="ss-quiz">
+              <div class="setup-step-icon">3</div>
+              <div class="setup-step-text">
+                <div class="setup-step-title">Create your first quiz</div>
+                <div class="setup-step-sub">Build a shareable quiz for your referees</div>
+              </div>
+              <button class="setup-step-cta" onclick="showPage('create')">Create Quiz →</button>
+            </div>
+            <div class="setup-step" id="ss-share">
+              <div class="setup-step-icon">4</div>
+              <div class="setup-step-text">
+                <div class="setup-step-title">Share with your referees</div>
+                <div class="setup-step-sub">Copy and send the link — no login required for referees</div>
+              </div>
+              <button class="setup-step-cta" onclick="showPage('links')">View Quizzes →</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-strip">
+          <div class="stat-tile"><div class="stat-tile-num stat-num-muted" id="ov-links">—</div><div class="stat-tile-lbl">My Quizzes</div></div>
+          <div class="stat-tile"><div class="stat-tile-num stat-num-muted" id="ov-taken">—</div><div class="stat-tile-lbl">Quizzes Taken</div></div>
+          <div class="stat-tile stat-tile-gold"><div class="stat-tile-num stat-num-muted" id="ov-pass">—</div><div class="stat-tile-lbl">Pass Rate</div></div>
+          <div class="stat-tile stat-tile-gold"><div class="stat-tile-num stat-num-muted" id="ov-refs">—</div><div class="stat-tile-lbl">Referees</div></div>
+        </div>
+
+        <div id="ov-empty" style="display:none">
+          <div class="empty-state-dashed">
+            <div class="empty-state">
+              <span class="empty-icon">🚀</span>
+              <div class="empty-title">WELCOME TO REFIQ ADMIN</div>
+              <div class="empty-sub">You haven't created any quizzes yet. Create your first one to start tracking referee performance.</div>
+              <button class="btn-gold-cta" onclick="showPage('create')">✦ CREATE YOUR FIRST QUIZ →</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="ov-content">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+            <div class="card">
+              <div class="card-header"><div class="card-title">QUICK ACTIONS</div></div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+                <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px" onclick="showPage('create')">✨ CREATE QUIZ →</button>
+                <button class="btn btn-gold" style="width:100%;justify-content:center;padding:13px" onclick="showPage('branding')">🎨 Edit Branding</button>
+                <button class="btn btn-secondary" style="width:100%;justify-content:center;padding:13px" onclick="showPage('results')">📋 View All Results</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">RECENT ACTIVITY</div></div>
+              <div class="card-body">
+                <div id="ov-activity"><div style="font-size:13px;color:var(--muted);text-align:center;padding:20px">No activity yet</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CREATE QUIZ -->
+    <div id="page-create" class="page">
+      <div class="page-header">
+        <div class="page-title">CREATE QUIZ</div>
+        <div class="page-sub">Build a shareable, branded quiz link for your referees</div>
+      </div>
+      <div class="page-content">
+        <div class="success-toast" id="create-success"><span>✓</span><span id="create-success-msg"></span></div>
+        <div class="err-toast" id="create-err"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div>
+            <div class="card" style="margin-bottom:16px">
+              <div class="card-header"><div class="card-title">BASIC INFO</div></div>
+              <div class="card-body">
+                <div class="field-wrap">
+                  <label class="field-label">Link Name</label>
+                  <input type="text" class="field" id="cr-name" placeholder="e.g. U10 Pre-Season 2025">
+                  <div class="field-hint">Internal name — referees don't see this</div>
+                </div>
+                <div class="field-wrap">
+                  <label class="field-label">Division</label>
+                  <div class="sel-wrap">
+                    <select id="cr-age">
+                      <option value="all">All Divisions (General)</option>
+                      <optgroup label="Recreational — Young">
+                        <option value="rec-prek">Recreational — PreK (Ages 3–4)</option>
+                        <option value="rec-k1">Recreational — K / 1st Grade (Ages 5–6)</option>
+                        <option value="rec-2nd">Recreational — 1st–2nd Grade (Ages 6–8)</option>
+                        <option value="rec-3rd4th">Recreational — 3rd–4th Grade (Ages 8–10)</option>
+                        <option value="rec-5th6th">Recreational — 5th–6th Grade (Ages 10–12)</option>
+                        <option value="rec-7th8th" selected>Recreational — 7th–8th Grade (Ages 12–14)</option>
+                      </optgroup>
+                      <optgroup label="Competitive Youth">
+                        <option value="comp-u8u9">Competitive — U8/U9</option>
+                        <option value="comp-u9u10">Competitive — U9/U10</option>
+                        <option value="comp-u11u12">Competitive — U10/U11</option>
+                        <option value="comp-u13u14">Competitive — U12/U13</option>
+                        <option value="comp-u15u16">Competitive — U14/U15</option>
+                        <option value="comp-u17u18">Competitive — U16/U17</option>
+                        <option value="comp-u19u23">Competitive — U18/U19</option>
+                      </optgroup>
+                      <optgroup label="High School">
+                        <option value="hs-middle">High School — Middle School</option>
+                        <option value="hs-jv">High School — JV</option>
+                        <option value="hs-varsity">High School — Varsity</option>
+                      </optgroup>
+                      <optgroup label="Adult">
+                        <option value="adult-rec">Adult — Recreational</option>
+                        <option value="adult-comp">Adult — Competitive</option>
+                        <option value="adult-over30">Adult — Over 30</option>
+                        <option value="adult-over40">Adult — Over 40</option>
+                        <option value="adult-coed">Adult — Co-Ed</option>
+                      </optgroup>
+                      <optgroup label="College">
+                        <option value="college-club">College — Club</option>
+                        <option value="college-varsity">College — Varsity (NCAA)</option>
+                      </optgroup>
+                      <optgroup label="Advanced">
+                        <option value="pdl">Professional Development League</option>
+                        <option value="futsal">Futsal</option>
+                        <option value="indoor">Indoor Soccer</option>
+                        <option value="beach">Beach Soccer</option>
+                      </optgroup>
+                    </select>
+                  </div>
+                </div>
+                <div class="field-wrap">
+                  <label class="field-label">Number of Questions</label>
+                  <div class="seg" id="cr-num-seg">
+                    <button class="seg-btn" data-v="5">5</button>
+                    <button class="seg-btn active" data-v="10">10</button>
+                    <button class="seg-btn" data-v="15">15</button>
+                    <button class="seg-btn" data-v="20">20</button>
+                    <button class="seg-btn" data-v="30">30</button>
+                    <button class="seg-btn" data-v="50">50</button>
+                    <button class="seg-btn" data-v="100">100</button>
+                  </div>
+                  <div class="field-hint" id="cr-num-hint" style="display:none;color:#ffd60a">⚡ May take 15–20 seconds to generate</div>
+                </div>
+                <div class="field-wrap" style="margin-bottom:0">
+                  <label class="field-label">Time Per Question</label>
+                  <div class="seg" id="cr-time-seg">
+                    <button class="seg-btn active" data-v="0">None</button>
+                    <button class="seg-btn" data-v="15">15s</button>
+                    <button class="seg-btn" data-v="30">30s</button>
+                    <button class="seg-btn" data-v="60">60s</button>
+                  </div>
+                  <div class="field-hint">Referees auto-advance when time expires</div>
+                </div>
+              </div>
+            </div>
+            <div class="card" style="margin-bottom:16px">
+              <div class="card-header"><div class="card-title">CONTENT</div></div>
+              <div class="card-body">
+                <div class="field-wrap">
+                  <label class="field-label">Focus</label>
+                  <div class="seg" id="cr-src-seg">
+                    <button class="seg-btn active" data-v="both">Both</button>
+                    <button class="seg-btn" data-v="ifab">IFAB Only</button>
+                    <button class="seg-btn" data-v="league">League Only</button>
+                  </div>
+                </div>
+                <div class="field-wrap">
+                  <label class="field-label">Mode</label>
+                  <div class="seg" id="cr-mode-seg">
+                    <button class="seg-btn active" data-v="mixed">Mixed</button>
+                    <button class="seg-btn" data-v="scenarios">Scenarios</button>
+                    <button class="seg-btn" data-v="rules">Rules Only</button>
+                  </div>
+                </div>
+                <div class="field-wrap" style="margin-bottom:0">
+                  <label class="field-label">Rule Documents <span style="color:var(--muted);font-size:9px;letter-spacing:0;text-transform:none;font-family:'DM Sans',sans-serif">(optional)</span></label>
+                  <div class="res-list" id="cr-res-list"></div>
+                  <div class="drop-zone" id="cr-drop">
+                    <input type="file" id="cr-file" accept=".txt,.pdf,.md,.doc,.docx" multiple>
+                    <div class="drop-zone-icon">📄</div>
+                    <div class="drop-zone-title">Drop rule documents here</div>
+                    <div class="drop-zone-sub">TXT, PDF, DOC, MD</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- WHAT REFEREES SEE — live preview updates as you type -->
+          <div>
+            <div class="card" style="margin-bottom:14px;overflow:hidden">
+              <div class="card-header" style="padding:14px 20px">
+                <div>
+                  <div class="card-title">WHAT REFEREES SEE</div>
+                  <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px;margin-top:3px">Live preview · updates as you configure</div>
+                </div>
+              </div>
+              <!-- Live preview — identical phone mockup as Branding Studio -->
+              <div id="qp-preview">
+                <div class="preview-frame" id="qp2-frame">
+                  <div class="preview-topbar" id="qp2-topbar" style="background:linear-gradient(90deg,#ffd60a,#ffd60a)"></div>
+                  <div class="preview-head">
+                    <div class="preview-league-logo" id="qp2-logo-el">⚽</div>
+                    <div>
+                      <div class="preview-league-name" id="qp2-league-name" style="color:#ffd60a">YOUR LEAGUE</div>
+                      <div class="preview-league-sub">Referee Training · 2025/26</div>
+                    </div>
+                  </div>
+                  <div class="preview-body">
+                    <div class="preview-prog" id="qp2-prog" style="background:linear-gradient(90deg,#ffd60a,#ffd60a)"></div>
+                    <div class="preview-q" id="qp2-q">A player deliberately handles the ball stopping a promising attack. What is the correct call?</div>
+                    <div class="preview-opts">
+                      <div class="preview-opt hi" id="qp2-opt-a">
+                        <div class="preview-opt-letter" id="qp2-letter-a" style="background:#ffd60a;color:#000">A</div>
+                        <span>Direct free kick + Yellow card</span>
+                      </div>
+                      <div class="preview-opt"><div class="preview-opt-letter">B</div><span>Indirect free kick only</span></div>
+                      <div class="preview-opt"><div class="preview-opt-letter">C</div><span>Penalty kick</span></div>
+                      <div class="preview-opt"><div class="preview-opt-letter">D</div><span>Drop ball restart</span></div>
+                    </div>
+                  </div>
+                  <div style="padding:8px 16px 4px;border-top:1px solid rgba(255,255,255,.07)">
+                    <div id="qp2-quiz-name" style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.5px;color:rgba(255,255,255,.7);margin-bottom:1px">YOUR QUIZ NAME</div>
+                    <div id="qp2-quiz-meta" style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace">10 Questions · Recreational Middle</div>
+                  </div>
+                  <div class="preview-note">This is exactly what referees will see</div>
+                </div>
+              </div>
+            </div>
+            <!-- Share URL preview -->
+            <div id="cr-url-preview-row" style="background:var(--s2);border:1px solid var(--border);border-radius:11px;padding:11px 14px;display:flex;align-items:center;gap:8px;margin-bottom:14px">
+              <span style="font-size:14px;flex-shrink:0">🔗</span>
+              <span id="cr-url-preview" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--green);word-break:break-all">www.myrefiq.com/q/...</span>
+            </div>
+            <!-- Inline branding (collapsible) -->
+            <details id="cr-brand-details" style="margin-bottom:12px;background:var(--s2);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+              <summary style="padding:12px 16px;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);user-select:none">
+                <span>BRANDING <span style="color:rgba(255,255,255,.25);font-size:9px;letter-spacing:0;text-transform:none;font-family:'DM Sans',sans-serif">(optional — uses Branding Studio settings)</span></span>
+                <span id="cr-brand-chevron" style="font-size:11px;transition:transform .2s">▼</span>
+              </summary>
+              <div style="padding:0 14px 14px;border-top:1px solid var(--border)">
+                <div style="display:flex;align-items:center;gap:10px;padding-top:12px;margin-bottom:10px">
+                  <div id="cr-brand-logo-thumb" style="width:36px;height:36px;border-radius:8px;background:var(--green-dim);border:1px solid rgba(52,199,89,.2);display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden;flex-shrink:0;cursor:pointer" title="Click to change logo" onclick="document.getElementById('logo-file').click()">⚽</div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px;margin-bottom:4px">LEAGUE NAME</div>
+                    <input type="text" id="cr-brand-name" class="field" placeholder="Your league name" style="margin:0;padding:8px 11px;font-size:13px">
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="flex:1">
+                    <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px;margin-bottom:4px">PRIMARY COLOR</div>
+                    <div style="display:flex;align-items:center;gap:8px">
+                      <input type="color" id="cr-brand-color" value="#ffd60a" style="width:36px;height:30px;padding:2px;background:var(--s2);border:1px solid var(--border);border-radius:6px;cursor:pointer">
+                      <span id="cr-brand-hex" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">#ffd60a</span>
+                    </div>
+                  </div>
+                  <div style="font-size:11px;color:var(--muted);text-align:right;line-height:1.4">Full settings in<br><button onclick="showPage('branding')" style="background:none;border:none;color:var(--green);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;padding:0;text-decoration:underline">Branding Studio →</button></div>
+                </div>
+              </div>
+            </details>
+            <!-- CREATE QUIZ button -->
+            <div id="cr-actions">
+              <button class="btn btn-primary" style="width:100%;justify-content:center;padding:15px;font-size:16px;letter-spacing:2px" id="cr-save-btn">CREATE QUIZ →</button>
+              <div id="linkUsageIndicator" style="font-family:'DM Mono',monospace;font-size:11px;text-align:center;margin-top:8px;letter-spacing:.5px"></div>
+            </div>
+            <!-- Persistent success state (shown after save) -->
+            <div id="cr-success-state" style="display:none">
+              <div style="background:rgba(52,199,89,.08);border:1.5px solid rgba(52,199,89,.4);border-radius:14px;padding:18px 16px;text-align:center">
+                <div style="font-size:22px;margin-bottom:6px">✅</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--green);margin-bottom:8px">QUIZ CREATED!</div>
+                <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:12px">Share this link with your referees</div>
+                <div style="display:flex;align-items:center;gap:6px;background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:14px">
+                  <span style="font-size:12px">🔗</span>
+                  <span id="cr-success-url" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--green);flex:1;text-align:left;word-break:break-all"></span>
+                  <button id="cr-copy-btn" onclick="copyQuizLink()" style="flex-shrink:0;padding:5px 11px;background:var(--green-dark);border:none;border-radius:8px;color:#fff;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.5px;cursor:pointer;transition:background .2s">COPY</button>
+                </div>
+                <button onclick="resetCreateQuiz()" style="width:100%;padding:12px;background:transparent;border:1.5px solid rgba(255,255,255,.15);border-radius:11px;color:rgba(255,255,255,.6);font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='rgba(255,255,255,.3)';this.style.color='#fff'" onmouseout="this.style.borderColor='rgba(255,255,255,.15)';this.style.color='rgba(255,255,255,.6)'">+ Create Another Quiz</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MY QUIZZES -->
+    <div id="page-links" class="page">
+      <div class="page-header">
+        <div class="page-title" style="display:flex;align-items:center;justify-content:space-between">
+          <span>MY QUIZZES</span>
+          <button class="btn btn-primary btn-sm" onclick="showPage('create')">+ New Quiz</button>
+        </div>
+        <div class="page-sub">Share these links with your referees</div>
+      </div>
+      <div class="page-content">
+        <div id="links-empty" style="display:none">
+          <div class="card"><div class="card-body"><div class="empty-state">
+            <span class="empty-icon">🔗</span>
+            <div class="empty-title">NO QUIZZES YET</div>
+            <div class="empty-sub">Create your first quiz to share with referees.</div>
+            <button class="btn btn-primary btn-lg" onclick="showPage('create')">Create Quiz</button>
+          </div></div></div>
+        </div>
+        <div class="link-grid" id="links-grid"></div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="page-results" class="page">
+      <div class="page-header">
+        <div class="page-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <span>RESULTS</span>
+          <button class="btn btn-secondary btn-sm" id="export-csv-btn">↓ Export CSV</button>
+        </div>
+        <div class="page-sub">All referee quiz results</div>
+      </div>
+      <div class="page-content">
+        <div id="results-empty" style="display:none">
+          <div class="card"><div class="card-body"><div class="empty-state">
+            <span class="empty-icon">📋</span>
+            <div class="empty-title">NO RESULTS YET</div>
+            <div class="empty-sub">Once referees take quizzes via your links, results will appear here.</div>
+            <button class="btn btn-primary btn-lg" onclick="showPage('create')">Create a Quiz</button>
+          </div></div></div>
+        </div>
+        <div id="results-filter-wrap" style="display:none">
+          <div class="results-filter">
+            <input type="text" class="rf-search" id="rf-search" placeholder="🔍  Search by referee name…">
+            <select class="rf-select" id="rf-link-filter">
+              <option value="">All quizzes</option>
+            </select>
+            <div class="rf-seg" id="rf-status-seg">
+              <button class="active" data-v="all">All</button>
+              <button data-v="pass">✅ Passed</button>
+              <button data-v="fail">❌ Failed</button>
+              <button data-v="abandoned">⏸ Abandoned</button>
+            </div>
+            <span class="rf-count" id="rf-count"></span>
+          </div>
+        </div>
+        <div class="card" id="results-table-card" style="display:none">
+          <div style="overflow-x:auto">
+            <table class="results-table">
+              <thead><tr>
+                <th>Referee</th><th>Quiz</th><th>Score</th><th>Status</th><th>Date</th>
+              </tr></thead>
+              <tbody id="results-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESOURCES -->
+    <div id="page-resources" class="page">
+      <div class="page-header">
+        <div class="page-title">RULE DOCUMENTS</div>
+        <div class="page-sub">Upload your league's rule documents to include in quizzes</div>
+      </div>
+      <div class="page-content">
+        <div class="success-toast" id="res-success"><span>✓</span><span>Document saved</span></div>
+        <div class="card">
+          <div class="card-body">
+            <div class="res-list" id="global-res-list"></div>
+            <div class="drop-zone" id="global-drop">
+              <input type="file" id="global-file" accept=".txt,.pdf,.md,.doc,.docx" multiple>
+              <div class="drop-zone-icon">📁</div>
+              <div class="drop-zone-title">Upload League Rule Documents</div>
+              <div class="drop-zone-sub">These will be available in all your quiz links · TXT, PDF, DOC, MD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BRANDING STUDIO -->
+    <div id="page-branding" class="page">
+      <div class="page-header">
+        <div class="page-title">BRANDING STUDIO</div>
+        <div class="page-sub">Customize how your quiz links look to referees</div>
+      </div>
+      <div class="page-content">
+        <div class="success-toast" id="brand-success"><span>✓</span><span>Branding saved — all quiz links updated</span></div>
+        <div class="brand-layout">
+          <!-- CONTROLS -->
+          <div>
+            <!-- LOGO -->
+            <div class="card" style="margin-bottom:16px">
+              <div class="card-header"><div class="card-title">LEAGUE LOGO</div></div>
+              <div class="card-body">
+                <div class="logo-upload" id="logo-upload-zone">
+                  <input type="file" id="logo-file" accept="image/png,image/jpeg,image/svg+xml,image/webp">
+                  <div id="logo-upload-ph">
+                    <div style="font-size:32px;margin-bottom:8px">🖼️</div>
+                    <div style="font-size:13px;font-weight:600;margin-bottom:3px">Upload your league logo</div>
+                    <div style="font-size:11px;color:var(--muted)">PNG, JPG, SVG · Recommended: square · Max 500KB</div>
+                  </div>
+                  <img id="logo-preview" class="logo-preview">
+                </div>
+                <div style="font-size:12px;color:var(--muted);line-height:1.55">Your logo appears on every quiz your referees take. Upload a square version for best results.</div>
+              </div>
+            </div>
+
+            <!-- COLORS -->
+            <div class="card" style="margin-bottom:16px">
+              <div class="card-header"><div class="card-title">COLORS</div></div>
+              <div class="card-body">
+                <span class="brand-section-title">Primary & Accent</span>
+                <div class="color-row">
+                  <div class="color-pick">
+                    <div class="color-swatch" id="swatch-primary">
+                      <input type="color" id="color-primary" value="#ffd60a">
+                    </div>
+                    <div>
+                      <div class="color-info-lbl">Primary</div>
+                      <div class="color-info-hex" id="hex-primary">#ffd60a</div>
+                    </div>
+                  </div>
+                  <div class="color-pick">
+                    <div class="color-swatch" id="swatch-accent">
+                      <input type="color" id="color-accent" value="#ffd60a">
+                    </div>
+                    <div>
+                      <div class="color-info-lbl">Accent</div>
+                      <div class="color-info-hex" id="hex-accent">#ffd60a</div>
+                    </div>
+                  </div>
+                </div>
+                <span class="brand-section-title">Background</span>
+                <div class="bg-opts">
+                  <div class="bg-opt sel" data-bg="dark" style="background:#0a0f0b;color:#f2f2f2;border-color:var(--green)">Dark</div>
+                  <div class="bg-opt" data-bg="light" style="background:#f5f5f0;color:#111">Light</div>
+                  <div class="bg-opt" data-bg="custom" style="background:linear-gradient(135deg,#1a0a2e,#0d1a3a);color:#f2f2f2">Custom</div>
+                </div>
+                <div id="custom-bg-row" style="display:none">
+                  <div class="color-pick">
+                    <div class="color-swatch"><input type="color" id="color-bg" value="#0a0f0b"></div>
+                    <div><div class="color-info-lbl">Background</div><div class="color-info-hex" id="hex-bg">#0a0f0b</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FONT -->
+            <div class="card" style="margin-bottom:16px">
+              <div class="card-header"><div class="card-title">QUIZ FONT</div></div>
+              <div class="card-body">
+                <div class="font-grid" id="font-grid">
+                  <div class="font-opt sel" data-font="Bebas Neue"><div class="font-opt-preview" style="font-family:'Bebas Neue'">REFIQ</div><div class="font-opt-name">Bebas Neue</div><div class="font-opt-tag">Bold · Classic</div></div>
+                  <div class="font-opt" data-font="Rajdhani"><div class="font-opt-preview" style="font-family:'Rajdhani';font-weight:700">REFIQ</div><div class="font-opt-name">Rajdhani</div><div class="font-opt-tag">Angular · Tech</div></div>
+                  <div class="font-opt" data-font="Oswald"><div class="font-opt-preview" style="font-family:'Oswald';font-weight:600">REFIQ</div><div class="font-opt-name">Oswald</div><div class="font-opt-tag">Strong · Editorial</div></div>
+                  <div class="font-opt" data-font="Barlow Condensed"><div class="font-opt-preview" style="font-family:'Barlow Condensed';font-weight:700">REFIQ</div><div class="font-opt-name">Barlow</div><div class="font-opt-tag">Clean · Athletic</div></div>
+                  <div class="font-opt" data-font="Exo 2"><div class="font-opt-preview" style="font-family:'Exo 2';font-weight:700">REFIQ</div><div class="font-opt-name">Exo 2</div><div class="font-opt-tag">Futuristic</div></div>
+                  <div class="font-opt" data-font="Nunito"><div class="font-opt-preview" style="font-family:'Nunito';font-weight:800">RefIQ</div><div class="font-opt-name">Nunito</div><div class="font-opt-tag">Friendly · Youth</div></div>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-lg" style="width:100%;justify-content:center" id="save-brand-btn">SAVE BRANDING →</button>
+          </div>
+
+          <!-- LIVE PREVIEW -->
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--green);margin-bottom:12px">Live Preview</div>
+            <div class="preview-frame" id="preview-frame">
+              <div class="preview-topbar" id="preview-topbar" style="background:linear-gradient(90deg,#ffd60a,#ffd60a)"></div>
+              <div class="preview-head">
+                <div class="preview-league-logo" id="preview-logo-el">⚽</div>
+                <div>
+                  <div class="preview-league-name" id="preview-league-name" style="color:#ffd60a">YOUR LEAGUE</div>
+                  <div class="preview-league-sub">Referee Training · 2025/26</div>
+                </div>
+              </div>
+              <div class="preview-body">
+                <div class="preview-prog" id="preview-prog" style="background:linear-gradient(90deg,#ffd60a,#ffd60a)"></div>
+                <div class="preview-q" id="preview-q" style="font-family:'Bebas Neue',sans-serif">A player handles the ball outside their area stopping a promising attack — what is the correct call?</div>
+                <div class="preview-opts">
+                  <div class="preview-opt hi" id="preview-opt-a">
+                    <div class="preview-opt-letter" id="preview-letter-a" style="background:#ffd60a;color:#000">A</div>
+                    <span>Direct free kick + Yellow card</span>
+                  </div>
+                  <div class="preview-opt"><div class="preview-opt-letter">B</div><span>Indirect free kick only</span></div>
+                  <div class="preview-opt"><div class="preview-opt-letter">C</div><span>Penalty kick</span></div>
+                  <div class="preview-opt"><div class="preview-opt-letter">D</div><span>Drop ball restart</span></div>
+                </div>
+              </div>
+              <div class="preview-note">This is exactly what referees will see</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="page-settings" class="page">
+      <div class="page-header">
+        <div class="page-title">SETTINGS</div>
+        <div class="page-sub">League information and account settings</div>
+      </div>
+      <div class="page-content">
+        <div class="success-toast" id="settings-success"><span>✓</span><span>Settings saved</span></div>
+        <div class="card" style="max-width:560px">
+          <div class="card-header"><div class="card-title">LEAGUE INFO</div></div>
+          <div class="card-body">
+            <div class="field-wrap">
+              <label class="field-label">League Name</label>
+              <input type="text" class="field" id="set-name" placeholder="e.g. Sporting LS">
+            </div>
+            <div class="field-wrap">
+              <label class="field-label">Tagline</label>
+              <input type="text" class="field" id="set-tagline" placeholder="e.g. Kansas City's Premier Youth League">
+            </div>
+            <div class="field-wrap" style="margin-bottom:0">
+              <label class="field-label">Contact Email</label>
+              <input type="email" class="field" id="set-email" placeholder="admin@yourleague.com">
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:16px;max-width:560px">
+          <button class="btn btn-primary btn-lg" id="save-settings-btn">SAVE SETTINGS</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- .main -->
+</div><!-- #shell -->
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="load-card">
+    <div class="spinner"></div>
+    <div class="load-title">LOADING</div>
+    <div class="load-sub" id="load-sub">Fetching your data…</div>
+  </div>
+</div>
+
+<!-- QUIZ PREVIEW OVERLAY — full referee quiz experience with branding applied -->
+<div class="preview-overlay" id="preview-overlay">
+  <div class="prev-brand-topbar" id="prev-brand-topbar"></div>
+  <div class="prev-control-bar">
+    <div class="prev-control-left">
+      <div class="prev-header-logo" id="prev-header-logo"></div>
+      <div>
+        <div class="prev-league-label" id="prev-league-label">ADMIN PREVIEW</div>
+        <div class="prev-mode-label">Preview only · not saved to dashboard</div>
+      </div>
+    </div>
+    <button class="prev-close-btn" id="preview-close-btn">✕ Close Preview</button>
+  </div>
+  <div class="preview-scroll">
+    <div class="preview-inner">
+      <div id="prev-loading" style="text-align:center;padding:56px 16px">
+        <div class="spinner" style="margin:0 auto 16px"></div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px">GENERATING</div>
+        <div class="load-sub" id="prev-loading-sub" style="margin-top:4px">Building 3 sample questions…</div>
+      </div>
+      <div id="prev-content" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
+  setPersistence, indexedDBLocalPersistence, signOut, onAuthStateChanged, updateProfile,
+  sendPasswordResetEmail }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc,
+  collection, query, where, getDocs, orderBy, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const FB = { apiKey:"AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM",authDomain:"refiq-b8142.firebaseapp.com",
+  projectId:"refiq-b8142",storageBucket:"refiq-b8142.firebasestorage.app",
+  messagingSenderId:"62305657245",appId:"1:62305657245:web:d6e35a80859ee8fdd08f74" };
+const fbApp = initializeApp(FB);
+const auth  = getAuth(fbApp);
+const db    = getFirestore(fbApp);
+const gp    = new GoogleAuthProvider();
+
+let currentUser = null, leagueId = null, currentRole = null;
+let brand = { primary:'#ffd60a', accent:'#ffd60a', bg:'dark', bgColor:'#0a0f0b', font:'Bebas Neue', logoDataUrl:null };
+let leagueName = '';
+let crResources = [], globalResources = [];
+let allLinks = [], allResults = [];
+let cachedUserData = null;
+
+const OPERATOR_EMAIL = 'cox.matthewb@gmail.com';
+const VALID_ROLES    = new Set(['operator','league','referee']);
+
+// ── ROLE SYSTEM ──────────────────────────────────────────────────────────────
+// On admin.html:
+//  - existing valid role → trust it (returning referees get bounced to /app)
+//  - operator email     → 'operator'
+//  - new / legacy user  → 'league'  (they landed on admin.html intentionally;
+//                          league doc is created after this returns)
+async function determineAndWriteRole(u) {
+  const snap = await getDoc(doc(db,'users',u.uid));
+  const existingRole = snap.exists() ? snap.data().role : null;
+  if (VALID_ROLES.has(existingRole)) return existingRole;
+  const newRole = (u.email === OPERATOR_EMAIL) ? 'operator' : 'league';
+  await setDoc(doc(db,'users',u.uid),{role:newRole},{merge:true});
+  return newRole;
+}
+
+// ── SHARED UTILITIES ──────────────────────────────────────────────────────────
+// Firestore: fetch a query/collection, return [{id,...data}] or [] on error
+async function fetchDocs(q){
+  try{ const s=await getDocs(q); return s.docs.map(d=>({id:d.id,...d.data()})); }
+  catch(e){ return []; }
+}
+// PDF: extract printable ASCII text from an ArrayBuffer
+function extractPdfText(buf){
+  const bytes=new Uint8Array(buf); let text='';
+  for(let i=0;i<bytes.length;i++){const c=bytes[i];if(c>=32&&c<127)text+=String.fromCharCode(c);else if(c===10||c===13)text+=' ';}
+  return text.split(/\s{3,}/).map(l=>l.trim()).filter(l=>l.length>15&&/[a-zA-Z]{4,}/.test(l)).join(' ');
+}
+// Branding: sync a color value to its input, hex label, and optional swatch
+function applyColorToUI(val,inputId,hexId,swatchId){
+  document.getElementById(inputId).value=val;
+  document.getElementById(hexId).textContent=val;
+  if(swatchId) document.getElementById(swatchId).style.background=val;
+}
+// Branding: wire a color picker to brand state + UI + preview
+function bindColorPicker(inputId,brandKey,hexId,swatchId){
+  document.getElementById(inputId).addEventListener('input',e=>{
+    brand[brandKey]=e.target.value;
+    applyColorToUI(e.target.value,inputId,hexId,swatchId);
+    updatePreview();
+  });
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+// Show loading overlay immediately so user sees a spinner (not a blank/login
+// flash) while we wait for getRedirectResult — critical on mobile Safari.
+document.getElementById('loading').classList.add('show');
+
+let authResolved    = false;
+let pendingAuthUser = undefined;
+
+// Extract all post-login work into handleAdminAuth so it can be called from
+// either the redirect result path or the onAuthStateChanged path.
+async function handleAdminAuth(u) {
+  if (u) {
+    currentUser = u; leagueId = u.uid;
+
+    // ── ROLE FORK ────────────────────────────────────────────────────────────
+    try { currentRole = await determineAndWriteRole(u); }
+    catch(e) { console.warn('Role check error', e); currentRole = 'league'; }
+    if (currentRole === 'referee') { window.location.href = '/app'; return; }
+    // ─────────────────────────────────────────────────────────────────────────
+
+    // Ensure league doc exists (needed for Google sign-in users who skip create-account)
+    try {
+      const lRef = doc(db,'leagues',u.uid);
+      const lSnap = await getDoc(lRef);
+      if (!lSnap.exists()) {
+        await Promise.all([
+          setDoc(doc(db,'users',u.uid),{ displayName: u.displayName||'', email: u.email, plan:'trial', trialStartDate:serverTimestamp(), createdAt: serverTimestamp() },{merge:true}),
+          setDoc(lRef,{ adminUid: u.uid, leagueName: u.displayName||u.email.split('@')[0]+' League', createdAt: serverTimestamp() })
+        ]);
+      }
+    } catch(e) { console.warn('Doc init error', e); }
+    await init(); showShell(); await checkTrialStatus();
+    // Handle post-Stripe-checkout success redirect
+    const _qp = new URLSearchParams(window.location.search);
+    if (_qp.get('checkout') === 'success') handleCheckoutSuccess();
+    // Handle pricing-page upgrade link: /admin?upgrade=priceId
+    const _upgradePrice = _qp.get('upgrade');
+    if (_upgradePrice) {
+      history.replaceState({}, '', '/admin');
+      setTimeout(() => redirectToCheckout(_upgradePrice, null), 500);
+    }
+  } else {
+    showAuth();
+  }
+}
+
+getRedirectResult(auth).then(result => {
+  if (result && result.user) {
+    // ── Mobile redirect return ──────────────────────────────────────────────
+    // Use the user from the redirect directly — do NOT rely on pendingAuthUser
+    // because onAuthStateChanged fires null BEFORE getRedirectResult resolves.
+    handleAdminAuth(result.user);
+    return;
+  }
+  // ── Normal page load (already signed in OR not signed in) ──────────────
+  authResolved = true;
+  if (pendingAuthUser !== undefined) handleAdminAuth(pendingAuthUser);
+}).catch(e => {
+  authResolved = true;
+  if (e.code && e.code !== 'auth/no-auth-event') {
+    console.error('Firebase redirect result error:', e.code, e);
+    window._redirectAuthError = friendlyErr(e.code);
+  }
+  if (pendingAuthUser !== undefined) handleAdminAuth(pendingAuthUser);
+  else handleAdminAuth(null);
+});
+
+onAuthStateChanged(auth, u => {
+  if (!authResolved) { pendingAuthUser = u; return; }
+  handleAdminAuth(u);
+});
+
+function showAuth() {
+  document.getElementById('loading').classList.remove('show');
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('shell').style.display='none';
+  if (window._redirectAuthError) {
+    authErr(window._redirectAuthError);
+    window._redirectAuthError = null;
+  }
+}
+function showShell() {
+  document.getElementById('loading').classList.remove('show');
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('shell').style.display='block';
+  const name = currentUser.displayName || currentUser.email.split('@')[0];
+  document.getElementById('user-name-display').textContent = name;
+  document.getElementById('user-avatar').textContent = name[0].toUpperCase();
+  // Role badge
+  const roleEl = document.getElementById('user-role-display');
+  if (currentRole === 'operator' || currentRole === 'admin') {
+    roleEl.innerHTML = '<span class="role-admin">REFIQ ADMIN</span>';
+  } else if (currentRole === 'league') {
+    roleEl.innerHTML = '<span class="role-league">LEAGUE ADMIN</span>';
+  } else {
+    roleEl.textContent = 'Referee';
+  }
+}
+
+document.getElementById('tab-in').addEventListener('click', () => {
+  document.getElementById('tab-in').classList.add('active');
+  document.getElementById('tab-up').classList.remove('active');
+  document.getElementById('form-in').style.display = 'block';
+  document.getElementById('form-up').style.display = 'none';
+  document.getElementById('auth-err').style.display = 'none';
+});
+document.getElementById('tab-up').addEventListener('click', () => {
+  document.getElementById('tab-up').classList.add('active');
+  document.getElementById('tab-in').classList.remove('active');
+  document.getElementById('form-up').style.display = 'block';
+  document.getElementById('form-in').style.display = 'none';
+  document.getElementById('auth-err').style.display = 'none';
+});
+
+function authErr(m){ const e=document.getElementById('auth-err'); e.textContent=m; e.style.display=m?'block':'none'; }
+function friendlyErr(code){
+  const m={
+    'auth/user-not-found':'No account with that email.',
+    'auth/wrong-password':'Incorrect password.',
+    'auth/email-already-in-use':'Email already registered — try signing in.',
+    'auth/invalid-email':'Invalid email address.',
+    'auth/weak-password':'Password must be 6+ characters.',
+    'auth/too-many-requests':'Too many attempts. Try again later.',
+    'auth/invalid-credential':'Email or password incorrect.',
+    'auth/unauthorized-domain':'This domain isn\'t authorized in Firebase. Add refiq.netlify.app to Firebase Auth → Authorized Domains.',
+    'auth/operation-not-allowed':'Google sign-in is not enabled. Enable it in Firebase Auth → Sign-in providers.',
+    'auth/popup-blocked':'Popup was blocked by your browser. Please allow popups for this site.',
+    'auth/network-request-failed':'Network error. Check your connection and try again.',
+    'auth/popup-closed-by-user':'Sign-in cancelled.',
+    'auth/cancelled-popup-request':'Sign-in cancelled.',
+    'auth/internal-error':'Firebase internal error. Check browser console for details.'
+  };
+  return m[code]||`Sign-in failed (${code||'unknown'}). Check browser console.`;
+}
+document.getElementById('li-btn').addEventListener('click',async()=>{
+  const em=document.getElementById('li-email').value.trim(), pw=document.getElementById('li-pass').value;
+  if(!em||!pw){authErr('Please fill in all fields.');return;}
+  try{await signInWithEmailAndPassword(auth,em,pw);}catch(e){authErr(friendlyErr(e.code));}
+});
+
+// ── FORGOT PASSWORD ────────────────────────────────────────────────────────────
+function authMsg(m, type='success') {
+  const el = document.getElementById('auth-msg');
+  el.textContent = m;
+  el.className = 'auth-msg ' + type;
+  el.style.display = m ? 'block' : 'none';
+}
+document.getElementById('forgot-btn').addEventListener('click', async () => {
+  authErr(''); authMsg('');
+  const em = document.getElementById('li-email').value.trim();
+  if (!em) { authErr('Enter your email address first, then click Forgot password.'); return; }
+  try {
+    await sendPasswordResetEmail(auth, em);
+    authMsg('✓ Reset link sent to ' + em + '. Check your inbox.', 'success');
+  } catch(e) {
+    authErr(e.code === 'auth/user-not-found' ? 'No account found with that email.' : friendlyErr(e.code));
+  }
+});
+document.getElementById('reg-btn').addEventListener('click',async()=>{
+  const name=document.getElementById('reg-name').value.trim();
+  const em=document.getElementById('reg-email').value.trim();
+  const pw=document.getElementById('reg-pass').value;
+  if(!name||!em||!pw){authErr('Please fill in all fields.');return;}
+  if(pw.length<6){authErr('Password must be 6+ characters.');return;}
+  try{
+    const cred=await createUserWithEmailAndPassword(auth,em,pw);
+    await updateProfile(cred.user,{displayName:name});
+    const uid = cred.user.uid;
+    // Create user doc and league doc before onAuthStateChanged can init()
+    await Promise.all([
+      setDoc(doc(db,'users',uid),{name,email:em,tier:'admin',role:'league',plan:'trial',trialStartDate:serverTimestamp(),createdAt:serverTimestamp()}),
+      setDoc(doc(db,'leagues',uid),{adminUid:uid,name:'',tagline:'',email:em,createdAt:serverTimestamp()},{merge:true})
+    ]);
+    // onAuthStateChanged will now fire and call init() + showShell()
+  }catch(e){authErr(friendlyErr(e.code));}
+});
+document.getElementById('google-btn').addEventListener('click', async function() {
+  authErr('');
+  const btn = this, orig = btn.innerHTML;
+  btn.disabled = true; btn.style.opacity = '0.6';
+  const reset = () => { btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = orig; };
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  try { await setPersistence(auth, indexedDBLocalPersistence); } catch(_) {}
+  if (isMobile) {
+    btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';
+    signInWithRedirect(auth, gp).catch(err => {
+      console.error('Firebase redirect error:', err.code, err);
+      reset(); authErr(friendlyErr(err.code));
+    });
+    return;
+  }
+  btn.innerHTML = '<span style="opacity:.7">Signing in with Google…</span>';
+  try {
+    await signInWithPopup(auth, gp);
+  } catch(e) {
+    console.error('Firebase popup error:', e.code, e);
+    if (e.code === 'auth/popup-blocked') {
+      btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';
+      signInWithRedirect(auth, gp).catch(err => {
+        console.error('Firebase redirect error:', err.code, err);
+        reset(); authErr(friendlyErr(err.code));
+      });
+    } else if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
+      reset();
+    } else {
+      reset(); authErr(friendlyErr(e.code));
+    }
+  }
+});
+document.getElementById('signout-btn').addEventListener('click',()=>signOut(auth));
+
+// ── PLAN ENFORCEMENT ──────────────────────────────────────────────────────────
+async function checkTrialStatus() {
+  try {
+    // Operators always have full access — skip all plan gating
+    if (currentRole === 'operator') return;
+
+    const d = cachedUserData;
+    if (!d) return;
+    const plan = d.plan;
+
+    // Individual-only users belong in app.html, not admin
+    if (plan === 'individual') { window.location.href = '/app'; return; }
+
+    // Active league season pass — check if seasonEnd has passed
+    if (plan === 'league') {
+      if (d.seasonEnd) {
+        const end = d.seasonEnd.toDate?.() || new Date(d.seasonEnd);
+        if (Date.now() > end.getTime()) {
+          setDoc(doc(db,'users',currentUser.uid),{plan:'expired'},{merge:true}).catch(()=>{});
+          showExpiredOverlay('league');
+        }
+      }
+      return; // active league — no banner
+    }
+
+    // Trial plan — count remaining days
+    if (plan === 'trial') {
+      const startDate = (d.trialStartDate || d.createdAt)?.toDate?.();
+      if (!startDate) return;
+      const daysRemaining = Math.max(0, Math.ceil(7 - (Date.now() - startDate.getTime()) / 86400000));
+      if (daysRemaining <= 0) {
+        if (d.plan !== 'expired') setDoc(doc(db,'users',currentUser.uid),{plan:'expired'},{merge:true}).catch(()=>{});
+        showExpiredOverlay('trial');
+      } else {
+        const warn = daysRemaining <= 2;
+        const banner = document.getElementById('trial-banner');
+        const daysEl  = document.getElementById('trial-days');
+        const labelEl = document.getElementById('trial-label');
+        banner.classList.add('show', warn ? 'trial-warning' : 'trial-active');
+        daysEl.classList.add(warn ? 'trial-warning' : 'trial-active');
+        daysEl.textContent  = `${daysRemaining} DAY${daysRemaining===1?'':'S'}`;
+        labelEl.textContent = warn ? 'of trial remaining — upgrade soon!' : 'of free trial remaining';
+        if (warn) labelEl.style.color = 'var(--gold)';
+      }
+      return;
+    }
+
+    // Explicitly expired or unrecognised
+    if (plan === 'expired') { showExpiredOverlay('expired'); return; }
+    // 'active' (legacy paid) — no banner
+  } catch(e) { console.warn('Plan check error', e); }
+}
+
+// Price IDs — keep in sync with create-checkout.js
+const PRICE_LEAGUE     = 'price_1T8Z15JlYByErfPaTpRf3xic'; // $149/6 months
+const PRICE_INDIVIDUAL = 'price_1T8Z4lJlYByErfPaulsRF7EZ'; // $49/6 months
+const PRICE_REFEREE    = 'price_1RV06yJIYByErfPa9kZDaCaR';  // $9.99/month
+
+// Which priceId the expired overlay should use (set by showExpiredOverlay)
+let _expiredPriceId = PRICE_LEAGUE;
+
+// ── PLAN LINK CAPS ────────────────────────────────────────────────────────────
+// Season ($49) = 'individual', League ($149) = 'league', Referee ($9.99) = 'referee'
+const PLAN_LIMITS = {
+  trial:      1,
+  referee:    0,   // individual training only — no link creation
+  individual: 3,   // "Season" plan
+  league:     10,  // "League" plan
+  active:     10,  // legacy label for league
+  expired:    0,
+};
+
+function handleExpiredCta() {
+  redirectToCheckout(_expiredPriceId, document.getElementById('expired-cta-btn'));
+}
+
+// ── LINK CAP ENFORCEMENT ──────────────────────────────────────────────────────
+// Returns true if the user is allowed to create another link; false otherwise.
+async function checkLinkCap() {
+  if (currentRole === 'operator') return true; // unlimited for operator
+  try {
+    const token = await currentUser.getIdTokenResult();
+    if (token.claims.admin) return true; // unlimited for Firebase admin claim
+  } catch(e) {}
+  const plan = cachedUserData?.plan || 'trial';
+  const limit = PLAN_LIMITS[plan] ?? 0;
+  const activeCount = allLinks.filter(l => l.active !== false).length;
+  if (limit === 0 || activeCount >= limit) {
+    showLinkCapPrompt(plan, activeCount, limit);
+    return false;
+  }
+  return true;
+}
+
+function showLinkCapPrompt(plan, count, limit) {
+  clearLinkCapPrompt();
+  const msgs = {
+    referee:    { title:'My Quizzes Not Available',          body:'The Referee plan is for individual training only. Upgrade to Season or League to create shareable quizzes for your referees.', priceId: PRICE_INDIVIDUAL, cta:'Upgrade to Season — $49/6mo' },
+    trial:      { title:'Trial Quiz Limit Reached',          body:'You\'ve used your trial quiz. Upgrade to keep creating quizzes for your referees.', priceId: PRICE_LEAGUE, cta:'Upgrade to League — $149/season' },
+    individual: { title:`Limit Reached (${count}/${limit})`, body:'You\'ve used all 3 quizzes in your Season plan. Upgrade to League for up to 10 active quizzes.', priceId: PRICE_LEAGUE, cta:'Upgrade to League — $149/season' },
+    league:     { title:`Limit Reached (${count}/${limit})`, body:'You\'ve reached the 10 active quiz limit. Delete an existing quiz from My Quizzes to free up a slot.', priceId: null, cta: null },
+    expired:    { title:'Plan Expired',                      body:'Your plan has expired. Renew to create quizzes.', priceId: PRICE_LEAGUE, cta:'Renew League Plan' },
+  };
+  const m = msgs[plan] || msgs['referee'];
+  const ctaHtml = m.cta && m.priceId
+    ? `<button onclick="redirectToCheckout('${m.priceId}',this)" style="background:var(--gold);color:#080c09;border:none;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.05em;padding:8px 18px;border-radius:7px;cursor:pointer;margin-top:2px">${m.cta} →</button>`
+    : `<div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Go to My Quizzes → delete a quiz to free up a slot.</div>`;
+  document.getElementById('cr-actions').insertAdjacentHTML('afterbegin',
+    `<div id="link-cap-prompt" style="background:rgba(255,214,10,.07);border:1px solid rgba(255,214,10,.25);border-radius:11px;padding:15px 16px;margin-bottom:12px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold);margin-bottom:6px;letter-spacing:1px">${m.title}</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.5;margin-bottom:12px">${m.body}</div>
+      ${ctaHtml}
+    </div>`);
+  const btn = document.getElementById('cr-save-btn');
+  if (btn) { btn.disabled = true; btn.style.opacity = '.4'; btn.style.cursor = 'not-allowed'; }
+}
+
+function clearLinkCapPrompt() {
+  document.getElementById('link-cap-prompt')?.remove();
+  const btn = document.getElementById('cr-save-btn');
+  if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; }
+}
+
+function showLinkUsage() {
+  const el = document.getElementById('linkUsageIndicator');
+  if (!el) return;
+  if (currentRole === 'operator') { el.textContent = ''; return; }
+  const plan = cachedUserData?.plan || 'trial';
+  const limit = PLAN_LIMITS[plan];
+  if (!limit) { el.textContent = ''; return; }
+  const count = allLinks.filter(l => l.active !== false).length;
+  el.textContent = `${count} / ${limit} active links`;
+  el.style.color = count >= limit ? 'var(--red)' : count >= Math.ceil(limit * 0.75) ? 'var(--gold)' : 'rgba(255,255,255,.35)';
+}
+
+async function redirectToCheckout(priceId, btnEl) {
+  const orig = btnEl ? btnEl.textContent : '';
+  if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Loading…'; }
+
+  try {
+    const res = await fetch('/api/create-checkout', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        priceId,
+        userId:      currentUser?.uid   || '',
+        userEmail:   currentUser?.email || '',
+        successPath: '/admin',
+        returnPath:  '/admin',
+      }),
+    });
+
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      throw new Error(data.error || 'No checkout URL returned');
+    }
+  } catch (err) {
+    console.error('Checkout error:', err);
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = orig; }
+    alert('Could not start checkout — please try again or contact cox.matthewb@gmail.com');
+  }
+}
+
+window.redirectToCheckout = redirectToCheckout; // expose for inline onclick
+
+function showExpiredOverlay(reason) {
+  const isLeague = reason === 'league';
+  const title    = isLeague ? 'SEASON PASS ENDED' : 'TRIAL ENDED';
+  const msg      = isLeague
+    ? 'Your league season pass has ended. Your quizzes, branding, and referee results are all preserved — renew to reactivate.'
+    : 'Your 7-day free trial has ended. Your data is safely preserved — choose a plan to continue.';
+  const ctaText  = isLeague ? 'RENEW — $149/SEASON →' : 'GET LEAGUE — $149/SEASON →';
+
+  _expiredPriceId = PRICE_LEAGUE; // both cases upgrade to league for admin
+
+  document.getElementById('expired-title').textContent = title;
+  document.getElementById('expired-msg').textContent   = msg;
+  document.getElementById('expired-cta-btn').textContent = ctaText;
+  document.getElementById('trial-expired-overlay').classList.add('show');
+}
+
+function handleCheckoutSuccess() {
+  // Show a brief success toast and reload user plan
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#2a9d47;color:#fff;padding:14px 28px;border-radius:14px;font-family:"Bebas Neue",sans-serif;font-size:18px;letter-spacing:2px;z-index:999;box-shadow:0 8px 32px rgba(52,199,89,.4)';
+  toast.textContent = '✓ PLAN ACTIVATED — WELCOME!';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+  // Clean URL
+  history.replaceState({}, '', '/admin');
+  // Reload user doc to reflect new plan
+  loadUserDoc().then(() => checkTrialStatus());
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+async function init() {
+  setLoad(true,'Loading your dashboard…');
+  try {
+    await Promise.all([loadLeagueAndBranding(), loadLinks(), loadResults(), loadGlobalResources(), loadUserDoc()]);
+    renderOverview();
+    showLinkUsage();
+  } catch(e) { console.error('Init error',e); }
+  finally { setLoad(false); }
+}
+
+// Single read for leagues/{uid} — covers both settings fields and branding
+async function loadLeagueAndBranding() {
+  const snap = await getDoc(doc(db,'leagues',leagueId));
+  if(!snap.exists()) return;
+  const d = snap.data();
+  // Settings fields
+  if(d.name)    document.getElementById('set-name').value = d.name;
+  if(d.tagline) document.getElementById('set-tagline').value = d.tagline;
+  if(d.email)   document.getElementById('set-email').value = d.email;
+  leagueName = d.name || d.leagueName || '';
+  updatePreviewName(d.name||'YOUR LEAGUE');
+  // Branding
+  if(d.brandColor)  { brand.primary=d.brandColor;  applyColorToUI(d.brandColor, 'color-primary','hex-primary','swatch-primary'); }
+  if(d.brandAccent) { brand.accent=d.brandAccent;  applyColorToUI(d.brandAccent,'color-accent', 'hex-accent', 'swatch-accent'); }
+  if(d.brandFont)   { brand.font=d.brandFont;   selectFont(d.brandFont); }
+  if(d.brandBg)     { brand.bg=d.brandBg;       selectBg(d.brandBg); }
+  if(d.brandBgColor){ brand.bgColor=d.brandBgColor; document.getElementById('color-bg').value=d.brandBgColor; }
+  if(d.logoDataUrl) { brand.logoDataUrl=d.logoDataUrl; showLogoPreview(d.logoDataUrl); }
+  updatePreview();
+  updateCreatePreview();
+  // Sync inline branding panel with loaded values
+  const crBN = document.getElementById('cr-brand-name');
+  const crBC = document.getElementById('cr-brand-color');
+  const crBH = document.getElementById('cr-brand-hex');
+  const crBT = document.getElementById('cr-brand-logo-thumb');
+  if (crBN) crBN.value = leagueName;
+  if (crBC && d.brandColor) { crBC.value = d.brandColor; }
+  if (crBH && d.brandColor) { crBH.textContent = d.brandColor; }
+  if (crBT && d.logoDataUrl) { crBT.innerHTML = `<img src="${d.logoDataUrl}" style="width:100%;height:100%;object-fit:contain;border-radius:8px">`; }
+}
+async function loadUserDoc() {
+  try {
+    const snap = await getDoc(doc(db,'users',leagueId));
+    if(snap.exists()) cachedUserData = snap.data();
+  } catch(e) {}
+}
+async function loadLinks() {
+  // Single-field where() — no composite index needed; sort client-side
+  const raw = await fetchDocs(query(collection(db,'quizLinks'), where('leagueId','==',leagueId)));
+  allLinks = raw
+    .filter(l => l.active !== false)
+    .sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+}
+async function loadResults() {
+  // Single-field where() — no composite index needed; sort client-side
+  const raw = await fetchDocs(query(collection(db,'quizResults'), where('leagueId','==',leagueId)));
+  allResults = raw.sort((a,b) => {
+    const bTs = b.createdAt?.seconds || b.startedAt?.seconds || 0;
+    const aTs = a.createdAt?.seconds || a.startedAt?.seconds || 0;
+    return bTs - aTs;
+  });
+}
+async function loadGlobalResources() {
+  globalResources = await fetchDocs(collection(db,'leagues',leagueId,'resources'));
+  renderGlobalResources();
+}
+
+// ── OVERVIEW ──────────────────────────────────────────────────────────────────
+function renderOverview() {
+  function setStat(id, val) {
+    const el = document.getElementById(id);
+    if (!val && val !== 0 || val === 0) { el.textContent = '—'; el.classList.add('stat-num-muted'); }
+    else { el.textContent = val; el.classList.remove('stat-num-muted'); }
+  }
+  setStat('ov-links', allLinks.length || 0);
+  setStat('ov-taken', allResults.length || 0);
+  const completedResults = allResults.filter(r => r.status !== 'started' && r.score !== undefined);
+  const passRate = completedResults.length ? Math.round(completedResults.filter(r=>r.passed).length/completedResults.length*100)+'%' : null;
+  setStat('ov-pass', passRate);
+  const uniqueRefs = new Set(allResults.map(r=>r.refereeName).filter(Boolean)).size;
+  setStat('ov-refs', uniqueRefs || 0);
+  
+  updateSetupCard();
+  if(allLinks.length===0) {
+    document.getElementById('ov-empty').style.display='block';
+    document.getElementById('ov-content').style.display='none';
+  } else {
+    document.getElementById('ov-empty').style.display='none';
+    document.getElementById('ov-content').style.display='block';
+    // Recent activity — show completed results only
+    const recent = allResults.filter(r => r.status !== 'started' && r.score !== undefined).slice(0,5);
+    document.getElementById('ov-activity').innerHTML = recent.length ? recent.map(r=>{
+      const pct = Math.round(r.score/r.total*100);
+      const t = (r.createdAt||r.startedAt)?.toDate ? (r.createdAt||r.startedAt).toDate().toLocaleDateString() : 'Recently';
+      return `<div class="activity-item"><div class="activity-dot ${r.passed?'activity-dot-green':'activity-dot-gold'}"></div><div class="activity-text"><strong>${r.refereeName||'Referee'}</strong> scored ${pct}% on ${r.quizLinkName||'a quiz'}</div><div class="activity-time">${t}</div></div>`;
+    }).join('') : '<div style="font-size:13px;color:var(--muted);text-align:center;padding:20px">No activity yet</div>';
+  }
+}
+
+// ── GETTING STARTED CHECKLIST ─────────────────────────────────────────────────
+function updateSetupCard() {
+  const dismissed = localStorage.getItem('refiq_setup_dismissed_' + leagueId);
+  if (dismissed) { document.getElementById('setup-card').style.display = 'none'; return; }
+
+  const hasBranding = !!(brand?.logoDataUrl);
+  const hasQuiz     = allLinks.length > 0;
+  const hasShared   = allResults.length > 0;
+
+  const steps = [true, hasBranding, hasQuiz, hasShared];
+  const done  = steps.filter(Boolean).length;
+
+  if (done === 4) {
+    document.getElementById('setup-card').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('setup-card').style.display = 'block';
+  document.getElementById('setup-progress-fill').style.width = (done / 4 * 100) + '%';
+
+  const ids = ['ss-account','ss-branding','ss-quiz','ss-share'];
+  steps.forEach((s, i) => {
+    const el = document.getElementById(ids[i]);
+    if (s) {
+      el.classList.add('done');
+      el.querySelector('.setup-step-icon').textContent = '✓';
+      el.querySelector('.setup-step-cta')?.remove();
+    }
+  });
+}
+
+document.getElementById('setup-dismiss').addEventListener('click', () => {
+  localStorage.setItem('refiq_setup_dismissed_' + leagueId, '1');
+  document.getElementById('setup-card').style.display = 'none';
+});
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelector(`[data-page="${name}"]`)?.classList.add('active');
+  if(name==='links') renderLinks();
+  if(name==='create') {
+    showLinkUsage();
+    // Always sync inline branding panel with current brand state when entering Create page
+    const crBN = document.getElementById('cr-brand-name');
+    const crBC = document.getElementById('cr-brand-color');
+    const crBH = document.getElementById('cr-brand-hex');
+    const crBT = document.getElementById('cr-brand-logo-thumb');
+    if (crBN) crBN.value = leagueName;
+    if (crBC && brand.primary) crBC.value = brand.primary;
+    if (crBH && brand.primary) crBH.textContent = brand.primary;
+    if (crBT && brand.logoDataUrl) crBT.innerHTML = `<img src="${brand.logoDataUrl}" style="width:100%;height:100%;object-fit:contain;border-radius:8px">`;
+    updateCreatePreview(); // re-render both preview tabs with latest brand state
+  }
+  if(name==='results') applyResultsFilter();
+  closeMobileMenu();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+window.showPage = showPage; // expose to onclick attributes (module scope workaround)
+
+document.querySelectorAll('.nav-item').forEach(item=>{
+  item.addEventListener('click',()=>showPage(item.dataset.page));
+});
+
+// Mobile menu
+document.getElementById('hamburger').addEventListener('click',()=>{
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('mobile-overlay').classList.toggle('show');
+});
+document.getElementById('mobile-overlay').addEventListener('click',closeMobileMenu);
+function closeMobileMenu() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('mobile-overlay').classList.remove('show');
+}
+
+// ── CREATE QUIZ LINK ──────────────────────────────────────────────────────────
+// Segments in create form
+document.querySelectorAll('#page-create .seg').forEach(seg=>{
+  seg.querySelectorAll('.seg-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      seg.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+});
+
+// Create drop zone
+const crDz = document.getElementById('cr-drop');
+const crFi = document.getElementById('cr-file');
+crDz.addEventListener('dragover',e=>{e.preventDefault();crDz.classList.add('over');});
+crDz.addEventListener('dragleave',()=>crDz.classList.remove('over'));
+crDz.addEventListener('drop',e=>{e.preventDefault();crDz.classList.remove('over');[...e.dataTransfer.files].forEach(f=>handleCreateFile(f));});
+crFi.addEventListener('change',e=>{[...e.target.files].forEach(f=>handleCreateFile(f));crFi.value='';});
+
+function handleCreateFile(file) {
+  const reader = new FileReader();
+  if(file.name.split('.').pop().toLowerCase()==='pdf'){
+    reader.onload=e=>{crResources.push({name:file.name,text:extractPdfText(e.target.result).substring(0,6000)});renderCreateResources();};
+    reader.readAsArrayBuffer(file);
+  } else {
+    reader.onload=e=>{crResources.push({name:file.name,text:e.target.result.substring(0,6000)});renderCreateResources();};
+    reader.readAsText(file);
+  }
+}
+function renderCreateResources() {
+  document.getElementById('cr-res-list').innerHTML = crResources.map((r,i)=>
+    `<div class="res-chip"><span class="res-chip-icon">📄</span><span class="res-chip-name">${r.name}</span><button class="res-chip-rm" onclick="crResources.splice(${i},1);renderCreateResources()">✕</button></div>`
+  ).join('');
+}
+
+// Update URL preview + live preview card as name changes
+document.getElementById('cr-name').addEventListener('input',e=>{
+  const slug = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-+$/,'').substring(0,16)||'...';
+  document.getElementById('cr-url-preview').textContent = `www.myrefiq.com/q/${slug}-····`;
+  updateCreatePreview();
+});
+
+// Question count timing hint
+document.getElementById('cr-num-seg').addEventListener('click',e=>{
+  const btn = e.target.closest('.seg-btn');
+  if (!btn) return;
+  const v = parseInt(btn.dataset.v||'0');
+  const hint = document.getElementById('cr-num-hint');
+  if (v >= 100) { hint.textContent = '⚡ May take 30–45 seconds to generate'; hint.style.display='block'; }
+  else if (v >= 50) { hint.textContent = '⚡ May take 15–20 seconds to generate'; hint.style.display='block'; }
+  else { hint.style.display='none'; }
+});
+
+// ── PREVIEW QUIZ ──────────────────────────────────────────────────────────────
+const IFAB_SHORT = `IFAB 2025/26 Laws:
+LAW 11: Offside — head/body/feet, not arms. No offside from goal kick, throw-in, corner.
+LAW 12: DFK: kicking, tripping, jumping at, charging, striking, pushing, holding, handball. NEW: GK 8-sec → corner kick.
+LAW 13: Opponents 9.15m from free kick. LAW 14: GK one foot on line until kick.
+LAW 15: Throw-in both feet on/behind line. LAW 16: Goal kick anywhere in goal area.
+LAW 17: Corner can score directly. NEW 2025/26: GK time-wasting = corner not IFK.
+YELLOW: unsporting, simulation, dissent. RED: serious foul play, DOGSO, violent conduct.`;
+
+/// ── PRE-GENERATE QUESTIONS ────────────────────────────────────────────────────
+// Strip binary/non-printable content from resource text (e.g. raw PDF blobs)
+function sanitizeResourceText(raw) {
+  return (raw || '')
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+    .replace(/%PDF[\s\S]{0,30}obj/g, '')
+    .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
+    .replace(/\s{4,}/g, ' ')
+    .trim()
+    .substring(0, 3000);
+}
+
+// Called at quiz creation time so referees get instant questions (no API wait).
+// ── DIVISION RULES — enforcement notes injected into AI prompt ─────────────────
+const DIVISION_RULES = {
+  'rec-prek': {
+    label: 'Recreational PreK (Ages 3–4)',
+    enforcement: `- NO cards of any kind — no yellow, no red, ever\n- NO offside rule\n- NO penalty kicks\n- Small-sided: 3v3 or 4v4, no goalkeeper required\n- Ball size: Size 3\n- Questions: basic restarts, safety, inclusion, fun\n- NEVER ask about cards, offside, or complex Laws`
+  },
+  'rec-k1': {
+    label: 'Recreational K/1st Grade (Ages 5–6)',
+    enforcement: `- NO cards — warnings and substitutions only\n- NO offside\n- NO penalty kicks — indirect free kick instead\n- Small-sided: 4v4 or 5v5, Size 3 ball\n- NEVER ask about cards or offside`
+  },
+  'rec-2nd': {
+    label: 'Recreational 2nd Grade (Ages 7–8)',
+    enforcement: `- Cautions used sparingly, NO red cards — player removed and substituted\n- Offside may not be enforced — note this where relevant\n- 5v5 to 7v7, Size 3 ball\n- Focus: restarts, fouls, basic positioning`
+  },
+  'rec-3rd4th': {
+    label: 'Recreational 3rd–4th Grade (Ages 8–10)',
+    enforcement: `- Yellow cards used; red cards rare — player removed for cooling off\n- Offside may or may not be enforced — note this in questions\n- 7v7, Size 4 ball\n- Focus: fouls, restarts, basic misconduct`
+  },
+  'rec-5th6th': {
+    label: 'Recreational 5th–6th Grade (Ages 10–12)',
+    enforcement: `- Standard yellow and red cards apply\n- Offside enforced\n- 9v9 or 11v11, Size 4 ball\n- Full Laws with age-appropriate scenarios`
+  },
+  'rec-7th8th': {
+    label: 'Recreational 7th–8th Grade (Ages 12–14)',
+    enforcement: `- Full Laws apply — yellow and red cards, offside, all restarts\n- 11v11, Size 5 ball`
+  },
+  'default': {
+    label: 'Standard',
+    enforcement: `- Full IFAB Laws of the Game apply\n- All cards, offside, restarts, and procedures apply as written\n- 11v11, Size 5 ball`
+  }
+};
+function getDivisionRulesAdmin(divVal) {
+  return DIVISION_RULES[divVal] || DIVISION_RULES['default'];
+}
+
+// Map legacy underscore slugs → new hyphen slugs (for editing existing quiz links)
+const DIVISION_MIGRATION = {
+  'rec_young':'rec-2nd','rec_lower':'rec-3rd4th','rec_upper5':'rec-5th6th',
+  'rec_middle':'rec-7th8th','rec_mid':'rec-7th8th','rec_upper':'rec-7th8th',
+  'comp_u9u10':'comp-u9u10','comp_u11u12':'comp-u11u12','comp_u13u14':'comp-u13u14',
+  'comp_u15u16':'comp-u15u16','comp_u17u18':'comp-u17u18',
+  'hs_jv':'hs-jv','hs_varsity':'hs-varsity',
+  'adult_rec':'adult-rec','adult_comp':'adult-comp','adult_amateur':'adult-rec',
+  'college_club':'college-club','college_varsity':'college-varsity',
+  'high_school':'hs-varsity','competitive':'comp-u15u16','pdl':'pdl'
+};
+
+async function preGenerateQuestions(age, num, src, mode, resources) {
+  const divisionRules = getDivisionRulesAdmin(age);
+  const divLabel = divisionRules.label;
+  const modeStr = {mixed:'Mix rules and scenarios.',scenarios:'ALL scenario questions.',rules:'ALL rules recall.'}[mode] || 'Mix rules and scenarios.';
+  const srcStr  = src==='ifab'?'IFAB Laws only.':src==='league'?'League rules ONLY.':'Mix IFAB and league rules.';
+  const leagueSec = (resources||[]).map(r=>`\n\n--- LEAGUE RULE DOCUMENT: ${r.name} ---\n${r.text}`).join('');
+  const prompt = `You are an elite soccer referee examiner. Generate exactly ${num} multiple-choice quiz questions for referees working in: ${divLabel}.\n\n${modeStr} ${srcStr}\n\nDIVISION-SPECIFIC ENFORCEMENT RULES:\n${divisionRules.enforcement}\n\nIFAB LAWS 2025/26 REFERENCE:\n${IFAB_SHORT}${leagueSec}\n\nACCURACY REQUIREMENTS — MANDATORY:\n1. All answers must be 100% correct for this specific division and age group.\n2. NEVER include questions about cards in divisions where cards are not used.\n3. NEVER include offside questions in divisions where offside is not enforced.\n4. GOALKEEPER TIME-WASTING (2025/26): Do NOT state a GK must release the ball within "6 seconds". Under current Laws, GK time-wasting is penalised with a CORNER KICK.\n5. VARY the correct answer index — distribute across positions 0, 1, 2, 3 equally.\n6. Each question must have exactly 4 distinct, plausible answer options.\n7. "lawRef" must cite a specific IFAB Law or "Local Rule / Youth Modification".\n8. "explanation" must reference the specific Law or local rule.\n\nReturn ONLY a valid JSON array. No markdown, no code blocks, no preamble. Start with [ and end with ].\n[{"type":"rules|scenario","source":"ifab|league","question":"...","options":["A text","B text","C text","D text"],"correct":0,"lawRef":"Law 12","explanation":"..."}]`;
+  const res = await fetch('/api/quiz', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens: 6000,
+      system:'Return ONLY valid JSON array. No markdown. No preamble. Start with [ end with ].',
+      messages:[{role:'user', content:prompt}]
+    })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error || `API error ${res.status}`);
+  const blocks = (data?.content||[]).filter(b=>b.type==='text');
+  let raw = blocks.map(b=>b.text).join('').trim().replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+  const si = raw.indexOf('['), ei = raw.lastIndexOf(']');
+  if (si===-1||ei===-1) throw new Error('AI returned invalid format');
+  const arr = JSON.parse(raw.substring(si, ei+1));
+  const valid = arr.filter(q=>q?.question&&Array.isArray(q.options)&&q.options.length===4&&typeof q.correct==='number');
+  if (!valid.length) throw new Error('No valid questions returned');
+  return valid.slice(0, num);
+}
+
+// Helper: hex → rgba for the preview overlay
+function hexToRgbaAdmin(hex, alpha) {
+  if (!hex || hex.length < 7) return `rgba(52,199,89,${alpha})`;
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// ── Live "What Referees See" panel — identical to Branding Studio phone mockup ──
+function updateCreatePreview() {
+  const p = brand.primary || '#ffd60a';
+  const a = brand.accent  || '#ffd60a';
+  const f = brand.font    || 'Bebas Neue';
+  const bgCol = brand.bg === 'custom' ? (brand.bgColor || '#0a0f0b') : (typeof BG_COLORS !== 'undefined' ? (BG_COLORS[brand.bg] || BG_COLORS.dark) : '#0a0f0b');
+  const dark = !isLight(bgCol);
+
+  const qName   = document.getElementById('cr-name')?.value.trim() || 'Your Quiz Name';
+  const age     = document.getElementById('cr-age')?.value || 'rec_upper';
+  const num     = document.querySelector('#cr-num-seg .seg-btn.active')?.dataset.v || '10';
+  const timeLim = parseInt(document.querySelector('#cr-time-seg .seg-btn.active')?.dataset.v || '0');
+  const divLabels = {
+    'all':'All Divisions',
+    'rec-prek':'Rec PreK','rec-k1':'Rec K/1st','rec-2nd':'Rec 1st–2nd',
+    'rec-3rd4th':'Rec 3rd–4th','rec-5th6th':'Rec 5th–6th','rec-7th8th':'Rec 7th–8th',
+    'comp-u8u9':'Comp U8/U9','comp-u9u10':'Comp U9/U10','comp-u11u12':'Comp U10/U11',
+    'comp-u13u14':'Comp U12/U13','comp-u15u16':'Comp U14/U15','comp-u17u18':'Comp U16/U17','comp-u19u23':'Comp U18/U19',
+    'hs-middle':'HS Middle','hs-jv':'HS JV','hs-varsity':'HS Varsity',
+    'adult-rec':'Adult Rec','adult-comp':'Adult Comp','adult-over30':'Adult 30+','adult-over40':'Adult 40+','adult-coed':'Adult Co-Ed',
+    'college-club':'College Club','college-varsity':'College Varsity',
+    'pdl':'PDL','futsal':'Futsal','indoor':'Indoor','beach':'Beach Soccer',
+    // Legacy underscore slugs
+    rec_young:'Rec Young',rec_lower:'Rec Lower',rec_upper5:'Rec Upper',rec_middle:'Rec Middle',
+    comp_u9u10:'Comp U9/U10',comp_u11u12:'Comp U11/U12',comp_u13u14:'Comp U13/U14',
+    comp_u15u16:'Comp U15/U16',comp_u17u18:'Comp U17/U18',
+    hs_jv:'HS JV',hs_varsity:'HS Varsity',adult_rec:'Adult Rec',adult_comp:'Adult Comp',
+    college_club:'College Club',college_varsity:'College Varsity',
+    rec_mid:'Rec Mid',rec_upper:'Rec Upper',high_school:'High School',
+    adult_amateur:'Adult Amateur',competitive:'Competitive'
+  };
+  const parts   = [`${num} Questions`, divLabels[age] || age];
+  if (timeLim) parts.push(`${timeLim}s timer`);
+
+  const grad = `linear-gradient(90deg,${p},${a})`;
+  const textMain  = dark ? 'rgba(255,255,255,.9)'  : 'rgba(0,0,0,.85)';
+  const optBorder = dark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.1)';
+  const optBg     = dark ? 'rgba(255,255,255,.03)' : 'rgba(0,0,0,.03)';
+
+  // Frame background (respects dark/light/custom BG from Branding Studio)
+  const frame = document.getElementById('qp2-frame');
+  if (frame) frame.style.background = bgCol;
+
+  // Gradient bar + progress
+  const topbar = document.getElementById('qp2-topbar');
+  if (topbar) topbar.style.background = grad;
+  const prog = document.getElementById('qp2-prog');
+  if (prog) prog.style.background = grad;
+
+  // League name
+  const lnEl = document.getElementById('qp2-league-name');
+  if (lnEl) { lnEl.textContent = (leagueName || 'YOUR LEAGUE').toUpperCase(); lnEl.style.color = p; }
+
+  // Logo
+  const logoEl = document.getElementById('qp2-logo-el');
+  if (logoEl) {
+    if (brand.logoDataUrl) {
+      logoEl.innerHTML = `<img src="${brand.logoDataUrl}" style="width:34px;height:34px;object-fit:contain;border-radius:6px">`;
+    } else { logoEl.textContent = '⚽'; }
+  }
+
+  // Question text — font from Branding Studio
+  const qEl = document.getElementById('qp2-q');
+  if (qEl) { qEl.style.color = textMain; qEl.style.fontFamily = `'${f}',sans-serif`; }
+
+  // Plain answer options (B, C, D) — adapt to bg color
+  document.querySelectorAll('#qp-preview .preview-opt:not(.hi)').forEach(el => {
+    el.style.borderColor = optBorder;
+    el.style.background  = optBg;
+    el.style.color       = textMain;
+  });
+  document.querySelectorAll('#qp-preview .preview-opt:not(.hi) .preview-opt-letter').forEach(el => {
+    el.style.background = dark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.06)';
+    el.style.color      = textMain;
+  });
+
+  // Highlighted option A — primary color
+  const optA = document.getElementById('qp2-opt-a');
+  if (optA) { optA.style.borderColor = p; optA.style.background = p + '18'; }
+  const letterA = document.getElementById('qp2-letter-a');
+  if (letterA) { letterA.style.background = p; letterA.style.color = isLight(p) ? '#000' : '#fff'; }
+
+  // Quiz name + meta
+  const qnEl = document.getElementById('qp2-quiz-name');
+  if (qnEl) qnEl.textContent = qName.toUpperCase();
+  const qmEl = document.getElementById('qp2-quiz-meta');
+  if (qmEl) qmEl.textContent = parts.join(' · ');
+}
+
+// ── Preview quiz state ────────────────────────────────────────────────────────
+let previewQs = [], previewCur = 0, previewScore = 0, _prevP = '#ffd60a', _prevA = '#ffd60a';
+
+async function runPreview() {
+  const p = brand.primary || '#ffd60a';
+  const a = brand.accent || '#ffd60a';
+  _prevP = p; _prevA = a;
+  const age = document.getElementById('cr-age').value;
+  const src = document.querySelector('#cr-src-seg .seg-btn.active')?.dataset.v || 'both';
+  const mode = document.querySelector('#cr-mode-seg .seg-btn.active')?.dataset.v || 'mixed';
+  const divLabels = {rec_young:'Recreational Young',rec_mid:'Recreational Mid',rec_upper:'Recreational Upper',high_school:'High School',adult_amateur:'Adult Amateur',competitive:'Competitive'};
+  const modeStr = {mixed:'Mix rules and scenarios.',scenarios:'ALL scenario questions.',rules:'ALL rules recall.'}[mode]||'Mix.';
+  const srcStr = src==='ifab'?'IFAB Laws only.':src==='league'?'League rules only.':'Mix IFAB and league rules.';
+  const leagueSec = crResources.map(r=>`\n\n--- LEAGUE RULE DOCUMENT: ${r.name} ---\n${r.text}`).join('');
+
+  const prompt = `Generate exactly 3 soccer referee quiz questions for: ${divLabels[age]||age}. ${modeStr} ${srcStr}\n\nIFAB LAWS:\n${IFAB_SHORT}${leagueSec}\n\nReturn ONLY a JSON array: [{"type":"rules|scenario","source":"ifab|league","question":"...","options":["A","B","C","D"],"correct":0,"lawRef":"Law 12","explanation":"..."}]`;
+
+  // Apply branding to overlay header
+  document.getElementById('prev-brand-topbar').style.background = `linear-gradient(90deg,${p},${a})`;
+  const hLogoEl = document.getElementById('prev-header-logo');
+  if (brand.logoDataUrl) { hLogoEl.innerHTML=`<img src="${brand.logoDataUrl}" style="width:24px;height:24px;object-fit:contain;border-radius:5px">`; hLogoEl.style.display='block'; }
+  else { hLogoEl.style.display='none'; }
+  const hLabel = document.getElementById('prev-league-label');
+  hLabel.textContent = (leagueName || 'ADMIN PREVIEW').toUpperCase();
+  hLabel.style.color = p;
+
+  // Show overlay with loading state
+  document.getElementById('prev-loading').style.display = 'block';
+  document.getElementById('prev-loading-sub').textContent = 'Building 3 sample questions…';
+  document.getElementById('prev-content').style.display = 'none';
+  document.getElementById('preview-overlay').classList.add('show');
+  document.getElementById('preview-overlay').querySelector('.preview-scroll').scrollTo(0,0);
+
+  try {
+    const res = await fetch('/api/quiz',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2200,
+        system:'Return ONLY valid JSON array. No markdown. Start with [ end with ].',
+        messages:[{role:'user',content:prompt}]})});
+    let data;
+    try { data = await res.json(); }
+    catch { throw new Error('Quiz generation timed out. Please try again.'); }
+    if (!res.ok) throw new Error(data?.error||`Error ${res.status}`);
+    const blocks=(data?.content||[]).filter(b=>b.type==='text');
+    let raw=blocks.map(b=>b.text).join('').trim().replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+    const si=raw.indexOf('['),ei=raw.lastIndexOf(']');
+    if(si===-1||ei===-1) throw new Error('AI returned invalid format.');
+    const arr=JSON.parse(raw.substring(si,ei+1));
+    const valid=arr.filter(q=>q?.question&&Array.isArray(q.options)&&q.options.length===4&&typeof q.correct==='number');
+    if(!valid.length) throw new Error('No valid questions returned.');
+    previewQs=valid.slice(0,3); previewCur=0; previewScore=0;
+    document.getElementById('prev-loading').style.display='none';
+    document.getElementById('prev-content').style.display='block';
+    renderPreviewQ();
+  } catch(e) {
+    document.getElementById('prev-loading').innerHTML=`<div style="padding:24px;text-align:center;color:var(--red)">❌ ${e.message}<br><br><button onclick="runPreview()" style="padding:10px 20px;background:var(--green-dark);border:none;border-radius:10px;color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;cursor:pointer">Try Again</button></div>`;
+  }
+}
+
+function renderPreviewQ() {
+  const p=_prevP, a=_prevA;
+  const q=previewQs[previewCur], total=previewQs.length, cur=previewCur;
+  const logoHtml = brand.logoDataUrl ? `<img src="${brand.logoDataUrl}" class="prev-ql" alt="">` : '';
+  const leagueHtml = leagueName ? `<span class="prev-qln" style="color:${p}">${leagueName.toUpperCase()}</span>` : '';
+  const badgeHtml = !leagueName ? `<span class="prev-refiq-badge">POWERED BY REFIQ</span>` : '';
+  const headerGrad = `linear-gradient(160deg,${hexToRgbaAdmin(p,.22)} 0%,${hexToRgbaAdmin(p,.08)} 60%,rgba(8,12,9,0) 100%)`;
+  const typeLabel = q.type==='scenario'?'🟡 SCENARIO':'🟢 RULES';
+  const srcLabel = q.source==='league'?'LEAGUE':'IFAB';
+  const opts = q.options;
+  const pct = Math.round((cur+1)/total*100);
+  const arcR=34, arcCirc=213.6, arcOff=arcCirc*(1-(cur+1)/total);
+
+  document.getElementById('prev-content').innerHTML = `
+    <div class="prev-qheader" style="background:${headerGrad}">
+      <div class="prev-toprow">
+        <div style="width:56px;flex-shrink:0"></div>
+        <div class="prev-brand-ctr">${logoHtml}${leagueHtml}${badgeHtml}</div>
+        <div class="prev-score-pill" style="background:${hexToRgbaAdmin(p,.2)};border-color:${hexToRgbaAdmin(p,.35)}">${previewScore}/${cur}</div>
+      </div>
+      <div class="prev-arc-wrap">
+        <div class="prev-arc-outer">
+          <svg width="80" height="80" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="${arcR}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="6"/>
+            <circle cx="40" cy="40" r="${arcR}" fill="none" stroke="url(#pag)" stroke-width="6" stroke-linecap="round"
+              stroke-dasharray="${arcCirc}" stroke-dashoffset="${arcOff}" style="transition:stroke-dashoffset .6s ease"/>
+            <defs><linearGradient id="pag" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="${p}"/><stop offset="100%" stop-color="${a}"/>
+            </linearGradient></defs>
+          </svg>
+          <div class="prev-arc-inner"><span class="prev-arc-num">${cur+1}</span><span class="prev-arc-of">OF ${total}</span></div>
+        </div>
+        <span class="prev-pos-lbl">QUESTION ${cur+1}</span>
+      </div>
+    </div>
+    <div class="prev-prog-bar"><div class="prev-prog-fill" style="width:${pct}%;background:linear-gradient(90deg,${p},${a})"></div></div>
+    <div class="prev-q-card" style="--card-accent:${p}">
+      <div class="prev-q-card::before" style="display:none"></div>
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${p},${a})"></div>
+      <div class="prev-pills">
+        <span class="pill ${q.type==='scenario'?'pill-s':'pill-r'}">${typeLabel}</span>
+        <span class="pill ${q.source==='league'?'pill-l':'pill-i'}">${srcLabel}</span>
+      </div>
+      <div class="prev-q-text">${q.question}</div>
+      ${q.lawRef?`<span class="q-ref" style="margin-bottom:0">📋 ${q.lawRef}</span>`:''}
+    </div>
+    <div class="prev-answers" id="prev-answers">
+      ${opts.map((opt,i)=>`
+        <button class="prev-ans-btn" data-idx="${i}" onclick="handlePreviewAns(this,${i},${q.correct})">
+          <div class="prev-ans-letter">${['A','B','C','D'][i]}</div>
+          <div class="prev-ans-text">${opt}</div>
+        </button>`).join('')}
+    </div>
+    <div class="prev-exp" id="prev-exp">
+      <div class="prev-exp-lbl">📖 Official Ruling</div>
+      <div class="prev-exp-txt" id="prev-exp-txt"></div>
+    </div>
+    <button class="prev-next-btn" id="prev-next-btn"
+      style="background:linear-gradient(135deg,${p},${a})"
+      onclick="advancePreview()">
+      ${cur<total-1?'NEXT QUESTION →':'SEE MY SCORE →'}
+    </button>`;
+}
+
+window.handlePreviewAns = function(btn, chosen, correct) {
+  const allBtns = document.querySelectorAll('.prev-ans-btn');
+  allBtns.forEach((b,i)=>{
+    b.disabled=true;
+    if(i===correct) b.classList.add('correct');
+    else if(i===chosen) b.classList.add('wrong');
+    else b.classList.add('faded');
+  });
+  if(chosen===correct) previewScore++;
+  const q=previewQs[previewCur];
+  if(q.explanation){
+    document.getElementById('prev-exp-txt').textContent=q.explanation;
+    document.getElementById('prev-exp').style.display='block';
+  }
+  document.getElementById('prev-next-btn').style.display='block';
+  document.getElementById('preview-overlay').querySelector('.preview-scroll').scrollTo({top:999,behavior:'smooth'});
+};
+
+window.advancePreview = function() {
+  previewCur++;
+  if(previewCur>=previewQs.length) showPreviewScore();
+  else { renderPreviewQ(); document.getElementById('preview-overlay').querySelector('.preview-scroll').scrollTo(0,0); }
+};
+
+function showPreviewScore() {
+  const p=_prevP,a=_prevA,total=previewQs.length;
+  const pct=Math.round(previewScore/total*100);
+  const numQs=document.querySelector('#cr-num-seg .seg-btn.active')?.dataset.v||'10';
+  document.getElementById('prev-content').innerHTML=`
+    <div style="text-align:center;padding:44px 16px">
+      <div style="font-size:52px;margin-bottom:12px">${pct>=70?'🎉':pct>=40?'📚':'💪'}</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:3px;line-height:1;color:${pct>=70?p:'#ffd60a'}">${pct}%</div>
+      <div style="font-size:14px;color:var(--muted);margin-bottom:8px;margin-top:4px">${previewScore} / ${total} correct</div>
+      <div style="font-size:12px;color:var(--muted2);font-family:'DM Mono',monospace;margin-bottom:28px">3-question preview complete</div>
+      <div style="background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:20px;text-align:left">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:8px">READY TO SHARE?</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.7">Save your quiz link to share the full <strong style="color:var(--text)">${numQs}-question</strong> version with your referees — with your league's branding applied.</div>
+      </div>
+      <button onclick="document.getElementById('preview-overlay').classList.remove('show');document.getElementById('cr-save-btn').click()"
+        style="width:100%;padding:16px;background:${p};border:none;border-radius:14px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;cursor:pointer;margin-bottom:10px;transition:filter .2s">
+        SAVE QUIZ LINK →
+      </button>
+      <button onclick="previewCur=0;previewScore=0;renderPreviewQ();document.getElementById('preview-overlay').querySelector('.preview-scroll').scrollTo(0,0)"
+        style="width:100%;padding:13px;background:transparent;border:1px solid var(--border);border-radius:14px;color:var(--muted);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer">
+        REPLAY PREVIEW
+      </button>
+    </div>`;
+}
+
+document.getElementById('preview-close-btn').addEventListener('click',()=>document.getElementById('preview-overlay').classList.remove('show'));
+
+// Wire up create form changes → live preview panel
+document.getElementById('cr-age').addEventListener('change', updateCreatePreview);
+document.querySelectorAll('#cr-num-seg .seg-btn').forEach(b=>b.addEventListener('click',()=>setTimeout(updateCreatePreview,0)));
+document.querySelectorAll('#cr-time-seg .seg-btn').forEach(b=>b.addEventListener('click',()=>setTimeout(updateCreatePreview,0)));
+
+// Inline branding controls
+const crBrandColor = document.getElementById('cr-brand-color');
+const crBrandHex   = document.getElementById('cr-brand-hex');
+const crBrandNameI = document.getElementById('cr-brand-name');
+if (crBrandColor) {
+  crBrandColor.addEventListener('input', e=>{
+    brand.primary = e.target.value;
+    if (crBrandHex) crBrandHex.textContent = e.target.value;
+    updateCreatePreview();
+  });
+}
+if (crBrandNameI) {
+  crBrandNameI.addEventListener('input', e=>{
+    leagueName = e.target.value;
+    updateCreatePreview();
+  });
+}
+// Sync brand logo thumbnail with main logo upload
+const origLogoFile = document.getElementById('logo-file');
+if (origLogoFile) {
+  origLogoFile.addEventListener('change', ()=>{
+    setTimeout(()=>{
+      const thumb = document.getElementById('cr-brand-logo-thumb');
+      if (thumb && brand.logoDataUrl) {
+        thumb.innerHTML = `<img src="${brand.logoDataUrl}" style="width:100%;height:100%;object-fit:contain;border-radius:8px">`;
+      }
+    }, 500);
+  });
+}
+// Chevron toggle animation for branding details
+const brandDetails = document.getElementById('cr-brand-details');
+const brandChevron = document.getElementById('cr-brand-chevron');
+if (brandDetails && brandChevron) {
+  brandDetails.addEventListener('toggle', ()=>{
+    brandChevron.style.transform = brandDetails.open ? 'rotate(180deg)' : '';
+  });
+}
+
+// Stores the last created quiz URL for copy button
+let _lastCreatedUrl = '';
+// Tracks which quiz link is being edited (null = create mode)
+let editingLinkId = null;
+
+function copyQuizLink() {
+  if (!_lastCreatedUrl) return;
+  navigator.clipboard.writeText(_lastCreatedUrl).then(()=>{
+    const btn = document.getElementById('cr-copy-btn');
+    btn.textContent = 'COPIED!';
+    btn.style.background = 'var(--green)'; btn.style.color = '#080c09';
+    setTimeout(()=>{ btn.textContent='COPY'; btn.style.background='var(--green-dark)'; btn.style.color='#fff'; }, 2000);
+  }).catch(()=>{
+    // Fallback for Safari
+    const el = document.createElement('textarea');
+    el.value = _lastCreatedUrl;
+    el.style.position = 'fixed'; el.style.opacity = '0';
+    document.body.appendChild(el); el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    const btn = document.getElementById('cr-copy-btn');
+    btn.textContent = 'COPIED!'; btn.style.background = 'var(--green)'; btn.style.color = '#080c09';
+    setTimeout(()=>{ btn.textContent='COPY'; btn.style.background='var(--green-dark)'; btn.style.color='#fff'; }, 2000);
+  });
+}
+window.copyQuizLink = copyQuizLink;
+
+function resetCreateQuiz() {
+  document.getElementById('cr-success-state').style.display = 'none';
+  document.getElementById('cr-url-preview-row').style.display = '';
+  document.getElementById('cr-actions').style.display = 'block';
+  document.getElementById('cr-name').value = '';
+  document.getElementById('cr-url-preview').textContent = 'www.myrefiq.com/q/...';
+  // Reset division to default
+  document.getElementById('cr-age').value = 'rec-7th8th';
+  // Reset seg buttons to their default values
+  const segDefaults = {'cr-num-seg':'10','cr-time-seg':'0','cr-src-seg':'both','cr-mode-seg':'mixed'};
+  Object.entries(segDefaults).forEach(([id,val])=>{
+    document.querySelectorAll(`#${id} .seg-btn`).forEach(b=>b.classList.toggle('active',b.dataset.v===val));
+  });
+  // Clear editing state
+  editingLinkId = null;
+  const banner = document.getElementById('cr-edit-banner');
+  if (banner) banner.remove();
+  document.getElementById('cr-save-btn').textContent = 'CREATE QUIZ →';
+  crResources = [];
+  renderCreateResources();
+  _lastCreatedUrl = '';
+  clearLinkCapPrompt();
+  showLinkUsage();
+  updateCreatePreview();
+}
+
+document.getElementById('cr-save-btn').addEventListener('click', async()=>{
+  const name = document.getElementById('cr-name').value.trim();
+  if(!name){ showToast('create-err','Please enter a quiz name.'); return; }
+
+  // ── EDIT MODE: update existing quiz link ──
+  if (editingLinkId) {
+    const age       = document.getElementById('cr-age').value;
+    const num       = parseInt(document.querySelector('#cr-num-seg .seg-btn.active')?.dataset.v||'10');
+    const src       = document.querySelector('#cr-src-seg .seg-btn.active')?.dataset.v||'both';
+    const mode      = document.querySelector('#cr-mode-seg .seg-btn.active')?.dataset.v||'mixed';
+    const timeLimit = parseInt(document.querySelector('#cr-time-seg .seg-btn.active')?.dataset.v||'0');
+    setLoad(true,'Saving changes…');
+    const cleanResources = crResources.map(r=>({name:r.name,text:sanitizeResourceText(r.text)}));
+    try {
+      await updateDoc(doc(db,'quizLinks',editingLinkId),{
+        name,
+        settings:{division:age,num,source:src,mode,timeLimit},
+        resources:cleanResources,
+        questions:[],
+        updatedAt:serverTimestamp()
+      });
+    } catch(e){
+      setLoad(false);
+      showToast('create-err','Error saving changes: '+e.message);
+      return;
+    }
+    // Pre-generate updated questions
+    setLoad(true,`Regenerating ${num} questions…`);
+    try {
+      const questions = await preGenerateQuestions(age,num,src,mode,cleanResources);
+      await updateDoc(doc(db,'quizLinks',editingLinkId),{questions,questionsGeneratedAt:serverTimestamp()});
+    } catch(genErr) {
+      console.warn('[RefIQ] Pre-generation failed on edit (fallback enabled):', genErr.message);
+    }
+    await loadLinks();
+    renderOverview();
+    setLoad(false);
+    resetCreateQuiz();
+    showPage('links');
+    return;
+  }
+
+  // ── Plan cap check ──
+  const allowed = await checkLinkCap();
+  if (!allowed) return;
+
+  const age      = document.getElementById('cr-age').value;
+  const num      = parseInt(document.querySelector('#cr-num-seg .seg-btn.active')?.dataset.v||'10');
+  const src      = document.querySelector('#cr-src-seg .seg-btn.active')?.dataset.v||'both';
+  const mode     = document.querySelector('#cr-mode-seg .seg-btn.active')?.dataset.v||'mixed';
+  const timeLimit= parseInt(document.querySelector('#cr-time-seg .seg-btn.active')?.dataset.v||'0');
+  const shortCode= name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-+$/,'').substring(0,16).replace(/-+$/,'')+'-'+Math.random().toString(36).substring(2,6);
+
+  // Inline branding overrides
+  const inlineName  = document.getElementById('cr-brand-name')?.value.trim();
+  const inlineColor = document.getElementById('cr-brand-color')?.value;
+  if (inlineName && inlineName !== leagueName) leagueName = inlineName;
+  if (inlineColor && inlineColor !== brand.primary) brand.primary = inlineColor;
+
+  // ── Phase 1: Load branding, then save to quizLinks ──
+  setLoad(true,'Saving quiz link…');
+  let linkDocRef;
+  try {
+    // Load branding from leagues/{uid} doc
+    let brandingData = {
+      leagueName: leagueName || '',
+      logoUrl: brand.logoDataUrl || null,
+      primaryColor: brand.primary || '#ffd60a',
+      backgroundColor: brand.bg === 'custom' ? (brand.bgColor || '#080c09') : (brand.bg === 'light' ? '#f5f5f0' : '#080c09'),
+      surfaceColor: '#111711',
+      textColor: '#ffffff'
+    };
+    try {
+      const lgSnap = await getDoc(doc(db,'leagues',leagueId));
+      if (lgSnap.exists()) {
+        const d = lgSnap.data();
+        brandingData = {
+          leagueName: d.name || d.leagueName || leagueName || '',
+          logoUrl: d.logoDataUrl || null,
+          primaryColor: d.brandColor || '#ffd60a',
+          backgroundColor: d.brandBg === 'custom' ? (d.brandBgColor || '#080c09') : (d.brandBg === 'light' ? '#f5f5f0' : '#080c09'),
+          surfaceColor: '#111711',
+          textColor: '#ffffff'
+        };
+      }
+    } catch(e) { console.warn('[RefIQ] Branding load failed:', e); }
+
+    const focusMap = { ifab:'IFAB Only', league:'League Only', both:'Both' };
+    const modeMap  = { mixed:'Mixed', scenarios:'Scenarios', rules:'Rules Only' };
+    linkDocRef = doc(db,'quizLinks',shortCode);
+    await setDoc(linkDocRef, {
+      slug: shortCode,
+      linkName: name,
+      createdBy: currentUser.uid,
+      createdByEmail: currentUser.email || '',
+      createdAt: serverTimestamp(),
+      division: age,
+      numberOfQuestions: num,
+      timePerQuestion: timeLimit > 0 ? String(timeLimit) : 'none',
+      focus: focusMap[src] || 'Both',
+      mode: modeMap[mode] || 'Mixed',
+      active: true,
+      url: `https://www.myrefiq.com/q/${shortCode}`,
+      branding: brandingData,
+      resources: crResources.map(r=>({name:r.name, text:sanitizeResourceText(r.text)})),
+      questions: [],
+      leagueId
+    });
+  } catch(e) {
+    setLoad(false);
+    showToast('create-err','Error saving link: '+e.message);
+    return;
+  }
+
+  // ── Phase 2: Pre-generate questions ──
+  setLoad(true,`Generating ${num} questions…`);
+  try {
+    const questions = await preGenerateQuestions(age, num, src, mode,
+      crResources.map(r=>({name:r.name, text:sanitizeResourceText(r.text)})));
+    await updateDoc(linkDocRef, {
+      questions,
+      questionsGeneratedAt: serverTimestamp()
+    });
+  } catch(genErr) {
+    // Non-fatal — quiz player will fall back to on-demand generation
+    console.warn('[RefIQ] Pre-generation failed (fallback enabled):', genErr.message);
+  }
+
+  // ── Success ──
+  await loadLinks();
+  renderOverview();
+  showLinkUsage();
+  clearLinkCapPrompt();
+
+  const url = `https://www.myrefiq.com/q/${shortCode}`;
+  _lastCreatedUrl = url;
+  document.getElementById('cr-success-url').textContent = `www.myrefiq.com/q/${shortCode}`;
+  document.getElementById('cr-url-preview-row').style.display = 'none';
+  document.getElementById('cr-actions').style.display = 'none';
+  document.getElementById('cr-success-state').style.display = 'block';
+  document.getElementById('cr-brand-details').removeAttribute('open');
+  crResources = [];
+  renderCreateResources();
+  setLoad(false);
+});
+
+// ── LINKS PAGE ────────────────────────────────────────────────────────────────
+function renderLinks() {
+  if(allLinks.length===0) {
+    document.getElementById('links-empty').style.display='block';
+    document.getElementById('links-grid').style.display='none';
+    return;
+  }
+  document.getElementById('links-empty').style.display='none';
+  document.getElementById('links-grid').style.display='grid';
+  document.getElementById('links-grid').innerHTML = allLinks.map(l=>{
+    const url = `https://www.myrefiq.com/q/${l.shortCode}`;
+    const linkRes = allResults.filter(r=>r.quizLinkId===l.id);
+    const completedRes = linkRes.filter(r => r.status !== 'started' && r.score !== undefined);
+    const taken = completedRes.length;
+    const passed = completedRes.filter(r=>r.passed).length;
+    const passRate = taken ? Math.round(passed/taken*100) : null;
+    const avgScore = taken ? Math.round(completedRes.reduce((a,r)=>a+Math.round(r.score/r.total*100),0)/taken) : null;
+    const s = l.settings||{};
+    const divLabels={rec_young:'Rec Young',rec_lower:'Rec Lower',rec_upper5:'Rec Upper (5-6)',rec_middle:'Rec Middle',comp_u9u10:'Comp U9/U10',comp_u11u12:'Comp U11/U12',comp_u13u14:'Comp U13/U14',comp_u15u16:'Comp U15/U16',comp_u17u18:'Comp U17/U18',hs_jv:'HS JV',hs_varsity:'HS Varsity',adult_rec:'Adult Rec',adult_comp:'Adult Comp',college_club:'College Club',college_varsity:'College Varsity',pdl:'PDL',rec_mid:'Rec Mid',rec_upper:'Rec Upper',high_school:'High School',adult_amateur:'Adult Amateur',competitive:'Competitive'};
+    const divLabel = divLabels[s.division]||s.division||'';
+    const questionsReady = l.questions && l.questions.length > 0;
+    return `<div class="link-card">
+      <div class="link-card-header">
+        <div class="link-card-icon">🔗</div>
+        <div style="flex:1;min-width:0">
+          <div class="link-card-title">${l.name}</div>
+          <div class="link-card-url">/q/${l.shortCode}</div>
+          ${divLabel?`<div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px">${divLabel} · ${s.num||10} Qs${questionsReady?' · <span style="color:var(--green)">⚡ Ready</span>':''}</div>`:''}
+        </div>
+        <div style="margin-left:8px;flex-shrink:0">
+          ${passRate !== null
+            ? `<span class="badge ${passRate>=70?'badge-green':'badge-gold'}">${passRate}% pass</span>`
+            : `<span class="badge" style="color:var(--muted);background:rgba(255,255,255,.04);border-color:var(--border)">No results</span>`}
+        </div>
+      </div>
+      ${taken > 0 ? `
+      <div class="link-card-stats">
+        <div class="link-stat">
+          <div class="link-stat-num" style="color:${passRate>=70?'var(--green)':'var(--gold)'}">${passRate}%</div>
+          <div class="link-stat-lbl">Pass Rate</div>
+        </div>
+        <div class="link-stat">
+          <div class="link-stat-num" style="color:var(--text)">${taken}</div>
+          <div class="link-stat-lbl">Taken</div>
+        </div>
+        <div class="link-stat">
+          <div class="link-stat-num" style="color:var(--muted)">${avgScore}%</div>
+          <div class="link-stat-lbl">Avg Score</div>
+        </div>
+        <div class="link-stat">
+          <div class="link-stat-num" style="color:var(--green)">${passed}</div>
+          <div class="link-stat-lbl">Passed</div>
+        </div>
+      </div>` : ''}
+      <div class="link-card-body">
+        <button class="copy-btn" onclick="copyLink('${url}',this)">📋 Copy Link</button>
+        <button class="copy-btn" onclick="window.open('${url}','_blank')">↗ Open</button>
+        <button class="copy-btn" onclick="editLink('${l.id}')">✏️ Edit</button>
+        <button class="delete-link-btn" onclick="deleteLink('${l.id}')">🗑 Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.copyLink = async (url, btn) => {
+  await navigator.clipboard.writeText(url);
+  btn.classList.add('copied');
+  btn.textContent='✓ Copied!';
+  setTimeout(()=>{btn.classList.remove('copied');btn.textContent='📋 Copy Link';},2000);
+};
+window.deleteLink = async id => {
+  if(!confirm('Delete this quiz? Referees will no longer be able to access it. Results data is preserved.')) return;
+  try {
+    await updateDoc(doc(db,'quizLinks',id), { active: false, deletedAt: serverTimestamp() });
+    await loadLinks();
+    renderLinks();
+    renderOverview();
+    showLinkUsage();
+    clearLinkCapPrompt(); // cap may now be cleared — let user create again
+  } catch(e) { showToast('create-err','Error deleting link: '+e.message); }
+};
+
+window.editLink = function(id) {
+  const l = allLinks.find(x=>x.id===id);
+  if (!l) return;
+  editingLinkId = id;
+  const s = l.settings || {};
+
+  showPage('create');
+  // Ensure form is visible (hide success state if showing)
+  document.getElementById('cr-success-state').style.display = 'none';
+  document.getElementById('cr-url-preview-row').style.display = '';
+  document.getElementById('cr-actions').style.display = 'block';
+
+  // Pre-fill name
+  document.getElementById('cr-name').value = l.name || '';
+
+  // Pre-fill division
+  if (s.division) {
+    const migratedDiv = DIVISION_MIGRATION[s.division] || s.division;
+    document.getElementById('cr-age').value = migratedDiv;
+  }
+
+  // Pre-fill seg buttons
+  const segMap = {
+    'cr-num-seg':  String(s.num || '10'),
+    'cr-time-seg': String(s.timeLimit || '0'),
+    'cr-src-seg':  s.source || 'both',
+    'cr-mode-seg': s.mode   || 'mixed'
+  };
+  Object.entries(segMap).forEach(([segId,val])=>{
+    document.querySelectorAll(`#${segId} .seg-btn`).forEach(b=>b.classList.toggle('active',b.dataset.v===val));
+  });
+
+  // Pre-fill resources
+  crResources = (l.resources||[]).map(r=>({name:r.name, text:r.text}));
+  renderCreateResources();
+
+  // Show/update editing banner above the action buttons
+  const safeName = (l.name||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  let banner = document.getElementById('cr-edit-banner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'cr-edit-banner';
+    banner.style.cssText = 'background:rgba(255,214,10,.07);border:1.5px solid rgba(255,214,10,.3);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:8px;margin-bottom:12px';
+    document.getElementById('cr-actions').before(banner);
+  }
+  banner.innerHTML = '<span style="font-size:16px">✏️</span><span style="font-family:\'DM Sans\',sans-serif;font-size:13px;color:rgba(255,255,255,.8)">Editing <strong style="color:#ffd60a">'+safeName+'</strong> — changes will update the existing quiz link.</span>';
+
+  // Change save button label
+  document.getElementById('cr-save-btn').textContent = 'SAVE CHANGES →';
+
+  updateCreatePreview();
+};
+
+// ── RESULTS PAGE ──────────────────────────────────────────────────────────────
+let resultsFilter = { search: '', linkId: '', status: 'all' };
+
+function applyResultsFilter() {
+  let filtered = allResults;
+  if (resultsFilter.search) {
+    const s = resultsFilter.search.toLowerCase();
+    filtered = filtered.filter(r => (r.refereeName||'').toLowerCase().includes(s));
+  }
+  if (resultsFilter.linkId) {
+    filtered = filtered.filter(r => r.quizLinkId === resultsFilter.linkId);
+  }
+  if (resultsFilter.status === 'pass') filtered = filtered.filter(r => r.passed);
+  if (resultsFilter.status === 'fail') filtered = filtered.filter(r => !r.passed && r.status !== 'started' && r.score !== undefined);
+  if (resultsFilter.status === 'abandoned') filtered = filtered.filter(r => r.status === 'started' || (r.score === undefined && r.total === undefined));
+  renderResults(filtered);
+}
+
+function renderResults(data) {
+  const rows = data !== undefined ? data : allResults;
+  if(allResults.length===0) {
+    document.getElementById('results-empty').style.display='block';
+    document.getElementById('results-filter-wrap').style.display='none';
+    document.getElementById('results-table-card').style.display='none';
+    return;
+  }
+  document.getElementById('results-empty').style.display='none';
+  document.getElementById('results-filter-wrap').style.display='block';
+  // Populate link filter dropdown
+  const linkSel = document.getElementById('rf-link-filter');
+  const currentVal = linkSel.value;
+  linkSel.innerHTML = '<option value="">All quizzes</option>' +
+    allLinks.map(l=>`<option value="${l.id}">${l.name}</option>`).join('');
+  linkSel.value = currentVal;
+  // Update count
+  document.getElementById('rf-count').textContent = rows.length === allResults.length
+    ? `${rows.length} result${rows.length!==1?'s':''}`
+    : `${rows.length} of ${allResults.length}`;
+
+  if(rows.length===0) {
+    document.getElementById('results-table-card').style.display='none';
+    // Show no-match message
+    document.getElementById('results-filter-wrap').insertAdjacentHTML('afterend',
+      '<div id="rf-nomatch" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">No results match your filter.</div>');
+    return;
+  }
+  document.getElementById('rf-nomatch')?.remove();
+  document.getElementById('results-table-card').style.display='block';
+  document.getElementById('results-tbody').innerHTML = rows.map(r=>{
+    const isAbandoned = r.status === 'started' || (r.score === undefined && r.total === undefined);
+    const pct = isAbandoned ? null : Math.round(r.score/r.total*100);
+    const scoreColor = pct !== null ? (pct>=70?'var(--green)':pct>=60?'var(--gold)':'var(--red)') : 'var(--muted)';
+    const cls = pct !== null ? (pct>=70?'':'mid') : '';
+    const ts = r.createdAt || r.startedAt;
+    const t = ts?.toDate ? ts.toDate().toLocaleDateString() : '—';
+    const scoreCell = isAbandoned
+      ? `<span style="font-size:12px;color:var(--muted)">—</span>`
+      : `<div class="score-bar-wrap"><div class="score-bar"><div class="score-bar-fill ${cls}" style="width:${pct}%"></div></div><span style="font-family:'DM Mono',monospace;font-size:12px;width:36px;flex-shrink:0;color:${scoreColor}">${pct}%</span></div>`;
+    const statusBadge = isAbandoned
+      ? `<span class="badge" style="background:rgba(255,255,255,.04);border-color:var(--border);color:var(--muted)">ABANDONED</span>`
+      : `<span class="badge ${r.passed?'badge-green':'badge-gold'}">${r.passed?'PASS':'RETRY'}</span>`;
+    return `<tr>
+      <td style="font-weight:600">${r.refereeName||'—'}</td>
+      <td style="color:var(--muted)">${r.quizLinkName||'—'}</td>
+      <td>${scoreCell}</td>
+      <td>${statusBadge}</td>
+      <td style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace">${t}</td>
+    </tr>`;
+  }).join('');
+}
+
+// Wire up filter controls
+document.getElementById('rf-search').addEventListener('input', e => {
+  resultsFilter.search = e.target.value.trim();
+  applyResultsFilter();
+});
+document.getElementById('rf-link-filter').addEventListener('change', e => {
+  resultsFilter.linkId = e.target.value;
+  applyResultsFilter();
+});
+document.getElementById('rf-status-seg').addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  document.querySelectorAll('#rf-status-seg button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  resultsFilter.status = btn.dataset.v;
+  applyResultsFilter();
+});
+
+document.getElementById('export-csv-btn').addEventListener('click',()=>{
+  if(!allResults.length)return;
+  const rows=[['Referee','Quiz','Score','Percentage','Passed','Date'],...allResults.map(r=>{
+    const pct=Math.round(r.score/r.total*100);
+    const t=r.createdAt?.toDate?r.createdAt.toDate().toLocaleDateString():'';
+    return[r.refereeName||'',r.quizLinkName||'',`${r.score}/${r.total}`,pct+'%',r.passed?'Yes':'No',t];
+  })];
+  const csv=rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='refiq-results.csv'; a.click();
+});
+
+// ── GLOBAL RESOURCES ──────────────────────────────────────────────────────────
+const gDz=document.getElementById('global-drop');
+const gFi=document.getElementById('global-file');
+gDz.addEventListener('dragover',e=>{e.preventDefault();gDz.classList.add('over');});
+gDz.addEventListener('dragleave',()=>gDz.classList.remove('over'));
+gDz.addEventListener('drop',e=>{e.preventDefault();gDz.classList.remove('over');[...e.dataTransfer.files].forEach(f=>handleGlobalFile(f));});
+gFi.addEventListener('change',e=>{[...e.target.files].forEach(f=>handleGlobalFile(f));gFi.value='';});
+
+async function handleGlobalFile(file) {
+  const reader=new FileReader();
+  const ext=file.name.split('.').pop().toLowerCase();
+  const process = async text=>{
+    setLoad(true,'Saving document…');
+    try{
+      await addDoc(collection(db,'leagues',leagueId,'resources'),{name:file.name,text:text.substring(0,6000),createdAt:serverTimestamp()});
+      await loadGlobalResources();
+      showToast('res-success');
+    }finally{setLoad(false);}
+  };
+  if(ext==='pdf'){
+    reader.onload=e=>process(extractPdfText(e.target.result));
+    reader.readAsArrayBuffer(file);
+  }else{reader.onload=e=>process(e.target.result);reader.readAsText(file);}
+}
+function renderGlobalResources(){
+  document.getElementById('global-res-list').innerHTML=globalResources.map((r,i)=>
+    `<div class="res-chip"><span class="res-chip-icon">📄</span><span class="res-chip-name">${r.name}</span><button class="res-chip-rm" onclick="deleteGlobalRes('${r.id}')">✕</button></div>`
+  ).join('');
+}
+window.deleteGlobalRes=async id=>{
+  await deleteDoc(doc(db,'leagues',leagueId,'resources',id));
+  await loadGlobalResources();
+};
+
+// ── BRANDING STUDIO ───────────────────────────────────────────────────────────
+const BG_COLORS = {dark:'#0a0f0b', light:'#f5f5f0'};
+// Cached NodeLists for hot color-input path (fixed preview DOM, never changes)
+const _previewOpts    = ()=>[...document.querySelectorAll('.preview-opt:not(.hi)')];
+const _previewLetters = ()=>[...document.querySelectorAll('.preview-opt-letter:not(#preview-letter-a)')];
+let _previewOptsCache, _previewLettersCache;
+
+function updatePreview(){
+  const p=brand.primary, a=brand.accent, f=brand.font;
+  // Background
+  const bgCol = brand.bg==='custom' ? brand.bgColor : (BG_COLORS[brand.bg]||BG_COLORS.dark);
+  const dark=!isLight(bgCol);
+  document.getElementById('preview-frame').style.background=bgCol;
+  // Text colors adapt to bg
+  const textMain=dark?'rgba(255,255,255,.9)':'rgba(0,0,0,.85)';
+  const optBorder=dark?'rgba(255,255,255,.07)':'rgba(0,0,0,.1)';
+  const optBg=dark?'rgba(255,255,255,.03)':'rgba(0,0,0,.03)';
+  const previewQ=document.getElementById('preview-q');
+  previewQ.style.color=textMain; previewQ.style.fontFamily=`'${f}',sans-serif`;
+  if(!_previewOptsCache) _previewOptsCache=_previewOpts();
+  if(!_previewLettersCache) _previewLettersCache=_previewLetters();
+  _previewOptsCache.forEach(el=>{el.style.borderColor=optBorder;el.style.background=optBg;el.style.color=textMain;});
+  _previewLettersCache.forEach(el=>{el.style.background=dark?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';el.style.color=textMain;});
+  // Accent gradients
+  const grad=`linear-gradient(90deg,${p},${a})`;
+  document.getElementById('preview-topbar').style.background=grad;
+  document.getElementById('preview-prog').style.background=grad;
+  document.getElementById('preview-league-name').style.color=p;
+  document.getElementById('preview-opt-a').style.borderColor=p;
+  document.getElementById('preview-opt-a').style.background=p+'18';
+  document.getElementById('preview-letter-a').style.background=p;
+  document.getElementById('preview-letter-a').style.color=isLight(p)?'#000':'#fff';
+  if(brand.logoDataUrl){
+    document.getElementById('preview-logo-el').innerHTML=`<img src="${brand.logoDataUrl}" style="width:34px;height:34px;object-fit:contain;border-radius:6px">`;
+  }
+}
+function updatePreviewName(name){document.getElementById('preview-league-name').textContent=name.toUpperCase();}
+function isLight(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return(r*299+g*587+b*114)/1000>128;}
+function selectFont(font){
+  document.querySelectorAll('.font-opt').forEach(el=>el.classList.toggle('sel',el.dataset.font===font));
+  brand.font=font;updatePreview();
+}
+function selectBg(bg){
+  document.querySelectorAll('.bg-opt').forEach(el=>el.classList.toggle('sel',el.dataset.bg===bg));
+  brand.bg=bg;
+  document.getElementById('custom-bg-row').style.display=bg==='custom'?'block':'none';
+  updatePreview();
+}
+bindColorPicker('color-primary','primary','hex-primary','swatch-primary');
+bindColorPicker('color-accent', 'accent', 'hex-accent', 'swatch-accent');
+bindColorPicker('color-bg',     'bgColor','hex-bg',     null);
+document.querySelectorAll('.font-opt').forEach(el=>el.addEventListener('click',()=>selectFont(el.dataset.font)));
+document.querySelectorAll('.bg-opt').forEach(el=>el.addEventListener('click',()=>selectBg(el.dataset.bg)));
+
+// Logo upload
+document.getElementById('logo-file').addEventListener('change',e=>{
+  const file=e.target.files[0]; if(!file)return;
+  if(file.size>600000){alert('Logo must be under 500KB');return;}
+  const reader=new FileReader();
+  reader.onload=ev=>{brand.logoDataUrl=ev.target.result;showLogoPreview(ev.target.result);updatePreview();};
+  reader.readAsDataURL(file);
+});
+function showLogoPreview(src){
+  document.getElementById('logo-upload-ph').style.display='none';
+  const img=document.getElementById('logo-preview');img.src=src;img.style.display='block';
+}
+
+document.getElementById('save-brand-btn').addEventListener('click',async()=>{
+  setLoad(true,'Saving branding…');
+  try{
+    await setDoc(doc(db,'leagues',leagueId),{
+      brandColor:brand.primary,brandAccent:brand.accent,
+      brandFont:brand.font,brandBg:brand.bg,brandBgColor:brand.bgColor,
+      ...(brand.logoDataUrl&&{logoDataUrl:brand.logoDataUrl}),
+      updatedAt:serverTimestamp()
+    },{merge:true});
+    showToast('brand-success');
+  }catch(e){alert('Save failed: '+e.message);}
+  finally{setLoad(false);}
+});
+
+// Settings
+document.getElementById('set-name').addEventListener('input',e=>updatePreviewName(e.target.value||'YOUR LEAGUE'));
+document.getElementById('save-settings-btn').addEventListener('click',async()=>{
+  const name=document.getElementById('set-name').value.trim();
+  const tagline=document.getElementById('set-tagline').value.trim();
+  const email=document.getElementById('set-email').value.trim();
+  setLoad(true,'Saving…');
+  try{
+    await setDoc(doc(db,'leagues',leagueId),{name,tagline,email,updatedAt:serverTimestamp()},{merge:true});
+    if (name) leagueName = name; // keep in-memory leagueName in sync
+    showToast('settings-success');
+  }finally{setLoad(false);}
+});
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function setLoad(v,msg='Loading…'){
+  document.getElementById('loading').classList.toggle('show',v);
+  document.getElementById('load-sub').textContent=msg;
+}
+function showToast(id,msg){
+  const el=document.getElementById(id);
+  if(msg&&el.querySelector('span:last-child'))el.querySelector('span:last-child').textContent=msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),4000);
+}
+// Init swatches
+document.getElementById('swatch-primary').style.background='#ffd60a';
+document.getElementById('swatch-accent').style.background='#ffd60a';
+
+// Make the entire .color-pick card trigger the hidden color input (not just the swatch)
+document.querySelectorAll('.color-pick').forEach(pick=>{
+  const inp = pick.querySelector('input[type="color"]');
+  if (!inp) return;
+  pick.style.cursor = 'pointer';
+  pick.addEventListener('click', e=>{ if(e.target !== inp) inp.click(); });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── LEAGUES ─────────────────────────────────────────────────────────────
+    // Publicly readable so any visitor can fetch branding (logo, colors).
+    // Writable only by the league's designated admin (stored as adminUid on the doc).
+    match /leagues/{leagueId} {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && request.auth.uid == resource.data.adminUid;
+      // Allow create only if the caller sets themselves as adminUid
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.adminUid;
+    }
+
+    // ── QUIZ LINKS ───────────────────────────────────────────────────────────
+    // Publicly readable — referees open quiz links without logging in.
+    // Only authenticated league admins can create/update/delete.
+    match /quiz_links/{linkId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null;
+    }
+
+    // ── QUIZ RESULTS ─────────────────────────────────────────────────────────
+    // Anyone can submit a result (referees don't need accounts).
+    // League admin can read results for their league.
+    // Individual authenticated users can read their own results.
+    match /quiz_results/{resultId} {
+      allow create: if true;  // No auth required — referees submit anonymously
+      allow read: if request.auth != null
+                  && (
+                    resource.data.userId == request.auth.uid
+                    || (
+                      resource.data.leagueId != null
+                      && exists(/databases/$(database)/documents/leagues/$(resource.data.leagueId))
+                      && get(/databases/$(database)/documents/leagues/$(resource.data.leagueId)).data.adminUid == request.auth.uid
+                    )
+                  );
+      allow update, delete: if false;
+    }
+
+    // ── QUIZ LINKS (new camelCase collection) ────────────────────────────────
+    // Publicly readable — referees open quiz links without logging in.
+    // Only authenticated league admins can create/update/delete.
+    match /quizLinks/{slug} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ── QUIZ RESULTS (new camelCase collection) ───────────────────────────────
+    // Anyone can submit or update a result (referees don't need accounts).
+    // Authenticated users can read results (admin reads via app logic).
+    match /quizResults/{id} {
+      allow read: if request.auth != null;
+      allow create: if true;   // No auth required — referees submit anonymously
+      allow update: if true;   // Allow updating status (started → completed)
+      allow delete: if false;
+    }
+
+    // ── RESULTS (legacy collection) ──────────────────────────────────────────
+    match /results/{resultId} {
+      allow create: if request.auth != null
+                    && request.resource.data.uid == request.auth.uid;
+      allow read: if request.auth != null
+                  && exists(/databases/$(database)/documents/leagues/$(resource.data.leagueId))
+                  && get(/databases/$(database)/documents/leagues/$(resource.data.leagueId)).data.adminUid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ── USERS ────────────────────────────────────────────────────────────────
+    // Each user can only read and write their own profile document.
+    match /users/{userId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "rewrites": [
+    { "source": "/__/auth/:path*",     "destination": "https://refiq-b8142.firebaseapp.com/__/auth/:path*" },
+    { "source": "/__/firebase/:path*", "destination": "https://refiq-b8142.firebaseapp.com/__/firebase/:path*" },
+    { "source": "/q/:path*",           "destination": "/quiz.html" },
+    { "source": "/app",                "destination": "/app.html" },
+    { "source": "/admin",              "destination": "/admin.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Frame-Options",       "value": "DENY" },
+        { "key": "X-Content-Type-Options","value": "nosniff" }
+      ]
+    },
+    {
+      "source": "/:file*.png",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
+    },
+    {
+      "source": "/favicon:ext*",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
+    },
+    {
+      "source": "/:file*.ico",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
+    }
+  ],
+  "functions": {
+    "api/quiz.js": {
+      "maxDuration": 30
+    }
+  }
+}
