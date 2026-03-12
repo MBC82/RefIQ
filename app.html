@@ -733,12 +733,17 @@ import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
 
 // Initialise Firebase — wrapped so a missing/broken config shows a visible error
 // instead of a silent blank page.
+const firebaseConfig = {
+  apiKey: 'AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM',
+  authDomain: 'refiq-b8142.firebaseapp.com',
+  projectId: 'refiq-b8142',
+  storageBucket: 'refiq-b8142.firebasestorage.app',
+  messagingSenderId: '62305657245',
+  appId: '62305657245:web:d6e35a80859ee8fdd00f74'
+};
 let fbApp, auth, db;
 try {
-  const _res = await fetch('/api/firebase-config');
-  const FB   = await _res.json();
-  if (!FB?.apiKey) throw new Error(FB?.error || 'Firebase config missing. Add FIREBASE_* env vars in Vercel → Settings → Environment Variables.');
-  fbApp = initializeApp(FB);
+  fbApp = initializeApp(firebaseConfig);
   auth  = getAuth(fbApp);
   db    = getFirestore(fbApp);
 } catch (_initErr) {

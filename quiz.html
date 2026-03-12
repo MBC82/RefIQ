@@ -370,32 +370,19 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getFirestore, doc, getDoc, getDocs, addDoc, collection, query, where, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Cache Firebase config in localStorage (1-hour TTL) — avoids cold-start round-trip on repeat visits
-async function _loadFBConfig() {
-  const KEY = 'refiq_fb_cfg', TTL = 3_600_000;
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (raw) {
-      const { ts, d } = JSON.parse(raw);
-      if (Date.now() - ts < TTL) {
-        // Silently refresh in background so next visit is fast too
-        fetch('/api/firebase-config').then(r => r.json()).then(d =>
-          localStorage.setItem(KEY, JSON.stringify({ ts: Date.now(), d }))).catch(() => {});
-        return d;
-      }
-    }
-  } catch(_) {}
-  const d = await (await fetch('/api/firebase-config')).json();
-  try { localStorage.setItem(KEY, JSON.stringify({ ts: Date.now(), d })); } catch(_) {}
-  return d;
-}
 // Initialise Firebase — wrapped so a missing/broken config shows the error screen
 // instead of hanging on the loading spinner forever.
+const firebaseConfig = {
+  apiKey: 'AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM',
+  authDomain: 'refiq-b8142.firebaseapp.com',
+  projectId: 'refiq-b8142',
+  storageBucket: 'refiq-b8142.firebasestorage.app',
+  messagingSenderId: '62305657245',
+  appId: '62305657245:web:d6e35a80859ee8fdd00f74'
+};
 let fbApp, db;
 try {
-  const FB = await _loadFBConfig();
-  if (!FB?.apiKey) throw new Error(FB?.error || 'Firebase config missing. Add FIREBASE_* env vars in Vercel → Settings → Environment Variables.');
-  fbApp = initializeApp(FB);
+  fbApp = initializeApp(firebaseConfig);
   db    = getFirestore(fbApp);
 } catch (_initErr) {
   // Use the existing error screen — showError() isn't defined yet at this point
