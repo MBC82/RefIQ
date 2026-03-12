@@ -389,9 +389,26 @@ async function _loadFBConfig() {
   try { localStorage.setItem(KEY, JSON.stringify({ ts: Date.now(), d })); } catch(_) {}
   return d;
 }
-const FB = await _loadFBConfig();
-const fbApp = initializeApp(FB);
-const db    = getFirestore(fbApp);
+// Initialise Firebase — wrapped so a missing/broken config shows the error screen
+// instead of hanging on the loading spinner forever.
+let fbApp, db;
+try {
+  const FB = await _loadFBConfig();
+  if (!FB?.apiKey) throw new Error(FB?.error || 'Firebase config missing. Add FIREBASE_* env vars in Vercel → Settings → Environment Variables.');
+  fbApp = initializeApp(FB);
+  db    = getFirestore(fbApp);
+} catch (_initErr) {
+  // Use the existing error screen — showError() isn't defined yet at this point
+  // so we manipulate the DOM elements directly.
+  document.getElementById('loading')?.classList.add('hide');
+  const errTitle = document.getElementById('err-title');
+  const errMsg   = document.getElementById('err-msg');
+  const errScr   = document.getElementById('scr-error');
+  if (errTitle) errTitle.textContent = 'CONFIG ERROR';
+  if (errMsg)   errMsg.textContent   = _initErr.message;
+  if (errScr)   errScr.classList.add('show');
+  throw _initErr; // halt module execution
+}
 
 const IFAB = `IFAB 2025/26 Laws Summary:
 LAW 3: Min 7 players. Only captain speaks to referee.

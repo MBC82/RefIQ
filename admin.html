@@ -1187,11 +1187,31 @@ import { getFirestore, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc,
   collection, query, where, getDocs, orderBy, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-const FB = await (await fetch('/api/firebase-config')).json();
-const fbApp = initializeApp(FB);
-const auth  = getAuth(fbApp);
-const db    = getFirestore(fbApp);
-const gp    = new GoogleAuthProvider();
+// Initialise Firebase — wrapped so a missing/broken config shows a visible error
+// instead of a silent blank page.
+let fbApp, auth, db;
+try {
+  const _res = await fetch('/api/firebase-config');
+  const FB   = await _res.json();
+  if (!FB?.apiKey) throw new Error(FB?.error || 'Firebase config missing. Add FIREBASE_* env vars in Vercel → Settings → Environment Variables.');
+  fbApp = initializeApp(FB);
+  auth  = getAuth(fbApp);
+  db    = getFirestore(fbApp);
+} catch (_initErr) {
+  // Show a visible error card instead of a blank page
+  const ld = document.getElementById('loading');
+  if (ld) {
+    ld.classList.add('show');
+    const card = ld.querySelector('.load-card');
+    if (card) card.innerHTML =
+      '<div style="font-size:36px;margin-bottom:12px">⚠️</div>' +
+      '<div class="load-title" style="color:#ff453a">CONFIG ERROR</div>' +
+      '<div class="load-sub" style="margin-top:10px;line-height:1.6;max-width:260px">' +
+      _initErr.message + '</div>';
+  }
+  throw _initErr; // halt module execution
+}
+const gp = new GoogleAuthProvider();
 
 let currentUser = null, leagueId = null, currentRole = null;
 let brand = { primary:'#ffd60a', accent:'#ffd60a', bg:'dark', bgColor:'#0a0f0b', font:'Bebas Neue', logoDataUrl:null };
