@@ -531,14 +531,10 @@ async function fetchQuizLink() {
   let snap = await getDoc(doc(db, 'quizLinks', shortCode));
   if (snap.exists()) { quizLinkId = snap.id; quizLink = snap.data(); return true; }
 
-  // 2) Intermediate: quizLinks collection, queried by slug or shortCode field
+  // 2) Fallback: quizLinks collection, queried by slug or shortCode field
   let qs = await getDocs(query(collection(db, 'quizLinks'), where('slug', '==', shortCode)));
   if (qs.empty) qs = await getDocs(query(collection(db, 'quizLinks'), where('shortCode', '==', shortCode)));
   if (!qs.empty) { quizLinkId = qs.docs[0].id; quizLink = qs.docs[0].data(); return true; }
-
-  // 3) Legacy format: quiz_links collection, shortCode field
-  const legacy = await getDocs(query(collection(db, 'quiz_links'), where('shortCode', '==', shortCode)));
-  if (!legacy.empty) { quizLinkId = legacy.docs[0].id; quizLink = legacy.docs[0].data(); return true; }
 
   return false;
 }
@@ -555,7 +551,7 @@ async function fetchLeagueBranding(leagueId) {
     };
     return;
   }
-  // Fallback: fetch from leagues collection (legacy quiz_links format)
+  // Fallback: fetch from leagues collection
   try {
     const snap = await getDoc(doc(db, 'leagues', leagueId));
     if (snap.exists()) leagueBranding = snap.data();
@@ -604,7 +600,7 @@ document.getElementById('referee-name').addEventListener('keydown', e => {
 
 // ── GENERATE AND START QUIZ ────────────────────────────────────────────────────
 async function generateAndStartQuiz() {
-  // Support both new quizLinks field names and legacy quiz_links settings object
+  // Support both flat quizLinks field names and nested settings object
   const num      = parseInt(quizLink.numberOfQuestions || quizLink.settings?.num) || 10;
   const division = quizLink.division || quizLink.settings?.division || 'rec-7th8th';
   const focusRaw = (quizLink.focus || quizLink.settings?.source || 'both').toLowerCase();
