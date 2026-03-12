@@ -370,7 +370,26 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getFirestore, doc, getDoc, getDocs, addDoc, collection, query, where, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-const FB = await (await fetch('/api/firebase-config')).json();
+// Cache Firebase config in localStorage (1-hour TTL) — avoids cold-start round-trip on repeat visits
+async function _loadFBConfig() {
+  const KEY = 'refiq_fb_cfg', TTL = 3_600_000;
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) {
+      const { ts, d } = JSON.parse(raw);
+      if (Date.now() - ts < TTL) {
+        // Silently refresh in background so next visit is fast too
+        fetch('/api/firebase-config').then(r => r.json()).then(d =>
+          localStorage.setItem(KEY, JSON.stringify({ ts: Date.now(), d }))).catch(() => {});
+        return d;
+      }
+    }
+  } catch(_) {}
+  const d = await (await fetch('/api/firebase-config')).json();
+  try { localStorage.setItem(KEY, JSON.stringify({ ts: Date.now(), d })); } catch(_) {}
+  return d;
+}
+const FB = await _loadFBConfig();
 const fbApp = initializeApp(FB);
 const db    = getFirestore(fbApp);
 
@@ -408,6 +427,8 @@ let qs = [], cur = 0, score = 0, answered = false, rev = [];
 let quizTimeLimit = 0;
 let timerInterval = null;
 let resultSaved = false;
+let _prefetchPromise = null;  // resolves to {questions, num, timeLimit}
+let _prefetchDone    = false; // true once the AI response is parsed
 
 // ── SHORT CODE ────────────────────────────────────────────────────────────────
 const pathParts = window.location.pathname.split('/').filter(Boolean);
@@ -527,14 +548,17 @@ function applyBrandingToQuiz() {
 async function fetchQuizLink() {
   if (!shortCode) return false;
 
-  // 1) New format: doc ID = shortCode in quizLinks
-  let snap = await getDoc(doc(db, 'quizLinks', shortCode));
+  // 1) Direct doc lookup — fastest path (new format: doc ID = shortCode)
+  const snap = await getDoc(doc(db, 'quizLinks', shortCode));
   if (snap.exists()) { quizLinkId = snap.id; quizLink = snap.data(); return true; }
 
-  // 2) Fallback: quizLinks collection, queried by slug or shortCode field
-  let qs = await getDocs(query(collection(db, 'quizLinks'), where('slug', '==', shortCode)));
-  if (qs.empty) qs = await getDocs(query(collection(db, 'quizLinks'), where('shortCode', '==', shortCode)));
-  if (!qs.empty) { quizLinkId = qs.docs[0].id; quizLink = qs.docs[0].data(); return true; }
+  // 2) Run both fallback queries in parallel to save a round-trip
+  const [slugSnap, scSnap] = await Promise.all([
+    getDocs(query(collection(db, 'quizLinks'), where('slug',      '==', shortCode))),
+    getDocs(query(collection(db, 'quizLinks'), where('shortCode', '==', shortCode))),
+  ]);
+  const hit = !slugSnap.empty ? slugSnap.docs[0] : !scSnap.empty ? scSnap.docs[0] : null;
+  if (hit) { quizLinkId = hit.id; quizLink = hit.data(); return true; }
 
   return false;
 }
@@ -599,8 +623,9 @@ document.getElementById('referee-name').addEventListener('keydown', e => {
 });
 
 // ── GENERATE AND START QUIZ ────────────────────────────────────────────────────
-async function generateAndStartQuiz() {
-  // Support both flat quizLinks field names and nested settings object
+
+// Build the quiz API payload from the loaded quizLink doc
+function _buildQuizPayload() {
   const num      = parseInt(quizLink.numberOfQuestions || quizLink.settings?.num) || 10;
   const division = quizLink.division || quizLink.settings?.division || 'rec-7th8th';
   const focusRaw = (quizLink.focus || quizLink.settings?.source || 'both').toLowerCase();
@@ -608,7 +633,7 @@ async function generateAndStartQuiz() {
   const modeRaw  = (quizLink.mode || quizLink.settings?.mode || 'mixed').toLowerCase();
   const mode     = modeRaw.includes('scenario') ? 'scenarios' : modeRaw.includes('rule') ? 'rules' : 'mixed';
   const tlRaw    = quizLink.timePerQuestion || quizLink.settings?.timeLimit;
-  quizTimeLimit  = (tlRaw && tlRaw !== 'none') ? parseInt(tlRaw) || 0 : 0;
+  const timeLimit = (tlRaw && tlRaw !== 'none') ? parseInt(tlRaw) || 0 : 0;
 
   const divLabel = DIV_LABELS[division] || division;
   const modeStr = {
@@ -643,44 +668,69 @@ Return ONLY a valid JSON array. No markdown, no explanation, no code blocks. Sta
 Format:
 [{"type":"rules|scenario","source":"ifab|league","question":"...","options":["A text","B text","C text","D text"],"correct":0,"lawRef":"Law 12","explanation":"..."}]`;
 
-  document.getElementById('gen-loading').classList.add('show');
-  document.getElementById('gen-sub').textContent = resources.length ? 'Referencing IFAB + league rules…' : 'Referencing IFAB Laws 2025/26…';
+  return { num, timeLimit, prompt, resources };
+}
+
+// Called immediately after the quiz link loads — runs in the background while the
+// referee types their name so the quiz is ready (or nearly so) when they click Start.
+async function _prefetchQuizQuestions() {
+  const { num, timeLimit, prompt } = _buildQuizPayload();
+
+  const res = await fetch('/api/quiz', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: Math.min(Math.max(num * 280, 1800), 6000),
+      system: 'Return ONLY valid JSON array. No markdown. No preamble. Start with [ end with ].',
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  let data;
+  try { data = await res.json(); }
+  catch { throw new Error('Quiz generation timed out. Please try again.'); }
+  if (!res.ok) throw new Error(data?.error || `Error ${res.status}`);
+
+  const blocks = (data?.content || []).filter(b => b.type === 'text');
+  if (!blocks.length) throw new Error('No response from AI.');
+
+  const text = blocks.map(b => b.text).join('');
+  const match = text.match(/\[[\s\S]*\]/);
+  if (!match) throw new Error('No valid JSON array found in response');
+
+  let arr;
+  try { arr = JSON.parse(match[0]); }
+  catch(e) { throw new Error('Could not parse AI response.'); }
+
+  const valid = arr.filter(q =>
+    q?.question && typeof q.question === 'string' &&
+    Array.isArray(q.options) && q.options.length === 4 &&
+    typeof q.correct === 'number' && q.correct >= 0 && q.correct <= 3
+  );
+  if (!valid.length) throw new Error('No valid questions returned.');
+
+  _prefetchDone = true;
+  return { questions: valid.slice(0, num), num, timeLimit };
+}
+
+// Awaits the prefetched result and renders the quiz.
+// If generation is already done, the quiz starts instantly with no visible spinner.
+async function generateAndStartQuiz() {
+  const { resources } = _buildQuizPayload();
+
+  // Only show the loading overlay if generation is still in progress
+  if (!_prefetchDone) {
+    document.getElementById('gen-loading').classList.add('show');
+    document.getElementById('gen-sub').textContent = resources.length
+      ? 'Referencing IFAB + league rules…'
+      : 'Referencing IFAB Laws 2025/26…';
+  }
 
   try {
-    const res = await fetch('/api/quiz', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: Math.min(Math.max(num * 350, 1500), 8000),
-        system: 'Return ONLY valid JSON array. No markdown. No preamble. Start with [ end with ].',
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    let data;
-    try { data = await res.json(); }
-    catch { throw new Error('Quiz generation timed out. Please try again.'); }
-    if (!res.ok) throw new Error(data?.error || `Error ${res.status}`);
-
-    const blocks = (data?.content || []).filter(b => b.type === 'text');
-    if (!blocks.length) throw new Error('No response from AI.');
-
-    const text = blocks.map(b => b.text).join('');
-    const match = text.match(/\[[\s\S]*\]/);
-    if (!match) throw new Error('No valid JSON array found in response');
-
-    let arr;
-    try { arr = JSON.parse(match[0]); }
-    catch(e) { throw new Error('Could not parse AI response.'); }
-
-    const valid = arr.filter(q =>
-      q?.question && typeof q.question === 'string' &&
-      Array.isArray(q.options) && q.options.length === 4 &&
-      typeof q.correct === 'number' && q.correct >= 0 && q.correct <= 3
-    );
-    if (!valid.length) throw new Error('No valid questions returned.');
-
-    qs = valid.slice(0, num);
+    const result = await _prefetchPromise;
+    qs = result.questions;
+    quizTimeLimit = result.timeLimit;
     cur = 0; score = 0; rev = []; resultSaved = false;
 
     applyBrandingToQuiz();
@@ -863,7 +913,14 @@ function showError(title, msg) {
     const found = await fetchQuizLink();
     if (!found) { showError('QUIZ NOT FOUND', 'This quiz link was not found or has been removed.'); return; }
     if (quizLink.active === false) { showError('LINK DEACTIVATED', 'This quiz link has been deactivated.'); return; }
+
+    // Kick off AI generation immediately — overlaps with branding fetch and name entry.
+    // By the time the referee types their name and clicks Start, questions are likely ready.
+    _prefetchPromise = _prefetchQuizQuestions();
+
+    // Fetch branding in parallel (non-blocking relative to prefetch above)
     if (quizLink.leagueId) await fetchLeagueBranding(quizLink.leagueId);
+
     showNameScreen();
   } catch(e) {
     showError('LOAD ERROR', 'Could not load the quiz. Please check your connection and try again.');
