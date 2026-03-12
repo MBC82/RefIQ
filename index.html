@@ -71,6 +71,14 @@ nav{
   text-align:center;margin-bottom:16px;
   animation:fadeUp .5s ease both;
 }
+.hero-logo{
+  display:block;
+  width:clamp(200px,30vw,320px);
+  height:auto;
+  margin:0 auto 28px;
+  border-radius:20px;
+  filter:drop-shadow(0 0 40px rgba(255,214,10,.55)) drop-shadow(0 12px 40px rgba(0,0,0,.6));
+}
 .hero-headline{
   font-family:'Bebas Neue',sans-serif;
   font-size:clamp(38px,6vw,72px);
@@ -97,7 +105,7 @@ nav{
 .demo-prog{height:4px;background:rgba(255,255,255,.06)}
 .demo-prog-fill{
   height:100%;width:0;
-  background:linear-gradient(90deg,var(--green),#7fff9f);
+  background:linear-gradient(90deg,var(--green),#ffe14d);
   border-radius:3px;
   transition:width .6s ease;
 }
@@ -340,6 +348,7 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
 <section class="demo-hero">
 
   <div class="hero-text">
+    <img src="hero-logo.jpg" alt="RefIQ" class="hero-logo">
     <h1 class="hero-headline">TRAIN YOUR MATCH IQ</h1>
     <p class="hero-sub">AI-powered referee training. Real scenarios. Real Laws.</p>
   </div>
