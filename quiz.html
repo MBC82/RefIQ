@@ -367,7 +367,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, doc, getDoc, addDoc, collection, serverTimestamp }
+import { getFirestore, doc, getDoc, getDocs, addDoc, collection, query, where, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const FB = { apiKey:"AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM",authDomain:"refiq-b8142.firebaseapp.com",
@@ -528,11 +528,21 @@ function applyBrandingToQuiz() {
 // ── FETCH QUIZ LINK ────────────────────────────────────────────────────────────
 async function fetchQuizLink() {
   if (!shortCode) return false;
-  const snap = await getDoc(doc(db, 'quizLinks', shortCode));
-  if (!snap.exists()) return false;
-  quizLinkId = snap.id;
-  quizLink = snap.data();
-  return true;
+
+  // 1) New format: doc ID = shortCode in quizLinks
+  let snap = await getDoc(doc(db, 'quizLinks', shortCode));
+  if (snap.exists()) { quizLinkId = snap.id; quizLink = snap.data(); return true; }
+
+  // 2) Intermediate: quizLinks collection, queried by slug or shortCode field
+  let qs = await getDocs(query(collection(db, 'quizLinks'), where('slug', '==', shortCode)));
+  if (qs.empty) qs = await getDocs(query(collection(db, 'quizLinks'), where('shortCode', '==', shortCode)));
+  if (!qs.empty) { quizLinkId = qs.docs[0].id; quizLink = qs.docs[0].data(); return true; }
+
+  // 3) Legacy format: quiz_links collection, shortCode field
+  const legacy = await getDocs(query(collection(db, 'quiz_links'), where('shortCode', '==', shortCode)));
+  if (!legacy.empty) { quizLinkId = legacy.docs[0].id; quizLink = legacy.docs[0].data(); return true; }
+
+  return false;
 }
 
 async function fetchLeagueBranding(leagueId) {
