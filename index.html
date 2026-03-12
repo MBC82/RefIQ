@@ -15,7 +15,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --green:#ffd60a;--green-dark:#2a9d47;--gold:#ffd60a;
+  --green:#ffd60a;--green-dark:#b8940a;--gold:#ffd60a;
   --bg:#080c09;--surface:#111711;
   --border:rgba(255,255,255,.08);
   --text:#f0f4f0;--muted:#8ea696;--red:#ff453a;
@@ -28,8 +28,8 @@ body{
 body::before{
   content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background-image:
-    linear-gradient(rgba(52,199,89,.012) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(52,199,89,.012) 1px,transparent 1px);
+    linear-gradient(rgba(255,214,10,.012) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,214,10,.012) 1px,transparent 1px);
   background-size:60px 60px;
 }
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
@@ -87,7 +87,7 @@ nav{
 }
 .demo-card{
   background:var(--surface);
-  border:1px solid rgba(52,199,89,.18);
+  border:1px solid rgba(255,214,10,.18);
   border-radius:20px;
   overflow:hidden;
   box-shadow:0 24px 64px rgba(0,0,0,.55);
@@ -105,7 +105,7 @@ nav{
 /* Card header */
 .demo-header{
   padding:14px 20px;
-  background:linear-gradient(160deg,rgba(52,199,89,.13) 0%,rgba(52,199,89,.04) 55%,transparent 100%);
+  background:linear-gradient(160deg,rgba(255,214,10,.13) 0%,rgba(255,214,10,.04) 55%,transparent 100%);
   display:flex;align-items:center;
 }
 .demo-label{
@@ -120,7 +120,7 @@ nav{
   font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.8px;
   text-transform:uppercase;padding:4px 10px;border-radius:20px;
 }
-.pill-rules{background:rgba(52,199,89,.1);color:var(--green);border:1px solid rgba(52,199,89,.22)}
+.pill-rules{background:rgba(255,214,10,.1);color:var(--green);border:1px solid rgba(255,214,10,.22)}
 .pill-scenario{background:rgba(255,214,10,.1);color:var(--gold);border:1px solid rgba(255,214,10,.22)}
 .pill-law{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid rgba(255,255,255,.1)}
 .demo-qtext{
@@ -142,8 +142,8 @@ nav{
 }
 .demo-opt:last-child{margin-bottom:0}
 .demo-opt:hover:not(.answered){
-  border-color:rgba(52,199,89,.35);
-  background:rgba(52,199,89,.06);
+  border-color:rgba(255,214,10,.35);
+  background:rgba(255,214,10,.06);
 }
 .demo-opt.answered{cursor:default;pointer-events:none}
 .demo-letter{
@@ -163,8 +163,8 @@ nav{
 
 /* Correct answer state */
 .demo-opt.correct{
-  background:rgba(52,199,89,.1);
-  border-color:rgba(52,199,89,.55);
+  background:rgba(255,214,10,.1);
+  border-color:rgba(255,214,10,.55);
 }
 .demo-opt.correct .demo-letter{
   background:var(--green);border-color:var(--green);color:#000;font-weight:700;
@@ -199,8 +199,8 @@ nav{
 }
 .demo-expl.show{max-height:200px;opacity:1;margin:0 24px 14px}
 .demo-expl-inner{
-  background:rgba(52,199,89,.07);
-  border:1px solid rgba(52,199,89,.2);
+  background:rgba(255,214,10,.07);
+  border:1px solid rgba(255,214,10,.2);
   border-radius:12px;padding:14px 16px;
 }
 .demo-expl-law{
@@ -253,8 +253,8 @@ nav{
   border-radius:20px;padding:28px 20px;
   transition:border-color .2s,transform .2s;text-align:left;
 }
-.p-card:hover{border-color:rgba(52,199,89,.22);transform:translateY(-2px)}
-.p-card.featured{border-color:rgba(52,199,89,.35)}
+.p-card:hover{border-color:rgba(255,214,10,.22);transform:translateY(-2px)}
+.p-card.featured{border-color:rgba(255,214,10,.35)}
 .p-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;margin-bottom:6px}
 .p-price{
   font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:2px;
@@ -279,7 +279,7 @@ nav{
   border-top:1px solid var(--border);
   position:relative;z-index:1;
 }
-.trust-line strong{color:rgba(52,199,89,.65);font-weight:400}
+.trust-line strong{color:rgba(255,214,10,.65);font-weight:400}
 
 /* Footer */
 footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index:1}
