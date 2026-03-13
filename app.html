@@ -1263,11 +1263,27 @@ document.getElementById('google-btn').addEventListener('click', async function()
   btn.disabled = true; btn.style.opacity = '0.6';
   const reset = () => { btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = orig; };
   try { await setPersistence(auth, indexedDBLocalPersistence); } catch(_) {}
-  btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';
-  signInWithRedirect(auth, gp).catch(err => {
-    console.error('Firebase redirect error:', err.code, err);
-    reset(); authErr(friendlyAuthErr(err.code));
-  });
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (isMobile) {
+    btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';
+    signInWithRedirect(auth, gp).catch(err => { reset(); authErr(friendlyAuthErr(err.code)); });
+    return;
+  }
+  // Desktop: popup (runs entirely through firebaseapp.com — no redirect state issues)
+  btn.innerHTML = '<span style="opacity:.7">Signing in with Google…</span>';
+  try {
+    await signInWithPopup(auth, gp);
+    // success — onAuthStateChanged handles the rest
+  } catch(e) {
+    if (e.code === 'auth/popup-blocked') {
+      btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';
+      signInWithRedirect(auth, gp).catch(err => { reset(); authErr(friendlyAuthErr(err.code)); });
+    } else if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
+      reset(); // user dismissed — silent reset is correct
+    } else {
+      reset(); authErr(friendlyAuthErr(e.code));
+    }
+  }
 });
 
 document.getElementById('signout-btn').addEventListener('click',()=>signOut(auth));
