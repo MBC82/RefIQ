@@ -1315,7 +1315,8 @@ async function handleAdminAuth(u) {
   }
 }
 
-getRedirectResult(auth).then(result => {
+// Race against 8s timeout so a hanging auth domain proxy can never block the UI
+Promise.race([getRedirectResult(auth), new Promise(r=>setTimeout(()=>r(null),8000))]).then(result => {
   if (result && result.user) {
     // ── Mobile redirect return ──────────────────────────────────────────────
     // Use the user from the redirect directly — do NOT rely on pendingAuthUser

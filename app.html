@@ -704,8 +704,8 @@ select option{background:#111711}
 <div id="loading">
   <div class="load-card">
     <div class="spinner"></div>
-    <div class="load-title">GENERATING</div>
-    <div class="load-sub" id="load-sub">Referencing IFAB Laws 2025/26…</div>
+    <div class="load-title" id="load-title">LOADING</div>
+    <div class="load-sub" id="load-sub">Signing you in…</div>
   </div>
 </div>
 
@@ -772,7 +772,8 @@ let authResolved    = false;
 let pendingAuthUser = undefined; // undefined = not yet received
 
 // Step 1 — resolve any returning redirect user FIRST
-getRedirectResult(auth).then(async result => {
+// Race against 8s timeout so a hanging auth domain proxy can never block the UI
+Promise.race([getRedirectResult(auth), new Promise(r=>setTimeout(()=>r(null),8000))]).then(async result => {
   console.log('[RefIQ Auth] getRedirectResult resolved:', {
     hasResult: !!result,
     hasUser:   !!(result && result.user),
@@ -1592,7 +1593,13 @@ function showScr(n){
 function setLoad(v){
   document.getElementById('loading').classList.toggle('show',v);
   document.getElementById('start-btn').disabled=v;
-  if(v) document.getElementById('load-sub').textContent=resources.length?'Referencing IFAB + league rules…':'Referencing IFAB Laws 2025/26…';
+  if(v){
+    document.getElementById('load-title').textContent='GENERATING';
+    document.getElementById('load-sub').textContent=resources.length?'Referencing IFAB + league rules…':'Referencing IFAB Laws 2025/26…';
+  } else {
+    document.getElementById('load-title').textContent='LOADING';
+    document.getElementById('load-sub').textContent='Signing you in…';
+  }
 }
 function showErr(m){ document.getElementById('err-txt').textContent=m; document.getElementById('err-box').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }
 function hideErr(){ document.getElementById('err-box').style.display='none'; }
