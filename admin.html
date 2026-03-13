@@ -1470,9 +1470,6 @@ async function checkTrialStatus() {
     if (!d) return;
     const plan = d.plan;
 
-    // Individual-only users belong in app.html, not admin
-    if (plan === 'individual') { window.location.href = '/app'; return; }
-
     // Active league season pass — check if seasonEnd has passed
     if (plan === 'league') {
       if (d.seasonEnd) {
