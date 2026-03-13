@@ -1272,8 +1272,9 @@ document.getElementById('google-btn').addEventListener('click', async function()
   // Desktop: popup (runs entirely through firebaseapp.com — no redirect state issues)
   btn.innerHTML = '<span style="opacity:.7">Signing in with Google…</span>';
   try {
-    await signInWithPopup(auth, gp);
-    // success — onAuthStateChanged handles the rest
+    const result = await signInWithPopup(auth, gp);
+    // Use result.user directly — don't rely solely on onAuthStateChanged
+    if (result?.user) handleAuthState(result.user);
   } catch(e) {
     if (e.code === 'auth/popup-blocked') {
       btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';

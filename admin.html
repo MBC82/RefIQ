@@ -1281,9 +1281,15 @@ let pendingAuthUser = undefined;
 // Absolute safety net: if Firebase never initializes, show login after 10s
 setTimeout(() => { if (!authResolved) { authResolved = true; handleAdminAuth(null); } }, 10000);
 
+// Guard: prevent concurrent calls (popup result + onAuthStateChanged both fire)
+let _adminAuthRunning = false;
+
 // Extract all post-login work into handleAdminAuth so it can be called from
 // either the redirect result path or the onAuthStateChanged path.
 async function handleAdminAuth(u) {
+  if (_adminAuthRunning) return;
+  _adminAuthRunning = true;
+  try {
   if (u) {
     currentUser = u; leagueId = u.uid;
 
@@ -1316,6 +1322,7 @@ async function handleAdminAuth(u) {
   } else {
     showAuth();
   }
+  } finally { _adminAuthRunning = false; }
 }
 
 // Race against 8s timeout so a hanging auth domain proxy can never block the UI
@@ -1465,8 +1472,9 @@ document.getElementById('google-btn').addEventListener('click', async function()
   // Desktop: popup (runs entirely through firebaseapp.com — no redirect state issues)
   btn.innerHTML = '<span style="opacity:.7">Signing in with Google…</span>';
   try {
-    await signInWithPopup(auth, gp);
-    // success — onAuthStateChanged handles the rest
+    const result = await signInWithPopup(auth, gp);
+    // Use result.user directly — don't rely solely on onAuthStateChanged
+    if (result?.user) handleAdminAuth(result.user);
   } catch(e) {
     if (e.code === 'auth/popup-blocked') {
       btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';
