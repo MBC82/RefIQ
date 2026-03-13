@@ -1319,20 +1319,19 @@ async function handleAdminAuth(u) {
   } finally { _adminAuthRunning = false; }
 }
 
-// ── top-level await inside <script type="module"> ────────────────────────────
-// Module execution pauses HERE until getRedirectResult fully settles.
-// onAuthStateChanged is registered below and structurally CANNOT fire before this.
-let _redirectUser = null;
-try {
-  const _rr = await getRedirectResult(auth);
-  if (_rr?.user) { _redirectUser = _rr.user; handleAdminAuth(_rr.user); }
-} catch(e) {
-  if (e.code && e.code !== 'auth/no-auth-event') window._redirectAuthError = friendlyErr(e.code);
-}
-
-onAuthStateChanged(auth, u => {
-  if (_redirectUser) { _redirectUser = null; return; } // redirect already handled above
-  handleAdminAuth(u);
+// ── AUTH INIT ────────────────────────────────────────────────────────────────
+getRedirectResult(auth).then((result) => {
+  if (result && result.user) {
+    handleAdminAuth(result.user);
+    return;
+  }
+  onAuthStateChanged(auth, (user) => {
+    handleAdminAuth(user);
+  });
+}).catch((error) => {
+  console.error('Redirect result error:', error);
+  if (error.code && error.code !== 'auth/no-auth-event') window._redirectAuthError = friendlyErr(error.code);
+  handleAdminAuth(null);
 });
 
 function showAuth() {

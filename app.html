@@ -768,22 +768,22 @@ const gp = new GoogleAuthProvider();
 // Safari where the page reloads after the Google OAuth redirect.
 document.getElementById('loading').classList.add('show');
 
-// ── top-level await inside <script type="module"> ────────────────────────────
-// Module execution pauses HERE until getRedirectResult fully settles.
-// onAuthStateChanged is registered further below and structurally CANNOT fire
-// before this completes — the race condition is impossible by design.
-let _redirectUser = null;
-try {
-  const _rr = await getRedirectResult(auth);
-  if (_rr?.user) {
-    _redirectUser = _rr.user;
-    handleAuthState(_rr.user);
+// ── AUTH INIT ────────────────────────────────────────────────────────────────
+getRedirectResult(auth).then((result) => {
+  if (result && result.user) {
+    handleAuthState(result.user);
+    return;
   }
-} catch(e) {
-  if (e.code && e.code !== 'auth/no-auth-event') {
-    window._redirectAuthError = friendlyAuthErr(e.code);
+  onAuthStateChanged(auth, (user) => {
+    handleAuthState(user);
+  });
+}).catch((error) => {
+  console.error('Redirect result error:', error);
+  if (error.code && error.code !== 'auth/no-auth-event') {
+    window._redirectAuthError = friendlyAuthErr(error.code);
   }
-}
+  handleAuthState(null);
+});
 
 const FREE_LIMIT = 5;
 const IFAB = `IFAB 2025/26 Laws Summary:
@@ -970,13 +970,6 @@ function resetLeagueBranding() {
   document.getElementById('scr-quiz').querySelector('.quiz-header').style.removeProperty('--league-color-a');
   document.getElementById('scr-quiz').querySelector('.quiz-header').style.removeProperty('--league-color-b');
 }
-
-// ── AUTH STATE ──────────────────────────────────────────────────────────────
-// Registered AFTER getRedirectResult has fully settled (top-level await above).
-onAuthStateChanged(auth, u => {
-  if (_redirectUser) { _redirectUser = null; return; } // redirect already handled above
-  handleAuthState(u);
-});
 
 async function handleAuthState(u) {
   console.log('[RefIQ Auth] handleAuthState called with:', u ? u.email : 'NULL');
