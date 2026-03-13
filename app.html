@@ -735,7 +735,7 @@ import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
 // instead of a silent blank page.
 const firebaseConfig = {
   apiKey: 'AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM',
-  authDomain: 'www.myrefiq.com',
+  authDomain: 'refiq-b8142.firebaseapp.com',
   projectId: 'refiq-b8142',
   storageBucket: 'refiq-b8142.firebasestorage.app',
   messagingSenderId: '62305657245',
@@ -770,6 +770,9 @@ document.getElementById('loading').classList.add('show');
 
 let authResolved    = false;
 let pendingAuthUser = undefined; // undefined = not yet received
+
+// Absolute safety net: if Firebase never initializes, show login after 10s
+setTimeout(() => { if (!authResolved) { authResolved = true; handleAuthState(null); } }, 10000);
 
 // Step 1 — resolve any returning redirect user FIRST
 // Race against 8s timeout so a hanging auth domain proxy can never block the UI

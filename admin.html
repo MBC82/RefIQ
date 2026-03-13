@@ -1191,7 +1191,7 @@ import { getFirestore, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc,
 // instead of a silent blank page.
 const firebaseConfig = {
   apiKey: 'AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM',
-  authDomain: 'www.myrefiq.com',
+  authDomain: 'refiq-b8142.firebaseapp.com',
   projectId: 'refiq-b8142',
   storageBucket: 'refiq-b8142.firebasestorage.app',
   messagingSenderId: '62305657245',
@@ -1277,6 +1277,9 @@ document.getElementById('loading').classList.add('show');
 
 let authResolved    = false;
 let pendingAuthUser = undefined;
+
+// Absolute safety net: if Firebase never initializes, show login after 10s
+setTimeout(() => { if (!authResolved) { authResolved = true; handleAdminAuth(null); } }, 10000);
 
 // Extract all post-login work into handleAdminAuth so it can be called from
 // either the redirect result path or the onAuthStateChanged path.
