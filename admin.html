@@ -1275,12 +1275,6 @@ function bindColorPicker(inputId,brandKey,hexId,swatchId){
 // flash) while we wait for getRedirectResult — critical on mobile Safari.
 document.getElementById('loading').classList.add('show');
 
-let authResolved    = false;
-let pendingAuthUser = undefined;
-
-// Absolute safety net: if Firebase never initializes, show login after 10s
-setTimeout(() => { if (!authResolved) { authResolved = true; handleAdminAuth(null); } }, 10000);
-
 // Guard: prevent concurrent calls (popup result + onAuthStateChanged both fire)
 let _adminAuthRunning = false;
 
@@ -1325,31 +1319,19 @@ async function handleAdminAuth(u) {
   } finally { _adminAuthRunning = false; }
 }
 
-// Race against 8s timeout so a hanging auth domain proxy can never block the UI
-Promise.race([getRedirectResult(auth), new Promise(r=>setTimeout(()=>r(null),8000))]).then(result => {
-  if (result && result.user) {
-    // ── Mobile redirect return ──────────────────────────────────────────────
-    // Use the user from the redirect directly — do NOT rely on pendingAuthUser
-    // because onAuthStateChanged fires null BEFORE getRedirectResult resolves.
-    authResolved = true;
-    handleAdminAuth(result.user);
-    return;
-  }
-  // ── Normal page load (already signed in OR not signed in) ──────────────
-  authResolved = true;
-  if (pendingAuthUser !== undefined) handleAdminAuth(pendingAuthUser);
-}).catch(e => {
-  authResolved = true;
-  if (e.code && e.code !== 'auth/no-auth-event') {
-    console.error('Firebase redirect result error:', e.code, e);
-    window._redirectAuthError = friendlyErr(e.code);
-  }
-  if (pendingAuthUser !== undefined) handleAdminAuth(pendingAuthUser);
-  else handleAdminAuth(null);
-});
+// ── top-level await inside <script type="module"> ────────────────────────────
+// Module execution pauses HERE until getRedirectResult fully settles.
+// onAuthStateChanged is registered below and structurally CANNOT fire before this.
+let _redirectUser = null;
+try {
+  const _rr = await getRedirectResult(auth);
+  if (_rr?.user) { _redirectUser = _rr.user; handleAdminAuth(_rr.user); }
+} catch(e) {
+  if (e.code && e.code !== 'auth/no-auth-event') window._redirectAuthError = friendlyErr(e.code);
+}
 
 onAuthStateChanged(auth, u => {
-  if (!authResolved) { pendingAuthUser = u; return; }
+  if (_redirectUser) { _redirectUser = null; return; } // redirect already handled above
   handleAdminAuth(u);
 });
 

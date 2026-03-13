@@ -768,45 +768,22 @@ const gp = new GoogleAuthProvider();
 // Safari where the page reloads after the Google OAuth redirect.
 document.getElementById('loading').classList.add('show');
 
-let authResolved    = false;
-let pendingAuthUser = undefined; // undefined = not yet received
-
-// Absolute safety net: if Firebase never initializes, show login after 10s
-setTimeout(() => { if (!authResolved) { authResolved = true; handleAuthState(null); } }, 10000);
-
-// Step 1 — resolve any returning redirect user FIRST
-// Race against 8s timeout so a hanging auth domain proxy can never block the UI
-Promise.race([getRedirectResult(auth), new Promise(r=>setTimeout(()=>r(null),8000))]).then(async result => {
-  console.log('[RefIQ Auth] getRedirectResult resolved:', {
-    hasResult: !!result,
-    hasUser:   !!(result && result.user),
-    email:     result?.user?.email ?? null,
-    opType:    result?.operationType ?? null
-  });
-  if (result && result.user) {
-    // ── Mobile redirect return ──────────────────────────────────────────────
-    // getRedirectResult has the user directly. Use it immediately — do NOT
-    // fall through to pendingAuthUser, which may still be null because
-    // onAuthStateChanged fires with null BEFORE the redirect is processed.
-    authResolved = true;
-    handleAuthState(result.user);
-    return;
+// ── top-level await inside <script type="module"> ────────────────────────────
+// Module execution pauses HERE until getRedirectResult fully settles.
+// onAuthStateChanged is registered further below and structurally CANNOT fire
+// before this completes — the race condition is impossible by design.
+let _redirectUser = null;
+try {
+  const _rr = await getRedirectResult(auth);
+  if (_rr?.user) {
+    _redirectUser = _rr.user;
+    handleAuthState(_rr.user);
   }
-  // ── Normal page load (already signed in OR not signed in) ──────────────
-  // Open the gate and process any queued onAuthStateChanged result.
-  authResolved = true;
-  console.log('[RefIQ Auth] Gate open — pendingAuthUser:', pendingAuthUser?.email ?? pendingAuthUser);
-  if (pendingAuthUser !== undefined) handleAuthState(pendingAuthUser);
-  // else: onAuthStateChanged hasn't fired yet; gate is open, it'll come through
-}).catch(e => {
-  authResolved = true;
-  console.error('[RefIQ Auth] getRedirectResult ERROR:', e.code, e.message);
+} catch(e) {
   if (e.code && e.code !== 'auth/no-auth-event') {
     window._redirectAuthError = friendlyAuthErr(e.code);
   }
-  if (pendingAuthUser !== undefined) handleAuthState(pendingAuthUser);
-  else handleAuthState(null); // no pending state + error → show login
-});
+}
 
 const FREE_LIMIT = 5;
 const IFAB = `IFAB 2025/26 Laws Summary:
@@ -994,11 +971,10 @@ function resetLeagueBranding() {
   document.getElementById('scr-quiz').querySelector('.quiz-header').style.removeProperty('--league-color-b');
 }
 
-// Step 2 — gate onAuthStateChanged behind authResolved flag
 // ── AUTH STATE ──────────────────────────────────────────────────────────────
+// Registered AFTER getRedirectResult has fully settled (top-level await above).
 onAuthStateChanged(auth, u => {
-  console.log('[RefIQ Auth] onAuthStateChanged:', u ? u.email : 'NULL', '| authResolved:', authResolved);
-  if (!authResolved) { pendingAuthUser = u; return; } // wait for redirect result
+  if (_redirectUser) { _redirectUser = null; return; } // redirect already handled above
   handleAuthState(u);
 });
 
