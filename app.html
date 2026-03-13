@@ -1400,10 +1400,13 @@ Format:
 [{"type":"rules|scenario","source":"ifab|league","question":"...","options":["A text","B text","C text","D text"],"correct":0,"lawRef":"Law 12","explanation":"..."}]`;
 
   setLoad(true);
+  const _ctrl = new AbortController();
+  const _tid = setTimeout(() => _ctrl.abort(), 35000); // 35s client timeout
   try {
     const res = await fetch('/api/quiz',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
+      signal: _ctrl.signal,
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
         max_tokens: Math.min(Math.max(num * 350, 1500), 8000),
@@ -1411,6 +1414,7 @@ Format:
         messages:[{role:'user',content:prompt}]
       })
     });
+    clearTimeout(_tid);
     let data;
     try { data = await res.json(); }
     catch { throw new Error('Quiz generation timed out. Please try again.'); }
@@ -1443,7 +1447,10 @@ Format:
     applyLeagueBranding();
     renderQ();
   } catch(err) {
-    showErr(err.message||'Something went wrong. Please try again.');
+    clearTimeout(_tid);
+    showErr(err.name==='AbortError'
+      ? 'Quiz generation timed out. Please try again.'
+      : (err.message||'Something went wrong. Please try again.'));
   } finally {
     setLoad(false);
   }

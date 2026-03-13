@@ -1287,7 +1287,6 @@ async function handleAdminAuth(u) {
     // ── ROLE FORK ────────────────────────────────────────────────────────────
     try { currentRole = await determineAndWriteRole(u); }
     catch(e) { console.warn('Role check error', e); currentRole = 'league'; }
-    if (currentRole === 'referee') { window.location.href = '/app'; return; }
     // ─────────────────────────────────────────────────────────────────────────
 
     // Ensure league doc exists (needed for Google sign-in users who skip create-account)
