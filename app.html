@@ -777,7 +777,7 @@ getRedirectResult(auth).then((result) => {
     handleAuthState(result.user);
     return;
   }
-  onAuthStateChanged(auth, (u) => {
+  onAuthStateChanged(auth, u => {
     if (!authResolved) { pendingAuthUser = u; return; }
     handleAuthState(u);
   });
