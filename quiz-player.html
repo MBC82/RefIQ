@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>RefIQ Quiz</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #080c09; color: white; font-family: 'DM Sans', sans-serif; overflow: hidden; }
+    #app { height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
+
+    /* ── Loading ── */
+    #loadingScreen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+    .spinner { width: 36px; height: 36px; border: 3px solid rgba(52,199,89,0.15); border-top-color: #34c759; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Name entry ── */
+    #nameScreen { flex: 1; display: none; flex-direction: column; overflow: hidden; }
+    .name-body { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 24px 20px; }
+    .name-input { width: 100%; background: #111711; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 16px; color: white; font-size: 16px; font-family: 'DM Sans'; margin-bottom: 12px; outline: none; }
+    .name-input:focus { border-color: #34c759; }
+    .name-btn { width: 100%; background: #34c759; color: #080c09; border: none; border-radius: 10px; padding: 16px; font-family: 'Bebas Neue'; font-size: 22px; letter-spacing: 0.05em; cursor: pointer; transition: filter .15s; }
+    .name-btn:hover { filter: brightness(1.1); }
+
+    /* ── Quiz layout ── */
+    #quizScreen { flex: 1; display: none; flex-direction: column; overflow: hidden; }
+    .q-header { flex-shrink: 0; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #111711; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .q-progress { flex-shrink: 0; padding: 10px 16px 6px; }
+    .q-progress-bar { height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden; }
+    .q-progress-fill { height: 100%; background: #34c759; border-radius: 2px; transition: width 0.3s; }
+    .q-question { flex-shrink: 0; padding: 12px 16px; max-height: 30vh; overflow-y: auto; }
+    .q-answers { flex: 1; min-height: 0; padding: 8px 16px; display: flex; flex-direction: column; gap: 8px; justify-content: center; overflow: hidden; }
+    .q-answer { flex: 1; min-height: 44px; max-height: 72px; display: flex; align-items: center; gap: 10px; padding: 0 14px; background: #111711; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; cursor: pointer; color: white; font-size: 13px; line-height: 1.3; text-align: left; transition: border-color 0.15s, background 0.15s; width: 100%; }
+    .q-answer:hover { border-color: rgba(52,199,89,0.5); background: rgba(52,199,89,0.06); }
+    .q-answer:disabled { cursor: default; }
+    .q-answer-letter { width: 28px; height: 28px; border-radius: 6px; background: rgba(52,199,89,0.15); color: #34c759; font-family: 'Bebas Neue'; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .q-answer.correct { border-color: #34c759; background: rgba(52,199,89,0.12); }
+    .q-answer.correct .q-answer-letter { background: #34c759; color: #080c09; }
+    .q-answer.wrong { border-color: #ff3b30; background: rgba(255,59,48,0.1); }
+    .q-answer.wrong .q-answer-letter { background: #ff3b30; color: #fff; }
+    .q-answer.faded { opacity: 0.2; }
+    .q-explanation { flex-shrink: 0; display: none; margin: 0 16px; padding: 12px 14px; background: rgba(52,199,89,0.08); border: 1px solid rgba(52,199,89,0.2); border-left: 3px solid #34c759; border-radius: 10px; font-size: 13px; line-height: 1.5; color: rgba(255,255,255,0.75); max-height: 18vh; overflow-y: auto; }
+    .q-explanation-label { font-size: 10px; font-weight: 700; color: #34c759; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+    .q-next { flex-shrink: 0; display: none; margin: 8px 16px; margin-bottom: max(12px, env(safe-area-inset-bottom, 12px)); padding: 14px; background: #34c759; color: #080c09; border: none; border-radius: 10px; font-family: 'Bebas Neue'; font-size: 20px; letter-spacing: 0.05em; cursor: pointer; transition: filter .15s; }
+    .q-next:hover { filter: brightness(1.1); }
+
+    /* ── Results ── */
+    #resultsScreen { flex: 1; display: none; flex-direction: column; overflow-y: auto; }
+    .results-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; text-align: center; gap: 6px; }
+
+    /* ── Error ── */
+    #errorScreen { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; text-align: center; gap: 12px; }
+
+    /* ── Footer badge ── */
+    .refiq-badge { flex-shrink: 0; text-align: center; padding: 6px; font-size: 10px; color: rgba(255,255,255,0.2); letter-spacing: 0.06em; }
+    .refiq-badge span { color: #34c759; font-weight: 700; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Loading -->
+  <div id="loadingScreen">
+    <div style="font-family:'Bebas Neue';font-size:36px;color:#34c759;letter-spacing:0.08em;">REFIQ</div>
+    <div class="spinner"></div>
+    <div id="loadingMsg" style="font-size:13px;color:rgba(255,255,255,0.4);">Loading quiz...</div>
+  </div>
+
+  <!-- Name entry -->
+  <div id="nameScreen">
+    <div class="q-header" id="nameHeader"></div>
+    <div class="name-body">
+      <div id="nameTitle" style="font-family:'Bebas Neue';font-size:28px;letter-spacing:0.04em;text-align:center;margin-bottom:4px;"></div>
+      <div id="nameMeta" style="font-size:13px;color:rgba(255,255,255,0.4);text-align:center;margin-bottom:28px;"></div>
+      <input class="name-input" id="nameInput" type="text" placeholder="Your full name" autocomplete="name" maxlength="60" />
+      <button class="name-btn" id="startBtn">START QUIZ →</button>
+      <div style="font-size:11px;color:rgba(255,255,255,0.25);text-align:center;margin-top:10px;">No account needed · Free to take · Results auto-saved</div>
+    </div>
+    <div class="refiq-badge">Powered by <span>RefIQ</span> · AI Referee Training</div>
+  </div>
+
+  <!-- Quiz -->
+  <div id="quizScreen">
+    <div class="q-header" id="quizHeader"></div>
+    <div class="q-progress"><div class="q-progress-bar"><div class="q-progress-fill" id="progressFill"></div></div></div>
+    <div class="q-question" id="questionText"></div>
+    <div class="q-answers" id="answersContainer"></div>
+    <div class="q-explanation" id="explanation">
+      <div class="q-explanation-label">📖 Official Ruling</div>
+      <div id="explanationText"></div>
+    </div>
+    <button class="q-next" id="nextBtn"></button>
+    <div class="refiq-badge">Powered by <span>RefIQ</span> · AI Referee Training</div>
+  </div>
+
+  <!-- Results -->
+  <div id="resultsScreen">
+    <div class="q-header" id="resultsHeader"></div>
+    <div class="results-body">
+      <div id="resultsPct" style="font-family:'Bebas Neue';font-size:88px;line-height:1;"></div>
+      <div id="resultsScore" style="font-family:'Bebas Neue';font-size:22px;color:rgba(255,255,255,0.75);"></div>
+      <div id="resultsGrade" style="font-size:14px;margin-bottom:24px;"></div>
+      <div style="border-top:1px solid rgba(255,255,255,0.07);padding-top:20px;font-size:11px;color:rgba(255,255,255,0.2);">
+        Powered by <span style="color:#34c759;font-weight:700;">RefIQ</span> · AI Referee Training · myrefiq.com
+      </div>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div id="errorScreen">
+    <div style="font-size:48px;margin-bottom:8px;">⚠️</div>
+    <div id="errorTitle" style="font-family:'Bebas Neue';font-size:26px;letter-spacing:2px;color:#ff3b30;"></div>
+    <div id="errorMsg" style="font-size:14px;color:rgba(255,255,255,0.5);max-width:280px;line-height:1.6;"></div>
+    <a href="/" style="color:#34c759;font-size:14px;margin-top:8px;">← Back to RefIQ</a>
+  </div>
+
+</div><!-- #app -->
+
+<script type="module">
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, doc, getDoc, addDoc, updateDoc, collection, query, where, getDocs, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const FB = {
+  apiKey:"AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM",
+  authDomain:"www.myrefiq.com",
+  projectId:"refiq-b8142",
+  storageBucket:"refiq-b8142.firebasestorage.app",
+  messagingSenderId:"62305657245",
+  appId:"1:62305657245:web:d6e35a80859ee8fdd08f74"
+};
+const fbApp = initializeApp(FB);
+const db    = getFirestore(fbApp);
+
+// ── State ────────────────────────────────────────────────────────────────────
+let quizConfig  = null;
+let questions   = [];
+let currentQ    = 0;
+let score       = 0;
+let attemptId   = null;
+let attemptRef  = null;
+let refereeName = '';
+
+// ── Slug extraction ──────────────────────────────────────────────────────────
+const pathParts = window.location.pathname.split('/').filter(Boolean);
+const slug = pathParts[1] || '';
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+if (!slug) {
+  showError('INVALID LINK', 'This quiz link is missing a code. Contact your league administrator.');
+} else {
+  loadQuiz();
+}
+
+// ── Load quiz (tries quizLinks first, falls back to quiz_links) ───────────────
+async function loadQuiz() {
+  try {
+    setLoading('Loading quiz...');
+    let data = null;
+
+    // 1. Try new quizLinks collection (doc ID = slug)
+    const newSnap = await getDoc(doc(db, 'quizLinks', slug));
+    if (newSnap.exists()) {
+      data = newSnap.data();
+    } else {
+      // 2. Fall back to legacy quiz_links collection (query by shortCode)
+      const q = query(collection(db, 'quiz_links'), where('shortCode', '==', slug));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const legacy = snap.docs[0].data();
+        const s = legacy.settings || {};
+        // Load branding from leagues for legacy links
+        let branding = null;
+        if (legacy.leagueId) {
+          try {
+            const lgSnap = await getDoc(doc(db, 'leagues', legacy.leagueId));
+            if (lgSnap.exists()) {
+              const lg = lgSnap.data();
+              branding = {
+                leagueName: lg.name || lg.leagueName || '',
+                logoUrl: lg.logoDataUrl || null,
+                primaryColor: lg.brandColor || '#34c759',
+                backgroundColor: lg.brandBg === 'light' ? '#f5f5f0' : (lg.brandBg === 'custom' ? (lg.brandBgColor||'#080c09') : '#080c09'),
+                surfaceColor: '#111711',
+                textColor: '#ffffff'
+              };
+            }
+          } catch(e) { console.warn('Legacy branding load failed:', e); }
+        }
+        // Normalize legacy doc to new format
+        data = {
+          slug: legacy.shortCode,
+          linkName: legacy.name || slug,
+          division: s.division || 'rec-7th8th',
+          numberOfQuestions: parseInt(s.num) || 10,
+          timePerQuestion: s.timeLimit > 0 ? String(s.timeLimit) : 'none',
+          active: legacy.active !== false,
+          branding,
+          questions: legacy.questions || [],
+          leagueId: legacy.leagueId
+        };
+      }
+    }
+
+    if (!data || data.active === false) {
+      showError('QUIZ NOT FOUND', 'This quiz link is invalid or has been removed. Contact your league administrator.');
+      return;
+    }
+
+    quizConfig = data;
+    applyBranding(quizConfig.branding);
+    showNameScreen();
+  } catch (err) {
+    console.error('Quiz load error:', err);
+    showError('LOAD ERROR', 'Could not load the quiz. Please check your connection and try again.');
+  }
+}
+
+// ── Branding ─────────────────────────────────────────────────────────────────
+function applyBranding(b) {
+  if (!b) return;
+  const primary = b.primaryColor || '#34c759';
+  if (b.backgroundColor) document.body.style.background = b.backgroundColor;
+  // Override all primary-color elements
+  document.querySelectorAll('.name-btn, .q-next').forEach(el => el.style.background = primary);
+  document.querySelectorAll('.q-progress-fill').forEach(el => el.style.background = primary);
+  document.querySelectorAll('.q-explanation').forEach(el => {
+    el.style.borderLeftColor = primary;
+    el.style.background = `rgba(${hexToRGB(primary)},0.08)`;
+    el.style.borderColor = `rgba(${hexToRGB(primary)},0.2)`;
+  });
+  document.querySelectorAll('.q-explanation-label').forEach(el => el.style.color = primary);
+  // Store primary for dynamic use
+  document.documentElement.style.setProperty('--primary', primary);
+}
+
+function buildHeader(b) {
+  b = b || {};
+  const primary = b.primaryColor || '#34c759';
+  const initials = (b.leagueName||'R').trim().charAt(0).toUpperCase();
+  const logo = b.logoUrl
+    ? `<img src="${b.logoUrl}" style="width:28px;height:28px;border-radius:6px;object-fit:cover;flex-shrink:0;" />`
+    : `<div style="width:28px;height:28px;border-radius:6px;background:${primary};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:14px;color:#080c09;flex-shrink:0;">${initials}</div>`;
+  return `
+    ${logo}
+    <div style="flex:1;min-width:0;">
+      <div style="font-family:'Bebas Neue';font-size:13px;letter-spacing:0.06em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${(b.leagueName||'REFIQ').toUpperCase()}</div>
+      <div style="font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.06em;">POWERED BY REFIQ</div>
+    </div>
+  `;
+}
+
+function hexToRGB(hex) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+
+// ── Name screen ───────────────────────────────────────────────────────────────
+function showNameScreen() {
+  hide('loadingScreen'); show('nameScreen');
+  const b = quizConfig.branding || {};
+  document.getElementById('nameHeader').innerHTML = buildHeader(b);
+  document.getElementById('nameTitle').textContent = (quizConfig.linkName || 'REFEREE QUIZ').toUpperCase();
+  const metaParts = [];
+  if (quizConfig.numberOfQuestions) metaParts.push(`${quizConfig.numberOfQuestions} Questions`);
+  if (quizConfig.division) metaParts.push(getDivisionLabel(quizConfig.division));
+  document.getElementById('nameMeta').textContent = metaParts.join(' · ');
+  setTimeout(() => document.getElementById('nameInput').focus(), 300);
+}
+
+document.getElementById('startBtn').addEventListener('click', handleStart);
+document.getElementById('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter') handleStart(); });
+
+async function handleStart() {
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) {
+    document.getElementById('nameInput').style.borderColor = '#ff3b30';
+    document.getElementById('nameInput').focus();
+    return;
+  }
+  document.getElementById('nameInput').style.borderColor = '';
+  refereeName = name;
+  hide('nameScreen');
+  setLoading(`Generating ${quizConfig.numberOfQuestions || 10} questions...`);
+  show('loadingScreen');
+
+  try {
+    // Write started record to quizResults
+    attemptRef = doc(collection(db, 'quizResults'));
+    attemptId  = attemptRef.id;
+    await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js").then(async ({setDoc}) => {
+      await setDoc(attemptRef, {
+        attemptId,
+        quizSlug: slug,
+        quizName: quizConfig.linkName || slug,
+        refereeName: name,
+        division: quizConfig.division || '',
+        numberOfQuestions: quizConfig.numberOfQuestions || 10,
+        leagueId: quizConfig.leagueId || '',
+        status: 'started',
+        startedAt: serverTimestamp(),
+        score: null, total: null, percentage: null
+      });
+    });
+  } catch(e) { console.warn('Could not write started record:', e); }
+
+  try {
+    // Use pre-generated or generate on demand
+    if (quizConfig.questions && quizConfig.questions.length >= 3) {
+      // Normalize both correctIndex and correct field names
+      questions = quizConfig.questions
+        .filter(q => q?.question && Array.isArray(q.options) && q.options.length === 4 &&
+          (typeof q.correctIndex === 'number' || typeof q.correct === 'number'))
+        .map(q => ({ ...q, correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : q.correct }))
+        .slice(0, quizConfig.numberOfQuestions || 10);
+    }
+    if (!questions.length) {
+      questions = await generateQuestions(quizConfig);
+    }
+    if (!questions.length) throw new Error('No questions could be generated.');
+
+    hide('loadingScreen');
+    applyBranding(quizConfig.branding); // Re-apply to quiz screen elements
+    showQuestion(0);
+  } catch(err) {
+    console.error('Quiz generation error:', err);
+    showError('GENERATION FAILED', err.message || 'Could not generate quiz questions. Please try again.');
+  }
+}
+
+// ── Question ──────────────────────────────────────────────────────────────────
+function showQuestion(i) {
+  currentQ = i;
+  show('quizScreen');
+  const b = quizConfig.branding || {};
+  const primary = b.primaryColor || '#34c759';
+  const q = questions[i];
+
+  document.getElementById('quizHeader').innerHTML = buildHeader(b);
+  const fill = document.getElementById('progressFill');
+  fill.style.width = `${((i+1)/questions.length)*100}%`;
+  fill.style.background = primary;
+
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.style.background = primary;
+  const isLastQ = (i + 1 >= questions.length);
+  nextBtn.textContent = isLastQ ? 'SEE RESULTS →' : 'NEXT QUESTION →';
+
+  const lawRef = q.lawReference || q.lawRef || 'IFAB 2025/26';
+  document.getElementById('questionText').innerHTML = `
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
+      <span style="background:${primary};color:${isLight(primary)?'#000':'#fff'};font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:0.08em;font-family:'DM Sans';">RULES</span>
+      <span style="background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.45);font-size:9px;padding:2px 8px;border-radius:20px;font-family:'DM Sans';">${lawRef}</span>
+      <span style="margin-left:auto;font-size:11px;color:rgba(255,255,255,0.3);">${i+1} / ${questions.length}</span>
+    </div>
+    <div style="font-size:15px;font-weight:600;line-height:1.45;color:#f0f4f0;">${q.question}</div>
+  `;
+
+  const surface = b.surfaceColor || '#111711';
+  const answersEl = document.getElementById('answersContainer');
+  answersEl.innerHTML = q.options.map((opt, idx) => `
+    <button class="q-answer" data-idx="${idx}">
+      <span class="q-answer-letter">${['A','B','C','D'][idx]}</span>
+      <span style="flex:1;">${opt}</span>
+    </button>
+  `).join('');
+
+  answersEl.querySelectorAll('.q-answer').forEach(btn => {
+    btn.style.background = surface;
+    btn.addEventListener('click', () => selectAnswer(parseInt(btn.dataset.idx)));
+  });
+
+  document.getElementById('explanation').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'none';
+}
+
+function selectAnswer(selected) {
+  const q = questions[currentQ];
+  const b = quizConfig.branding || {};
+  const primary = b.primaryColor || '#34c759';
+  const correct = q.correctIndex;
+
+  if (selected === correct) score++;
+
+  document.querySelectorAll('.q-answer').forEach(btn => {
+    btn.disabled = true;
+    btn.onclick = null;
+    const idx = parseInt(btn.dataset.idx);
+    const letterEl = btn.querySelector('.q-answer-letter');
+    if (idx === correct) {
+      btn.classList.add('correct');
+      btn.style.borderColor = primary;
+      btn.style.background  = `rgba(${hexToRGB(primary)},0.12)`;
+      if (letterEl) { letterEl.style.background = primary; letterEl.style.color = isLight(primary)?'#000':'#fff'; }
+    } else if (idx === selected) {
+      btn.classList.add('wrong');
+    } else {
+      btn.classList.add('faded');
+    }
+  });
+
+  const expEl   = document.getElementById('explanation');
+  const expText = document.getElementById('explanationText');
+  const expLabel = expEl.querySelector('.q-explanation-label');
+  if (q.explanation) {
+    expText.textContent = q.explanation;
+    expEl.style.display = 'block';
+    expEl.style.borderLeftColor = primary;
+    expEl.style.background = `rgba(${hexToRGB(primary)},0.08)`;
+    if (expLabel) expLabel.style.color = primary;
+  }
+  document.getElementById('nextBtn').style.display = 'block';
+}
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  const next = currentQ + 1;
+  if (next < questions.length) {
+    showQuestion(next);
+  } else {
+    showResults();
+  }
+});
+
+// ── Results ───────────────────────────────────────────────────────────────────
+async function showResults() {
+  hide('quizScreen');
+  show('resultsScreen');
+
+  const b   = quizConfig.branding || {};
+  const pct = Math.round((score / questions.length) * 100);
+  const gradeColor = pct >= 80 ? '#34c759' : pct >= 60 ? '#ffd60a' : '#ff3b30';
+  const grade      = pct >= 80 ? '✅ Strong Performance' : pct >= 60 ? '⚡ Keep Training' : '📚 More Practice Needed';
+
+  document.getElementById('resultsHeader').innerHTML = buildHeader(b);
+  document.getElementById('resultsPct').textContent  = `${pct}%`;
+  document.getElementById('resultsPct').style.color   = gradeColor;
+  document.getElementById('resultsScore').textContent = `${score} / ${questions.length} CORRECT`;
+  document.getElementById('resultsGrade').textContent = grade;
+  document.getElementById('resultsGrade').style.color  = gradeColor;
+
+  // Save result
+  if (attemptRef) {
+    try {
+      await updateDoc(attemptRef, {
+        status: 'completed',
+        completedAt: serverTimestamp(),
+        score, total: questions.length, percentage: pct,
+        passed: pct >= 70
+      });
+    } catch(e) { console.warn('Result save failed:', e); }
+  }
+}
+
+// ── Question generation (via /api/quiz Netlify proxy) ─────────────────────────
+async function generateQuestions(config) {
+  const n = parseInt(config.numberOfQuestions) || 10;
+  const divLabel      = getDivisionLabel(config.division);
+  const enforcement   = getDivisionEnforcement(config.division);
+
+  const systemPrompt = `You are an expert soccer referee educator. Generate exactly ${n} multiple choice questions for referees working ${divLabel} matches.
+
+Division-specific rules:
+${enforcement}
+
+Accuracy rules:
+- All answers must be 100% correct per IFAB Laws 2025/26
+- One clearly correct answer, three plausible but clearly wrong options
+- Vary which position (0–3) holds the correct answer — do NOT default to index 0
+- Explanations must cite the specific Law number
+- NEVER generate card or offside questions for divisions where these don't apply
+
+Return ONLY a valid JSON array. No markdown, no backticks, no preamble.
+[{"question":"string","options":["string","string","string","string"],"correctIndex":0,"explanation":"string","lawReference":"Law X — Name"}]`;
+
+  const res = await fetch('/api/quiz', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 6000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: `Generate exactly ${n} referee quiz questions for ${divLabel}. Return only the JSON array.` }]
+    })
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error || `API error ${res.status}`);
+
+  const blocks = (data?.content || []).filter(b => b.type === 'text');
+  if (!blocks.length) throw new Error('No response from AI.');
+
+  const text = blocks.map(b => b.text).join('');
+  const match = text.match(/\[[\s\S]*\]/);
+  if (!match) throw new Error('No valid JSON array found in response');
+
+  const parsed = JSON.parse(match[0]);
+  return parsed.filter(q =>
+    q?.question?.length > 10 &&
+    Array.isArray(q.options) && q.options.length === 4 &&
+    q.options.every(o => typeof o === 'string' && o.length > 0) &&
+    typeof q.correctIndex === 'number' && q.correctIndex >= 0 && q.correctIndex <= 3
+  );
+}
+
+// ── Division helpers ──────────────────────────────────────────────────────────
+function getDivisionLabel(val) {
+  const map = {
+    'all':'All Divisions',
+    'rec-prek':'Recreational PreK','rec-k1':'K / 1st Grade','rec-2nd':'1st–2nd Grade',
+    'rec-3rd4th':'3rd–4th Grade','rec-5th6th':'5th–6th Grade','rec-7th8th':'7th–8th Grade',
+    'comp-u8u9':'Competitive U8/U9','comp-u9u10':'Competitive U9/U10',
+    'comp-u11u12':'Competitive U10/U11','comp-u13u14':'Competitive U12/U13',
+    'comp-u15u16':'Competitive U14/U15','comp-u17u18':'Competitive U16/U17','comp-u19u23':'Competitive U18/U19',
+    'hs-middle':'High School Middle','hs-jv':'High School JV','hs-varsity':'High School Varsity',
+    'adult-rec':'Adult Recreational','adult-comp':'Adult Competitive',
+    'adult-over30':'Adult Over 30','adult-over40':'Adult Over 40','adult-coed':'Adult Co-Ed',
+    'college-club':'College Club','college-varsity':'College Varsity (NCAA)',
+    'pdl':'Professional Development League','futsal':'Futsal','indoor':'Indoor Soccer','beach':'Beach Soccer',
+    // Legacy underscore slugs
+    'rec_young':'Recreational Young','rec_lower':'Recreational Lower','rec_upper5':'Recreational Upper',
+    'rec_middle':'Recreational Middle','rec_mid':'Recreational Mid','rec_upper':'Recreational Upper',
+    'comp_u9u10':'Competitive U9/U10','comp_u11u12':'Competitive U11/U12',
+    'comp_u13u14':'Competitive U13/U14','comp_u15u16':'Competitive U15/U16','comp_u17u18':'Competitive U17/U18',
+    'hs_jv':'High School JV','hs_varsity':'High School Varsity',
+    'adult_rec':'Adult Recreational','adult_comp':'Adult Competitive',
+    'college_club':'College Club','college_varsity':'College Varsity',
+    'high_school':'High School','adult_amateur':'Adult Amateur','competitive':'Competitive'
+  };
+  return map[val] || val || 'General';
+}
+
+function getDivisionEnforcement(val) {
+  if (val === 'rec-prek' || val === 'rec-k1')
+    return 'NO cards of any kind (no yellow, no red). NO offside rule. NO penalty kicks. Modified small-sided rules (3v3–5v5), size 3 ball. NEVER generate card or offside questions.';
+  if (val === 'rec-2nd' || val === 'comp-u8u9')
+    return 'Cautions (yellow) used sparingly. NO red cards — player removed and substituted. Offside may not be enforced — note uncertainty in questions. Focus on basic restarts and fouls.';
+  if (val === 'rec-3rd4th' || val === 'comp-u9u10')
+    return 'Yellow cards apply. Red cards rare — player removed for cooling off. Offside may or may not be enforced — acknowledge uncertainty where relevant. Size 4 ball, 7v7.';
+  if (val === 'rec-5th6th' || val === 'comp-u11u12')
+    return 'Full cards apply (yellow and red). Offside enforced. Size 4 ball. 9v9 or 11v11. Full Laws with age-appropriate scenarios.';
+  if (val === 'all')
+    return 'Write questions applicable across all divisions. Focus on universally applicable IFAB Laws. Avoid division-specific modifications. Mix of difficulty levels.';
+  // Default: full IFAB Laws
+  return 'Full IFAB Laws of the Game 2025/26 apply. All cards, offside, restarts, and procedures as written. Size 5 ball, 11v11.';
+}
+
+function isLight(hex) {
+  if (!hex || hex.length < 7) return false;
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return (r*299+g*587+b*114)/1000 > 128;
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function show(id) { const el = document.getElementById(id); if (el) el.style.display = 'flex'; }
+function hide(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+function setLoading(msg) {
+  show('loadingScreen');
+  const el = document.getElementById('loadingMsg');
+  if (el) el.textContent = msg;
+}
+function showError(title, msg) {
+  hide('loadingScreen'); hide('nameScreen'); hide('quizScreen'); hide('resultsScreen');
+  document.getElementById('errorTitle').textContent = title || 'ERROR';
+  document.getElementById('errorMsg').textContent   = msg   || 'Something went wrong.';
+  const el = document.getElementById('errorScreen');
+  if (el) el.style.display = 'flex';
+}
+</script>
+</body>
+</html>
