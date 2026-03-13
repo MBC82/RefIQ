@@ -19,9 +19,9 @@
 
 [[redirects]]
   from = "/__/auth/*"
-  to = "/__/auth/:splat"
+  to = "https://refiq-b8142.firebaseapp.com/__/auth/:splat"
   status = 200
-  force = false
+  force = true
 
 [[redirects]]
   from = "/__/firebase/*"
