@@ -769,14 +769,22 @@ const gp = new GoogleAuthProvider();
 document.getElementById('loading').classList.add('show');
 
 // ── AUTH INIT ────────────────────────────────────────────────────────────────
+let authResolved = false;
+let pendingAuthUser = undefined;
 getRedirectResult(auth).then((result) => {
   if (result && result.user) {
+    authResolved = true;
     handleAuthState(result.user);
     return;
   }
-  onAuthStateChanged(auth, (user) => {
-    handleAuthState(user);
+  onAuthStateChanged(auth, (u) => {
+    if (!authResolved) { pendingAuthUser = u; return; }
+    handleAuthState(u);
   });
+  authResolved = true;
+  if (pendingAuthUser !== undefined) {
+    handleAuthState(pendingAuthUser);
+  }
 }).catch((error) => {
   console.error('Redirect result error:', error);
   if (error.code && error.code !== 'auth/no-auth-event') {
