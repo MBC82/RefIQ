@@ -971,43 +971,51 @@ function resetLeagueBranding() {
   document.getElementById('scr-quiz').querySelector('.quiz-header').style.removeProperty('--league-color-b');
 }
 
+let authHandled = false;
 async function handleAuthState(u) {
-  console.log('[RefIQ Auth] handleAuthState called with:', u ? u.email : 'NULL');
-  if(u){
-    user=u;
-    // ── Check Firebase custom claims first (force-refresh so we get latest) ──
-    try {
-      const token = await u.getIdTokenResult(true);
-      console.log('[RefIQ Auth] Custom claims:', JSON.stringify(token.claims));
-      if (token.claims.admin) {
-        console.log('[RefIQ Auth] Routing → /admin (admin claim)');
+  if (u && authHandled) return;
+  if (u) authHandled = true;
+  try {
+    console.log('[RefIQ Auth] handleAuthState called with:', u ? u.email : 'NULL');
+    if(u){
+      user=u;
+      // ── Check Firebase custom claims first (force-refresh so we get latest) ──
+      try {
+        const token = await u.getIdTokenResult(true);
+        console.log('[RefIQ Auth] Custom claims:', JSON.stringify(token.claims));
+        if (token.claims.admin) {
+          console.log('[RefIQ Auth] Routing → /admin (admin claim)');
+          window.location.href = '/admin';
+          return;
+        }
+        if (token.claims.league) {
+          console.log('[RefIQ Auth] Routing → /admin (league claim)');
+          window.location.href = '/admin';
+          return;
+        }
+      } catch(claimErr) {
+        console.warn('[RefIQ Auth] getIdTokenResult failed, falling back to Firestore role:', claimErr);
+      }
+      // ── Fall back to Firestore role ─────────────────────────────────────────
+      await loadProfile(u);
+      console.log('[RefIQ Auth] loadProfile done — role:', role, '| plan:', userPlan);
+      if (role === 'operator' || role === 'league') {
+        console.log('[RefIQ Auth] Routing → /admin (Firestore role)');
         window.location.href = '/admin';
         return;
       }
-      if (token.claims.league) {
-        console.log('[RefIQ Auth] Routing → /admin (league claim)');
-        window.location.href = '/admin';
-        return;
+      console.log('[RefIQ Auth] Routing → showApp (referee)');
+      await loadLeagueBranding(); showApp();
+      if (new URLSearchParams(window.location.search).get('checkout') === 'success') {
+        handleCheckoutSuccess();
       }
-    } catch(claimErr) {
-      console.warn('[RefIQ Auth] getIdTokenResult failed, falling back to Firestore role:', claimErr);
     }
-    // ── Fall back to Firestore role ─────────────────────────────────────────
-    await loadProfile(u);
-    console.log('[RefIQ Auth] loadProfile done — role:', role, '| plan:', userPlan);
-    if (role === 'operator' || role === 'league') {
-      console.log('[RefIQ Auth] Routing → /admin (Firestore role)');
-      window.location.href = '/admin';
-      return;
+    else {
+      console.log('[RefIQ Auth] No user → showAuth');
+      showAuth();
     }
-    console.log('[RefIQ Auth] Routing → showApp (referee)');
-    await loadLeagueBranding(); showApp();
-    if (new URLSearchParams(window.location.search).get('checkout') === 'success') {
-      handleCheckoutSuccess();
-    }
-  }
-  else {
-    console.log('[RefIQ Auth] No user → showAuth');
+  } catch(err) {
+    console.error('[RefIQ Auth] handleAuthState error:', err);
     showAuth();
   }
 }
