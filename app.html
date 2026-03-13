@@ -784,13 +784,7 @@ getRedirectResult(auth).then(async result => {
     // getRedirectResult has the user directly. Use it immediately — do NOT
     // fall through to pendingAuthUser, which may still be null because
     // onAuthStateChanged fires with null BEFORE the redirect is processed.
-    // ── DEBUG: show custom claims so we can verify routing ─────────────────
-    try {
-      const token = await result.user.getIdTokenResult(true); // force refresh
-      alert('Claims: ' + JSON.stringify(token.claims) + ' | Email: ' + result.user.email);
-    } catch(dbgErr) {
-      alert('getIdTokenResult ERROR: ' + dbgErr.message + ' | Email: ' + result.user.email);
-    }
+    authResolved = true;
     handleAuthState(result.user);
     return;
   }
@@ -1264,33 +1258,12 @@ document.getElementById('google-btn').addEventListener('click', async function()
   const btn = this, orig = btn.innerHTML;
   btn.disabled = true; btn.style.opacity = '0.6';
   const reset = () => { btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = orig; };
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   try { await setPersistence(auth, indexedDBLocalPersistence); } catch(_) {}
-  if (isMobile) {
-    btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';
-    signInWithRedirect(auth, gp).catch(err => {
-      console.error('Firebase redirect error:', err.code, err);
-      reset(); authErr(friendlyAuthErr(err.code));
-    });
-    return;
-  }
-  btn.innerHTML = '<span style="opacity:.7">Signing in with Google…</span>';
-  try {
-    await signInWithPopup(auth, gp);
-  } catch(e) {
-    console.error('Firebase popup error:', e.code, e);
-    if (e.code === 'auth/popup-blocked') {
-      btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';
-      signInWithRedirect(auth, gp).catch(err => {
-        console.error('Firebase redirect error:', err.code, err);
-        reset(); authErr(friendlyAuthErr(err.code));
-      });
-    } else if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
-      reset();
-    } else {
-      reset(); authErr(friendlyAuthErr(e.code));
-    }
-  }
+  btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';
+  signInWithRedirect(auth, gp).catch(err => {
+    console.error('Firebase redirect error:', err.code, err);
+    reset(); authErr(friendlyAuthErr(err.code));
+  });
 });
 
 document.getElementById('signout-btn').addEventListener('click',()=>signOut(auth));

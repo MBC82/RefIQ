@@ -1321,6 +1321,7 @@ getRedirectResult(auth).then(result => {
     // ── Mobile redirect return ──────────────────────────────────────────────
     // Use the user from the redirect directly — do NOT rely on pendingAuthUser
     // because onAuthStateChanged fires null BEFORE getRedirectResult resolves.
+    authResolved = true;
     handleAdminAuth(result.user);
     return;
   }
@@ -1451,33 +1452,12 @@ document.getElementById('google-btn').addEventListener('click', async function()
   const btn = this, orig = btn.innerHTML;
   btn.disabled = true; btn.style.opacity = '0.6';
   const reset = () => { btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = orig; };
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   try { await setPersistence(auth, indexedDBLocalPersistence); } catch(_) {}
-  if (isMobile) {
-    btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';
-    signInWithRedirect(auth, gp).catch(err => {
-      console.error('Firebase redirect error:', err.code, err);
-      reset(); authErr(friendlyErr(err.code));
-    });
-    return;
-  }
-  btn.innerHTML = '<span style="opacity:.7">Signing in with Google…</span>';
-  try {
-    await signInWithPopup(auth, gp);
-  } catch(e) {
-    console.error('Firebase popup error:', e.code, e);
-    if (e.code === 'auth/popup-blocked') {
-      btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';
-      signInWithRedirect(auth, gp).catch(err => {
-        console.error('Firebase redirect error:', err.code, err);
-        reset(); authErr(friendlyErr(err.code));
-      });
-    } else if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
-      reset();
-    } else {
-      reset(); authErr(friendlyErr(e.code));
-    }
-  }
+  btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';
+  signInWithRedirect(auth, gp).catch(err => {
+    console.error('Firebase redirect error:', err.code, err);
+    reset(); authErr(friendlyErr(err.code));
+  });
 });
 document.getElementById('signout-btn').addEventListener('click',()=>signOut(auth));
 
