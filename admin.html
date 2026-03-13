@@ -45,7 +45,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .auth-features li::before{content:'✓';position:absolute;left:0;color:var(--green);font-weight:700}
 .auth-card{background:var(--s1);border:1px solid var(--border2);border-radius:28px;padding:clamp(32px,5vw,44px) clamp(28px,4vw,40px);width:100%;max-width:460px}
 .auth-icon{text-align:center;margin-bottom:12px}
-.auth-icon img{height:80px;width:80px;object-fit:contain;filter:drop-shadow(0 0 36px rgba(255,214,10,.55))}
+.auth-icon img{height:80px;width:80px;object-fit:contain;mix-blend-mode:screen}
 .auth-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;text-align:center;margin-bottom:4px}
 .auth-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px;line-height:1.5}
 .field{width:100%;background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:12px;padding:13px 15px;font-family:'DM Sans',sans-serif;font-size:15px;outline:none;margin-bottom:10px;transition:border-color .2s;-webkit-appearance:none}
@@ -65,7 +65,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 @media(min-width:768px){
   .auth-left{display:none}
   .auth-brand{display:flex;flex-direction:column;align-items:center;margin-bottom:24px}
-  .auth-brand img{height:40px;width:auto;max-width:160px;object-fit:contain;filter:drop-shadow(0 0 28px rgba(255,214,10,.5))}
+  .auth-brand img{height:40px;width:auto;max-width:160px;object-fit:contain;mix-blend-mode:screen}
   .auth-icon{display:none}
   .auth-card{max-width:440px;padding:40px}
 }
@@ -477,7 +477,7 @@ select option{background:#111711}
   <div class="auth-wrap">
     <!-- LEFT: branding panel — desktop only -->
     <div class="auth-left">
-      <img src="HeroLogo.png" alt="RefIQ" style="height:52px;width:52px;object-fit:contain;filter:drop-shadow(0 0 24px rgba(255,214,10,.5));margin-bottom:20px">
+      <img src="logo.png" alt="RefIQ" style="height:52px;width:52px;object-fit:contain;mix-blend-mode:screen;margin-bottom:20px">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:5px;color:var(--green);line-height:1;margin-bottom:4px">REFIQ</div>
       <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:36px">LEAGUE ADMIN PORTAL</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:2px;line-height:1.25">Train smarter.</div>
@@ -492,10 +492,10 @@ select option{background:#111711}
     <!-- RIGHT: auth form -->
     <div class="auth-right">
       <div class="auth-brand">
-        <img src="HeroLogo.png" alt="RefIQ">
+        <img src="logo.png" alt="RefIQ">
       </div>
       <div class="auth-card fu">
-        <div class="auth-icon"><img src="HeroLogo.png" alt="RefIQ"></div>
+        <div class="auth-icon"><img src="logo.png" alt="RefIQ"></div>
         <div class="auth-title">LEAGUE ADMIN</div>
         <div class="auth-sub">Sign in to manage your league's referee training</div>
         <div class="auth-tabs">
