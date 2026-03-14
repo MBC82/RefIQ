@@ -1253,6 +1253,12 @@ document.getElementById('google-btn').addEventListener('click', async function()
   btn.disabled = true; btn.style.opacity = '0.6';
   const reset = () => { btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = orig; };
   try { await setPersistence(auth, indexedDBLocalPersistence); } catch(_) {}
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (isMobile) {
+    btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';
+    signInWithRedirect(auth, gp).catch(err => { reset(); authErr(friendlyAuthErr(err.code)); });
+    return;
+  }
   btn.innerHTML = '<span style="opacity:.7">Signing in with Google…</span>';
   try {
     const result = await signInWithPopup(auth, gp);
