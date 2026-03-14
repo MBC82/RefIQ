@@ -771,7 +771,12 @@ document.getElementById('loading').classList.add('show');
 // ── AUTH INIT ────────────────────────────────────────────────────────────────
 let authResolved = false;
 let pendingAuthUser = undefined;
-getRedirectResult(auth).then((result) => {
+getRedirectResult(auth).then(async result => {
+  console.log('getRedirectResult:', JSON.stringify({
+    hasResult: !!result,
+    hasUser: !!(result?.user),
+    email: result?.user?.email ?? null
+  }));
   if (result && result.user) {
     authResolved = true;
     handleAuthState(result.user);
