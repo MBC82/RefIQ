@@ -27,7 +27,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: body.model || 'claude-sonnet-4-20250514',
         max_tokens: Math.min(body.max_tokens || 8000, 8000),
-        system: body.system || 'Return only valid JSON.',
+        system: (body.system || 'Return only valid JSON.') + ' Never create answer choices that are equivalent values in different units (e.g. 10 yards and 9.15 meters are the same distance — do not use both as separate options). Each answer choice must be clearly distinct and unambiguous. Only one answer should be correct and it must be unambiguously correct.',
         messages: body.messages
       })
     });
