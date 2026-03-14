@@ -29,7 +29,7 @@
   ],
   "functions": {
     "api/quiz.js": {
-      "maxDuration": 30
+      "maxDuration": 60
     }
   }
 }

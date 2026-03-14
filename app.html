@@ -1409,7 +1409,7 @@ Format:
 
   setLoad(true);
   const _ctrl = new AbortController();
-  const _tid = setTimeout(() => _ctrl.abort(), 35000); // 35s client timeout
+  const _tid = setTimeout(() => _ctrl.abort(), 55000); // 55s client timeout
   try {
     const res = await fetch('/api/quiz',{
       method:'POST',
