@@ -40,14 +40,14 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 /* ── NAME SCREEN ── */
 #name-screen{display:none;position:fixed;inset:0;z-index:100;background:var(--bg);align-items:center;justify-content:center;padding:24px}
 #name-screen.show{display:flex}
-.name-card{background:var(--surface);border:1px solid var(--brand-primary,var(--border));box-shadow:0 0 24px rgba(var(--brand-primary-rgb,255,214,10),.1);border-radius:28px;padding:clamp(28px,6vw,48px) clamp(24px,5vw,48px);width:100%;max-width:420px;text-align:center}
+.name-card{background:var(--surface);border:2px solid var(--brand-primary,var(--border));box-shadow:0 0 32px var(--brand-primary,rgba(255,214,10,.15)),0 8px 32px rgba(0,0,0,.3);border-radius:28px;padding:clamp(28px,6vw,48px) clamp(24px,5vw,48px);width:100%;max-width:420px;text-align:center}
 .name-league-logo{height:56px;max-width:140px;object-fit:contain;border-radius:8px;margin-bottom:12px;display:none}
 .name-league-name{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--brand-primary,var(--gold));margin-bottom:2px;display:none}
 .name-refiq{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--gold);margin-bottom:4px}
 .name-badge{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:22px}
 .name-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;margin-bottom:6px}
 .name-sub{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.5}
-.quiz-info-box{background:rgba(255,214,10,.06);border:1px solid rgba(255,214,10,.18);border-radius:12px;padding:11px 14px;margin-bottom:18px;text-align:left}
+.quiz-info-box{background:rgba(255,214,10,.06);border:1px solid var(--brand-primary,rgba(255,214,10,.18));border-radius:12px;padding:11px 14px;margin-bottom:18px;text-align:left}
 .quiz-info-name{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;color:var(--text);margin-bottom:3px}
 .quiz-info-meta{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.6}
 .field{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:12px;padding:15px 16px;font-family:'DM Sans',sans-serif;font-size:16px;outline:none;margin-bottom:12px;transition:border-color .2s;-webkit-appearance:none;text-align:center}
@@ -215,7 +215,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
   <div class="name-card fu">
     <img class="name-league-logo" id="name-league-logo" alt="">
     <div class="name-league-name" id="name-league-name"></div>
-    <div class="name-refiq">REFIQ</div>
+    <div class="name-refiq" id="name-refiq">REFIQ</div>
     <div class="name-badge">REFEREE TRAINING QUIZ</div>
     <div class="quiz-info-box" id="quiz-info-box" style="display:none">
       <div class="quiz-info-name" id="qi-name"></div>
@@ -524,6 +524,9 @@ function applyBrandingToQuiz() {
   const nameEl = document.getElementById('quiz-league-name');
   const badgeEl = document.getElementById('quiz-refiq-badge');
   if (b.name) { nameEl.textContent = b.name.toUpperCase(); nameEl.style.display = 'block'; badgeEl.style.display = 'none'; }
+  const nameIntroEl = document.getElementById('name-league-name');
+  const refiqEl = document.getElementById('name-refiq');
+  if (b.name) { nameIntroEl.textContent = b.name.toUpperCase(); nameIntroEl.style.display = 'block'; if (refiqEl) refiqEl.style.display = 'none'; }
   const primary = b.brandColor || '#ffd60a';
   const accent  = b.brandAccent || '#ffd60a';
   document.documentElement.style.setProperty('--league-accent', primary);
