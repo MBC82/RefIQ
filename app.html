@@ -937,22 +937,33 @@ function applyLeagueBranding() {
   const primary = b.brandColor || '#ffd60a';
   const accent  = b.brandAccent || '#ffd60a';
   document.documentElement.style.setProperty('--league-accent', primary);
-  const qh = document.getElementById('scr-quiz').querySelector('.quiz-header');
-  qh.style.setProperty('--league-color-a', hexToRgba(primary, .22));
-  qh.style.setProperty('--league-color-b', hexToRgba(primary, .08));
-  // Progress bar and answer highlight use CSS vars too
   document.documentElement.style.setProperty('--brand-primary', primary);
   document.documentElement.style.setProperty('--brand-accent', accent);
 
-  // Background theme
+  // Quiz header gradient — derived from brand color
+  const qh = document.getElementById('scr-quiz').querySelector('.quiz-header');
+  qh.style.setProperty('--league-color-a', hexToRgba(primary, .32));
+  qh.style.setProperty('--league-color-b', hexToRgba(primary, .12));
+
+  // Background theme — applied to body AND #scr-quiz for full coverage
   const quizScr = document.getElementById('scr-quiz');
+  const customBg = b.brandBgColor || b.backgroundColor;
   if (b.brandBg === 'light') {
+    document.body.style.background = '#f5f5f0';
+    document.body.style.color = '#111';
     quizScr.style.background = '#f5f5f0';
     quizScr.style.color = '#111';
-  } else if (b.brandBg === 'custom' && b.brandBgColor) {
-    quizScr.style.background = b.brandBgColor;
+  } else if (b.brandBg === 'custom' && customBg) {
+    document.body.style.background = customBg;
+    document.body.style.color = '';
+    quizScr.style.background = customBg;
+    quizScr.style.color = '';
   } else {
+    // dark (default) — reset any overrides
+    document.body.style.background = '';
+    document.body.style.color = '';
     quizScr.style.background = '';
+    quizScr.style.color = '';
   }
 
   // Font — dynamically load from Google Fonts if not default
@@ -973,7 +984,10 @@ function applyLeagueBranding() {
 function resetLeagueBranding() {
   const quizScr = document.getElementById('scr-quiz');
   quizScr.style.background = '';
+  quizScr.style.color = '';
   quizScr.style.setProperty('--quiz-font', '');
+  document.body.style.background = '';
+  document.body.style.color = '';
   document.documentElement.style.removeProperty('--league-accent');
   document.documentElement.style.removeProperty('--brand-primary');
   document.documentElement.style.removeProperty('--brand-accent');
