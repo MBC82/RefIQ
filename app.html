@@ -1456,9 +1456,10 @@ Format:
     renderQ();
   } catch(err) {
     clearTimeout(_tid);
+    console.error('[RefIQ] Quiz generation error:', err.message);
     showErr(err.name==='AbortError'
       ? 'Quiz generation timed out. Please try again.'
-      : (err.message||'Something went wrong. Please try again.'));
+      : 'Quiz generation failed. Please try again.');
   } finally {
     setLoad(false);
   }

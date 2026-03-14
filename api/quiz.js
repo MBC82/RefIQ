@@ -25,7 +25,7 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-3-5-haiku-20241022',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: Math.min(body.max_tokens || 8000, 8000),
         system: (body.system || 'Return only valid JSON.') + ' Generate questions based on TWO sources in priority order: (1) any custom rule documents or league-specific rules provided in the request, which take precedence over everything else, and (2) the official IFAB Laws of the Game 2025/26. If a league rule contradicts IFAB, follow the league rule and generate questions accordingly. Never create answer choices that are equivalent values in different units (e.g. 10 yards and 9.15 meters are the same distance — do not use both as separate options). Each answer choice must be clearly distinct and unambiguous. Only one answer should be correct and it must be unambiguously correct.',
         messages: body.messages
