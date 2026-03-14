@@ -1961,6 +1961,18 @@ const DIVISION_MIGRATION = {
   'high_school':'hs-varsity','competitive':'comp-u15u16','pdl':'pdl'
 };
 
+// Returns the effective resource list for quiz generation based on src selection.
+// 'ifab' → no league docs. 'league'/'both' → Firestore league docs merged with
+// any manually uploaded crResources (crResources win on name collision).
+function getEffectiveResources(src) {
+  if (src === 'ifab') return [];
+  const merged = [...globalResources];
+  crResources.forEach(r => {
+    if (!merged.some(g => g.name === r.name)) merged.push(r);
+  });
+  return merged;
+}
+
 async function preGenerateQuestions(age, num, src, mode, resources) {
   const divisionRules = getDivisionRulesAdmin(age);
   const divLabel = divisionRules.label;
@@ -2098,7 +2110,7 @@ async function runPreview() {
   const divLabels = {rec_young:'Recreational Young',rec_mid:'Recreational Mid',rec_upper:'Recreational Upper',high_school:'High School',adult_amateur:'Adult Amateur',competitive:'Competitive'};
   const modeStr = {mixed:'Mix rules and scenarios.',scenarios:'ALL scenario questions.',rules:'ALL rules recall.'}[mode]||'Mix.';
   const srcStr = src==='ifab'?'IFAB Laws only.':src==='league'?'League rules only.':'Mix IFAB and league rules.';
-  const leagueSec = crResources.map(r=>`\n\n--- LEAGUE RULE DOCUMENT: ${r.name} ---\n${r.text}`).join('');
+  const leagueSec = getEffectiveResources(src).map(r=>`\n\n--- LEAGUE RULE DOCUMENT: ${r.name} ---\n${r.text}`).join('');
 
   const prompt = `Generate exactly 3 soccer referee quiz questions for: ${divLabels[age]||age}. ${modeStr} ${srcStr}\n\nIFAB LAWS:\n${IFAB_SHORT}${leagueSec}\n\nReturn ONLY a JSON array: [{"type":"rules|scenario","source":"ifab|league","question":"...","options":["A","B","C","D"],"correct":0,"lawRef":"Law 12","explanation":"..."}]`;
 
@@ -2366,7 +2378,7 @@ document.getElementById('cr-save-btn').addEventListener('click', async()=>{
     const mode      = document.querySelector('#cr-mode-seg .seg-btn.active')?.dataset.v||'mixed';
     const timeLimit = parseInt(document.querySelector('#cr-time-seg .seg-btn.active')?.dataset.v||'0');
     setLoad(true,'Saving changes…');
-    const cleanResources = crResources.map(r=>({name:r.name,text:sanitizeResourceText(r.text)}));
+    const cleanResources = getEffectiveResources(src).map(r=>({name:r.name,text:sanitizeResourceText(r.text)}));
     try {
       await updateDoc(doc(db,'quizLinks',editingLinkId),{
         name,
@@ -2472,7 +2484,7 @@ document.getElementById('cr-save-btn').addEventListener('click', async()=>{
   setLoad(true,`Generating ${num} questions…`);
   try {
     const questions = await preGenerateQuestions(age, num, src, mode,
-      crResources.map(r=>({name:r.name, text:sanitizeResourceText(r.text)})));
+      getEffectiveResources(src).map(r=>({name:r.name, text:sanitizeResourceText(r.text)})));
     await updateDoc(linkDocRef, {
       questions,
       questionsGeneratedAt: serverTimestamp()
