@@ -1416,8 +1416,8 @@ Format:
       headers:{'Content-Type':'application/json'},
       signal: _ctrl.signal,
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens: Math.min(Math.max(num * 350, 1500), 8000),
+        model:'claude-3-5-haiku-20241022',
+        max_tokens: 1500,
         system:'Return ONLY valid JSON array. No markdown. No preamble. Start with [ end with ].',
         messages:[{role:'user',content:prompt}]
       })
