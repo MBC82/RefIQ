@@ -1433,6 +1433,7 @@ Format:
         model:'claude-3-5-haiku-20241022',
         max_tokens: 1500,
         system:'Return ONLY valid JSON array. No markdown. No preamble. Start with [ end with ].',
+        division: divLabel,
         messages:[{role:'user',content:prompt}]
       })
     });
