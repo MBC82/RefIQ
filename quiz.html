@@ -529,9 +529,12 @@ function applyBrandingToQuiz() {
   if (b.name) { nameIntroEl.textContent = b.name.toUpperCase(); nameIntroEl.style.display = 'block'; if (refiqEl) refiqEl.style.display = 'none'; }
   const primary = b.brandColor || '#ffd60a';
   const accent  = b.brandAccent || '#ffd60a';
+  document.documentElement.style.setProperty('--primary', primary);
   document.documentElement.style.setProperty('--league-accent', primary);
   document.documentElement.style.setProperty('--brand-primary', primary);
   document.documentElement.style.setProperty('--brand-accent', accent);
+  if (b.bgColor) document.documentElement.style.setProperty('--bg', b.bgColor);
+  if (b.surfaceColor) document.documentElement.style.setProperty('--surface', b.surfaceColor);
   const qh = document.getElementById('scr-quiz').querySelector('.quiz-header');
   qh.style.setProperty('--league-color-a', hexToRgba(primary, .22));
   qh.style.setProperty('--league-color-b', hexToRgba(primary, .08));
@@ -578,7 +581,9 @@ async function fetchLeagueBranding(leagueId) {
       logoDataUrl: b.logoUrl || null,
       name: b.leagueName || null,
       brandColor: (b.primaryColor && b.primaryColor !== '#ffffff') ? b.primaryColor : '#ffd60a',
-      brandAccent: '#ffd60a'
+      brandAccent: '#ffd60a',
+      bgColor: b.backgroundColor || null,
+      surfaceColor: b.surfaceColor || null,
     };
     return;
   }
