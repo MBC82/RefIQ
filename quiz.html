@@ -643,6 +643,17 @@ function _buildQuizPayload() {
   const timeLimit = (tlRaw && tlRaw !== 'none') ? parseInt(tlRaw) || 0 : 0;
 
   const divLabel = DIV_LABELS[division] || division;
+  const divisionRules = {
+    'rec-prek':   'NO cards of any kind. NO offside. NO restarts from Laws. Simple ball-in/out only.',
+    'rec-k':      'NO cards. NO offside. Minimal restarts.',
+    'rec-1st2nd': 'NO red cards. Yellow cards sparingly. NO offside.',
+    'rec-3rd4th': 'Yellow cards apply. Red cards rare. Offside not enforced.',
+    'comp-u8u9':  'Yellow cards apply. Red cards rare. Offside uncertain.',
+    'comp-u10u11':'Full cards apply. Offside begins. Size 4 ball.',
+    'rec-5th6th': 'Full cards. Offside enforced. Size 4 ball.',
+    'comp-u12u13':'Full cards. Offside enforced. Size 4 ball.',
+  };
+  const enforcementNote = divisionRules[division] || 'Apply full IFAB Laws of the Game 2024/25.';
   const modeStr = {
     mixed: 'Mix rules recall and game scenarios.',
     scenarios: 'ALL questions must be game scenarios.',
@@ -658,6 +669,8 @@ function _buildQuizPayload() {
   const prompt = `You are an expert soccer referee examiner. Generate exactly ${num} quiz questions for referees working in: ${divLabel}.
 
 ${modeStr} ${srcStr}
+
+DIVISION ENFORCEMENT RULES: ${enforcementNote}
 
 IFAB LAWS REFERENCE:\n${IFAB}${leagueSec}
 
