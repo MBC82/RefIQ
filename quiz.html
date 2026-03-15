@@ -649,16 +649,17 @@ function _buildQuizPayload() {
 
   const divLabel = DIV_LABELS[division] || division;
   const divisionRules = {
-    'rec-prek':   'NO cards of any kind. NO offside. NO restarts from Laws. Simple ball-in/out only.',
-    'rec-k':      'NO cards. NO offside. Minimal restarts.',
-    'rec-1st2nd': 'NO red cards. Yellow cards sparingly. NO offside.',
-    'rec-3rd4th': 'Yellow cards apply. Red cards rare. Offside not enforced.',
-    'comp-u8u9':  'Yellow cards apply. Red cards rare. Offside uncertain.',
-    'comp-u10u11':'Full cards apply. Offside begins. Size 4 ball.',
-    'rec-5th6th': 'Full cards. Offside enforced. Size 4 ball.',
-    'comp-u12u13':'Full cards. Offside enforced. Size 4 ball.',
+    'rec-prek':   'CRITICAL: Questions must ONLY cover the most basic concepts: ball in/out of play, goal scored, kick-off. NEVER mention cards, offside, minimum players, abandonments, or any Law beyond the absolute basics. These are 4-5 year olds. Every question must be simple enough for a first-year referee working with 4-5 year olds.',
+    'rec-k':      'CRITICAL: Questions must ONLY cover the most basic concepts: ball in/out of play, goal scored, kick-off. NEVER mention cards, offside, minimum players, abandonments, or any Law beyond the absolute basics. These are 5-6 year olds. Every question must be simple enough for a first-year referee working with young children.',
+    'rec-1st2nd': 'No red cards. Yellow cards only for serious misconduct. No offside. Keep questions simple.',
+    'rec-3rd4th': 'Yellow cards apply. Red cards rare. Offside not enforced. No complex Laws.',
+    'comp-u8u9':  'Yellow cards apply. Red cards rare. Offside uncertain — avoid offside questions. No complex Laws.',
+    'comp-u10u11':'Full cards apply. Offside begins to be enforced. Size 4 ball. Standard Laws apply.',
+    'rec-5th6th': 'Full cards enforced. Offside enforced. Size 4 ball. Full IFAB Laws of the Game 2024/25 apply.',
+    'comp-u12u13':'Full cards enforced. Offside enforced. Size 4 ball. Full IFAB Laws of the Game 2024/25 apply.',
   };
   const enforcementNote = divisionRules[division] || 'Apply full IFAB Laws of the Game 2024/25.';
+  const isYoungDivision = division === 'rec-prek' || division === 'rec-k';
   const modeStr = {
     mixed: 'Mix rules recall and game scenarios.',
     scenarios: 'ALL questions must be game scenarios.',
@@ -675,17 +676,20 @@ function _buildQuizPayload() {
 
 ${modeStr} ${srcStr}
 
-DIVISION ENFORCEMENT RULES: ${enforcementNote}
+CRITICAL DIVISION RULES — YOU MUST FOLLOW THESE EXACTLY:
+The quiz division is: ${division} (${divLabel})
+${enforcementNote}
+${isYoungDivision ? `\nWARNING: This is a young children's division. Every single question must be simple enough for a first-year referee working with 4-5 year olds. DO NOT reference cards, offside, minimum players, abandonments, assistant referee decisions, or any advanced Law. Questions must only cover: ball in/out of play, goal scored, and kick-off restart. Violating this rule makes the quiz useless for this age group.` : ''}
+Generate questions ONLY appropriate for this division.
 
 IFAB LAWS REFERENCE:\n${IFAB}${leagueSec}
 
 REQUIREMENTS:
-- Questions must be accurate, specific, and test real understanding
-- Include 2025/26 rule changes where relevant
+- Questions must be accurate, specific, and test real understanding appropriate for ${divLabel}
 - Each question must have exactly 4 answer options
 - Only one correct answer per question
 - The correct field is the 0-based index of the correct option in the options array
-- Vary difficulty: some straightforward, some tricky edge cases
+- Vary difficulty appropriately for this age/division
 - lawRef should cite the specific law or rule document section
 
 Return ONLY a valid JSON array. No markdown, no explanation, no code blocks. Start with [ and end with ].
