@@ -124,18 +124,18 @@ nav{
 }
 
 /* Question body */
-.demo-body{padding:16px 24px 0}
-.demo-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.demo-body{padding:20px 24px 0}
+.demo-pills{display:flex;gap:5px;flex-wrap:wrap;padding:12px 24px 16px;opacity:.6}
 .demo-pill{
-  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.8px;
-  text-transform:uppercase;padding:4px 10px;border-radius:20px;
+  font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.6px;
+  text-transform:uppercase;padding:2px 7px;border-radius:20px;font-weight:400;
 }
-.pill-rules{background:rgba(255,214,10,.1);color:var(--green);border:1px solid rgba(255,214,10,.22)}
-.pill-scenario{background:rgba(255,214,10,.1);color:var(--gold);border:1px solid rgba(255,214,10,.22)}
-.pill-law{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid rgba(255,255,255,.1)}
+.pill-rules{background:rgba(255,214,10,.08);color:var(--green);border:1px solid rgba(255,214,10,.15)}
+.pill-scenario{background:rgba(255,214,10,.08);color:var(--gold);border:1px solid rgba(255,214,10,.15)}
+.pill-law{background:rgba(255,255,255,.04);color:var(--muted);border:1px solid rgba(255,255,255,.08)}
 .demo-qtext{
-  font-size:clamp(15px,2.2vw,18px);font-weight:700;line-height:1.5;
-  color:var(--text);margin-bottom:20px;
+  font-size:clamp(17px,2.6vw,21px);font-weight:800;line-height:1.45;
+  color:var(--text);margin-bottom:20px;margin-top:4px;letter-spacing:-.1px;
 }
 
 /* Answer options */
@@ -367,11 +367,6 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
 
       <!-- Question -->
       <div class="demo-body">
-        <div class="demo-pills">
-          <span class="demo-pill pill-rules">⚽ Rules</span>
-          <span class="demo-pill pill-scenario">🎯 Scenario</span>
-          <span class="demo-pill pill-law">📚 Law 12</span>
-        </div>
         <div class="demo-qtext">A GK holds the ball for 9 seconds. An opponent protests verbally. What is the correct call?</div>
       </div>
 
@@ -389,6 +384,13 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
           <div class="demo-letter">C</div>
           <div class="demo-opt-text">No foul — 10-second rule applies</div>
         </div>
+      </div>
+
+      <!-- Pills — subtle metadata, below answers -->
+      <div class="demo-pills">
+        <span class="demo-pill pill-rules">⚽ Rules</span>
+        <span class="demo-pill pill-scenario">🎯 Scenario</span>
+        <span class="demo-pill pill-law">📚 Law 12</span>
       </div>
 
       <!-- Law explanation (hidden until answer) -->
