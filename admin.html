@@ -468,7 +468,24 @@ select option{background:#111711}
 .prev-exp-txt{font-size:12px;line-height:1.75;color:rgba(240,244,240,.85)}
 .prev-next-btn{width:100%;padding:16px;border:none;border-radius:16px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;cursor:pointer;transition:all .22s;display:none;box-shadow:0 8px 28px rgba(255,214,10,.28)}
 .prev-next-btn:hover{filter:brightness(1.1);transform:translateY(-2px)}
+/* ── Rulebook upload zone ── */
+.badge-pro{font-size:.62rem;background:#ffd60a;color:#000;border-radius:4px;padding:1px 6px;font-family:'DM Mono',monospace;vertical-align:middle;margin-left:5px;letter-spacing:.5px}
+.rulebook-zone{border:2px dashed #2a3b2d;border-radius:12px;padding:20px;text-align:center;transition:border-color .2s,opacity .2s}
+.rulebook-drop-zone{cursor:pointer}.rulebook-drop-zone:hover,.rulebook-drop-zone.over{border-color:#34c759}
+.rulebook-locked-zone{opacity:.55;cursor:pointer}.rulebook-locked-zone:hover{opacity:.75}
+.rulebook-lock-icon,.rulebook-zone-icon{font-size:1.5rem;margin-bottom:6px}
+.rulebook-zone-title{font-weight:600;font-size:.88rem;color:#ccc}
+.rulebook-zone-sub{font-size:.76rem;color:#7a9080;margin-top:4px}
+.rulebook-loaded-bar{display:flex;align-items:center;gap:10px;background:#1a221b;border-radius:10px;padding:10px 14px}
+.rulebook-loaded-icon{font-size:1.1rem}
+.rulebook-loaded-name{flex:1;font-size:.84rem;color:#ccc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rulebook-loading-text{font-size:.76rem;color:#7a9080;font-style:italic}
 </style>
+<!-- PDF.js for rulebook text extraction -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+<!-- mammoth.js for .docx text extraction -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 </head>
 <body>
 
@@ -790,6 +807,31 @@ select option{background:#111711}
                     <button class="seg-btn" data-v="rules">Rules Only</button>
                   </div>
                 </div>
+                <!-- ── RULEBOOK UPLOAD (Pro persistent) ───────────────── -->
+                <div class="field-wrap" id="rulebook-section">
+                  <label class="field-label">League Rulebook <span class="badge-pro">PRO</span></label>
+                  <!-- Locked (non-pro) -->
+                  <div id="rulebook-locked" class="rulebook-zone rulebook-locked-zone" style="display:none">
+                    <div class="rulebook-lock-icon">🔒</div>
+                    <div class="rulebook-zone-title">Upload Your Rulebook — Pro Feature</div>
+                    <div class="rulebook-zone-sub">Upgrade to generate questions from your official rulebook</div>
+                  </div>
+                  <!-- Loaded (file saved) -->
+                  <div id="rulebook-loaded" class="rulebook-loaded-bar" style="display:none">
+                    <span class="rulebook-loaded-icon">📄</span>
+                    <span id="rulebook-filename" class="rulebook-loaded-name"></span>
+                    <span id="rulebook-loading-text" class="rulebook-loading-text" style="display:none">Reading…</span>
+                    <button id="rulebook-swap-btn" class="btn-sm btn-ghost">Swap</button>
+                  </div>
+                  <!-- Drop zone (pro, no file / swapping) -->
+                  <div id="rulebook-drop" class="rulebook-zone rulebook-drop-zone" style="display:none">
+                    <input id="rulebook-file" type="file" style="display:none">
+                    <div class="rulebook-zone-icon">📂</div>
+                    <div class="rulebook-zone-title">Drag your rulebook here or click to browse</div>
+                    <div class="rulebook-zone-sub">PDF, Word (.docx), or plain text — saved to your account</div>
+                  </div>
+                </div>
+
                 <div class="field-wrap" style="margin-bottom:0">
                   <label class="field-label">Rule Documents <span style="color:var(--muted);font-size:9px;letter-spacing:0;text-transform:none;font-family:'DM Sans',sans-serif">(optional)</span></label>
                   <div class="res-list" id="cr-res-list"></div>
@@ -1186,6 +1228,8 @@ import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
 import { getFirestore, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc,
   collection, query, where, getDocs, orderBy, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 // Initialise Firebase — wrapped so a missing/broken config shows a visible error
 // instead of a silent blank page.
@@ -1197,11 +1241,12 @@ const firebaseConfig = {
   messagingSenderId: '62305657245',
   appId: '1:62305657245:web:d6e35a80859ee8fdd08f74'
 };
-let fbApp, auth, db;
+let fbApp, auth, db, storage;
 try {
-  fbApp = initializeApp(firebaseConfig);
-  auth  = getAuth(fbApp);
-  db    = getFirestore(fbApp);
+  fbApp   = initializeApp(firebaseConfig);
+  auth    = getAuth(fbApp);
+  db      = getFirestore(fbApp);
+  storage = getStorage(fbApp);
 } catch (_initErr) {
   // Show a visible error card instead of a blank page
   const ld = document.getElementById('loading');
@@ -1222,6 +1267,8 @@ let currentUser = null, leagueId = null, currentRole = null;
 let brand = { primary:'#ffd60a', accent:'#ffd60a', bg:'dark', bgColor:'#0a0f0b', font:'Bebas Neue', logoDataUrl:null };
 let leagueName = '';
 let crResources = [], globalResources = [];
+let cachedRulebookText = null;
+let cachedRulebookName = null;
 let allLinks = [], allResults = [];
 let cachedUserData = null;
 
@@ -1542,6 +1589,13 @@ function handleExpiredCta() {
   redirectToCheckout(_expiredPriceId, document.getElementById('expired-cta-btn'));
 }
 
+function isProUser() {
+  const plan = cachedUserData?.plan || 'trial';
+  const role = cachedUserData?.role || '';
+  return role === 'admin' || currentRole === 'operator'
+      || ['league', 'individual', 'active'].includes(plan);
+}
+
 // ── LINK CAP ENFORCEMENT ──────────────────────────────────────────────────────
 // Returns true if the user is allowed to create another link; false otherwise.
 async function checkLinkCap() {
@@ -1708,6 +1762,7 @@ async function loadUserDoc() {
     const snap = await getDoc(doc(db,'users',leagueId));
     if(snap.exists()) cachedUserData = snap.data();
   } catch(e) {}
+  initRulebookUI();
 }
 async function loadLinks() {
   // Single-field where() — no composite index needed; sort client-side
@@ -1874,6 +1929,151 @@ function renderCreateResources() {
   ).join('');
 }
 
+// ── RULEBOOK UPLOAD (Pro) ──────────────────────────────────────────────────
+
+function initRulebookUI() {
+  const pro    = isProUser();
+  const locked = document.getElementById('rulebook-locked');
+  const loaded = document.getElementById('rulebook-loaded');
+  const drop   = document.getElementById('rulebook-drop');
+  if (!locked || !loaded || !drop) return;
+
+  locked.style.display = 'none';
+  loaded.style.display = 'none';
+  drop.style.display   = 'none';
+
+  if (!pro) {
+    locked.style.display = 'block';
+    locked.onclick = () => redirectToCheckout(PRICE_LEAGUE, locked);
+    return;
+  }
+
+  // Wire events once
+  if (!drop._bound) {
+    drop._bound = true;
+    drop.addEventListener('click', () => document.getElementById('rulebook-file').click());
+    drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+    drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+    drop.addEventListener('drop', e => {
+      e.preventDefault(); drop.classList.remove('over');
+      const f = e.dataTransfer.files[0]; if (f) handleRulebookUpload(f);
+    });
+    document.getElementById('rulebook-file').addEventListener('change', e => {
+      const f = e.target.files[0]; if (f) handleRulebookUpload(f);
+      e.target.value = '';
+    });
+    document.getElementById('rulebook-swap-btn').addEventListener('click', () => {
+      loaded.style.display = 'none';
+      drop.style.display   = 'block';
+    });
+  }
+
+  const existingUrl  = cachedUserData?.rulebookUrl;
+  const existingName = cachedUserData?.rulebookName || 'Rulebook';
+  if (existingUrl) {
+    document.getElementById('rulebook-filename').textContent = existingName;
+    loaded.style.display = 'flex';
+    loadRulebookFromUrl(existingUrl, existingName);
+  } else {
+    drop.style.display = 'block';
+  }
+}
+
+async function extractFileText(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext === 'pdf' && window.pdfjsLib) {
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    let text = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page    = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map(item => item.str).join(' ') + '\n';
+    }
+    return text.trim();
+  }
+  if ((ext === 'docx' || ext === 'doc') && window.mammoth) {
+    const buf    = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer: buf });
+    return result.value.trim();
+  }
+  // Plain text / fallback
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload  = e => resolve(e.target.result);
+    r.onerror = reject;
+    r.readAsText(file);
+  });
+}
+
+async function handleRulebookUpload(file) {
+  const drop        = document.getElementById('rulebook-drop');
+  const loaded      = document.getElementById('rulebook-loaded');
+  const loadingText = document.getElementById('rulebook-loading-text');
+  const filenameEl  = document.getElementById('rulebook-filename');
+
+  drop.style.display        = 'none';
+  loaded.style.display      = 'flex';
+  filenameEl.textContent    = file.name;
+  loadingText.style.display = 'inline';
+
+  try {
+    // 1. Extract text client-side
+    let text = await extractFileText(file);
+    const MAX_CHARS = 30000;
+    if (text.length > MAX_CHARS) {
+      text = text.substring(0, MAX_CHARS);
+      showToast('Rulebook truncated to 30,000 characters for API compatibility.');
+    }
+    if (!text.trim()) throw new Error('Could not read text from this file type.');
+    cachedRulebookText = text;
+    cachedRulebookName = file.name;
+
+    // 2. Upload raw file to Firebase Storage
+    const uid     = currentUser.uid;
+    const fRef    = storageRef(storage, `rulebooks/${uid}/${file.name}`);
+    await uploadBytes(fRef, file);
+    const downloadUrl = await getDownloadURL(fRef);
+
+    // 3. Save URL + name to users/{uid}
+    await setDoc(doc(db, 'users', uid), {
+      rulebookUrl:  downloadUrl,
+      rulebookName: file.name,
+    }, { merge: true });
+    if (cachedUserData) {
+      cachedUserData.rulebookUrl  = downloadUrl;
+      cachedUserData.rulebookName = file.name;
+    }
+
+    loadingText.style.display = 'none';
+    showToast('Rulebook saved ✓');
+  } catch (err) {
+    console.error('Rulebook upload error', err);
+    loadingText.style.display = 'none';
+    showToast('Upload failed — ' + (err.message || 'unknown error'));
+    drop.style.display   = 'block';
+    loaded.style.display = 'none';
+  }
+}
+
+async function loadRulebookFromUrl(url, name) {
+  const loadingText = document.getElementById('rulebook-loading-text');
+  if (loadingText) loadingText.style.display = 'inline';
+  try {
+    const res  = await fetch(url);
+    const blob = await res.blob();
+    const file = new File([blob], name, { type: blob.type });
+    let text = await extractFileText(file);
+    if (text.length > 30000) text = text.substring(0, 30000);
+    cachedRulebookText = text;
+    cachedRulebookName = name;
+  } catch (e) {
+    console.warn('Could not pre-load rulebook text', e);
+  } finally {
+    if (loadingText) loadingText.style.display = 'none';
+  }
+}
+
 // Update URL preview + live preview card as name changes
 document.getElementById('cr-name').addEventListener('input',e=>{
   const slug = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-+$/,'').substring(0,16)||'...';
@@ -1978,8 +2178,11 @@ async function preGenerateQuestions(age, num, src, mode, resources) {
   const divLabel = divisionRules.label;
   const modeStr = {mixed:'Mix rules and scenarios.',scenarios:'ALL scenario questions.',rules:'ALL rules recall.'}[mode] || 'Mix rules and scenarios.';
   const srcStr  = src==='ifab'?'IFAB Laws only.':src==='league'?'League rules ONLY.':'Mix IFAB and league rules.';
-  const leagueSec = (resources||[]).map(r=>`\n\n--- LEAGUE RULE DOCUMENT: ${r.name} ---\n${r.text}`).join('');
-  const prompt = `You are an elite soccer referee examiner. Generate exactly ${num} multiple-choice quiz questions for referees working in: ${divLabel}.\n\n${modeStr} ${srcStr}\n\nDIVISION-SPECIFIC ENFORCEMENT RULES:\n${divisionRules.enforcement}\n\nIFAB LAWS 2025/26 REFERENCE:\n${IFAB_SHORT}${leagueSec}\n\nACCURACY REQUIREMENTS — MANDATORY:\n1. All answers must be 100% correct for this specific division and age group.\n2. NEVER include questions about cards in divisions where cards are not used.\n3. NEVER include offside questions in divisions where offside is not enforced.\n4. GOALKEEPER TIME-WASTING (2025/26): Do NOT state a GK must release the ball within "6 seconds". Under current Laws, GK time-wasting is penalised with a CORNER KICK.\n5. VARY the correct answer index — distribute across positions 0, 1, 2, 3 equally.\n6. Each question must have exactly 4 distinct, plausible answer options.\n7. "lawRef" must cite a specific IFAB Law or "Local Rule / Youth Modification".\n8. "explanation" must reference the specific Law or local rule.\n\nReturn ONLY a valid JSON array. No markdown, no code blocks, no preamble. Start with [ and end with ].\n[{"type":"rules|scenario","source":"ifab|league","question":"...","options":["A text","B text","C text","D text"],"correct":0,"lawRef":"Law 12","explanation":"..."}]`;
+  const leagueSec    = (resources||[]).map(r=>`\n\n--- LEAGUE RULE DOCUMENT: ${r.name} ---\n${r.text}`).join('');
+  const rulebookSec  = cachedRulebookText
+    ? `\n\nOFFICIAL LEAGUE RULEBOOK — Generate all questions strictly based on the rules and language in this document:\n${cachedRulebookText}`
+    : '';
+  const prompt = `You are an elite soccer referee examiner. Generate exactly ${num} multiple-choice quiz questions for referees working in: ${divLabel}.\n\n${modeStr} ${srcStr}\n\nDIVISION-SPECIFIC ENFORCEMENT RULES:\n${divisionRules.enforcement}\n\nIFAB LAWS 2025/26 REFERENCE:\n${IFAB_SHORT}${rulebookSec}${leagueSec}\n\nACCURACY REQUIREMENTS — MANDATORY:\n1. All answers must be 100% correct for this specific division and age group.\n2. NEVER include questions about cards in divisions where cards are not used.\n3. NEVER include offside questions in divisions where offside is not enforced.\n4. GOALKEEPER TIME-WASTING (2025/26): Do NOT state a GK must release the ball within "6 seconds". Under current Laws, GK time-wasting is penalised with a CORNER KICK.\n5. VARY the correct answer index — distribute across positions 0, 1, 2, 3 equally.\n6. Each question must have exactly 4 distinct, plausible answer options.\n7. "lawRef" must cite a specific IFAB Law or "Local Rule / Youth Modification".\n8. "explanation" must reference the specific Law or local rule.\n\nReturn ONLY a valid JSON array. No markdown, no code blocks, no preamble. Start with [ and end with ].\n[{"type":"rules|scenario","source":"ifab|league","question":"...","options":["A text","B text","C text","D text"],"correct":0,"lawRef":"Law 12","explanation":"..."}]`;
   const res = await fetch('/api/quiz', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({
