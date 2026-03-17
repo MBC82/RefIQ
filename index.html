@@ -51,14 +51,24 @@ nav{
 .nav-logo img{height:28px;width:auto;object-fit:contain;mix-blend-mode:screen}
 .nav-logo-text{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:4px;color:var(--green)}
 .nav-spacer{} /* left column placeholder */
+.nav-right{justify-self:end;display:flex;align-items:center;gap:8px}
 .nav-cta{
-  justify-self:end;white-space:nowrap;
+  white-space:nowrap;
   padding:9px 18px;background:var(--green-dark);color:#fff;
   border-radius:10px;font-size:13px;font-weight:600;
   text-decoration:none;transition:background .2s;border:none;cursor:pointer;
   font-family:'DM Sans',sans-serif;
 }
 .nav-cta:hover{background:var(--green);color:#080c09}
+.nav-login{
+  white-space:nowrap;
+  padding:8px 16px;background:transparent;color:rgba(255,255,255,.7);
+  border-radius:10px;font-size:13px;font-weight:600;
+  text-decoration:none;transition:color .2s,border-color .2s;
+  border:1.5px solid rgba(255,255,255,.2);cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+}
+.nav-login:hover{color:#fff;border-color:rgba(255,255,255,.5)}
 
 /* ── DEMO HERO ── */
 .demo-hero{
@@ -297,13 +307,10 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
   .pricing-grid{grid-template-columns:1fr;max-width:400px;margin:0 auto}
 }
 @media(max-width:600px){
-  /* Shrink nav CTA to fit beside logo without crowding */
+  /* Shrink nav buttons to fit beside logo without crowding */
   .nav-cta{padding:7px 13px;font-size:12px;border-radius:8px}
+  .nav-login{padding:6px 12px;font-size:12px;border-radius:8px}
 }
-/* Member link */
-.demo-member-link{text-align:center;padding:12px 24px 16px}
-.demo-member-link a{font-family:'DM Sans',sans-serif;font-size:13px;color:rgba(255,255,255,.45);text-decoration:none;transition:color .2s}
-.demo-member-link a:hover{color:rgba(255,255,255,.75);text-decoration:underline}
 
 /* League plan gold outlined CTA */
 .p-btn-league{color:#ffd60a;background:transparent;border:1.5px solid #ffd60a}
@@ -332,7 +339,10 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
       <img src="HeroLogo.png" alt="RefIQ">
       <span class="nav-logo-text">RefIQ</span>
     </a>
-    <a href="/app" class="nav-cta">Start Free →</a>
+    <div class="nav-right">
+      <a href="/app" class="nav-login">LOG IN</a>
+      <a href="/app" class="nav-cta">Start Free →</a>
+    </div>
   </div>
 </nav>
 
@@ -380,9 +390,6 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
           <div class="demo-opt-text">No foul — 10-second rule applies</div>
         </div>
       </div>
-
-      <!-- Member link -->
-      <div class="demo-member-link"><a href="/app">Already a member? Log in →</a></div>
 
       <!-- Law explanation (hidden until answer) -->
       <div class="demo-expl" id="demo-expl">
