@@ -423,6 +423,16 @@ const DIV_LABELS = {
   competitive:'Competitive / Travel'
 };
 
+// ── DEFAULT BRANDING ──────────────────────────────────────────────────────────
+const DEFAULT_BRANDING = {
+  logoDataUrl:  '/logo-trimmed.png',
+  name:         null,        // null → applyBranding shows RefIQ badge, not a league name
+  brandColor:   '#34c759',
+  brandAccent:  '#34c759',
+  bgColor:      '#080c09',
+  surfaceColor: '#111711',
+};
+
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let refereeName = '';
 let quizLink = null, quizLinkId = null;
@@ -574,24 +584,24 @@ async function fetchQuizLink() {
 }
 
 async function fetchLeagueBranding(leagueId) {
-  // Prefer embedded branding from quizLinks doc (new format)
-  if (quizLink?.branding) {
+  // Only use branding embedded directly in the quizLinks document.
+  // Never fetch from any other Firestore collection — doing so would apply
+  // the admin's account-level branding to all public quiz takers.
+  if (quizLink?.branding && Object.keys(quizLink.branding).length > 0) {
     const b = quizLink.branding;
     leagueBranding = {
-      logoDataUrl: b.logoUrl || null,
-      name: b.leagueName || null,
-      brandColor: (b.primaryColor && b.primaryColor !== '#ffffff') ? b.primaryColor : '#ffd60a',
-      brandAccent: '#ffd60a',
-      bgColor: b.backgroundColor || null,
-      surfaceColor: b.surfaceColor || null,
+      logoDataUrl:  b.logoUrl      || DEFAULT_BRANDING.logoDataUrl,
+      name:         b.leagueName   || null,
+      brandColor:   (b.primaryColor && b.primaryColor !== '#ffffff')
+                      ? b.primaryColor : DEFAULT_BRANDING.brandColor,
+      brandAccent:  DEFAULT_BRANDING.brandAccent,
+      bgColor:      b.backgroundColor || DEFAULT_BRANDING.bgColor,
+      surfaceColor: b.surfaceColor    || DEFAULT_BRANDING.surfaceColor,
     };
-    return;
+  } else {
+    // No embedded branding — use RefIQ defaults
+    leagueBranding = { ...DEFAULT_BRANDING };
   }
-  // Fallback: fetch from leagues collection
-  try {
-    const snap = await getDoc(doc(db, 'leagues', leagueId));
-    if (snap.exists()) leagueBranding = snap.data();
-  } catch(e) { console.warn('Branding load error', e); }
 }
 
 function showQuizInfo() {
@@ -948,7 +958,7 @@ function showError(title, msg) {
     _prefetchPromise = _prefetchQuizQuestions();
 
     // Fetch branding in parallel (non-blocking relative to prefetch above)
-    if (quizLink.leagueId) await fetchLeagueBranding(quizLink.leagueId);
+    await fetchLeagueBranding(quizLink.leagueId);
 
     showNameScreen();
   } catch(e) {
