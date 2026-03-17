@@ -343,6 +343,23 @@ select option{background:#111711}
 .expired-cta{display:inline-block;padding:15px 32px;background:var(--green-dark);border:none;border-radius:14px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;text-decoration:none;transition:background .2s;margin-bottom:12px}
 .expired-cta:hover{background:var(--green);color:#080c09}
 .expired-email{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace}
+/* ── Two-tier upgrade modal ── */
+.expired-tiers-card{max-width:560px}
+.tier-compare{display:flex;gap:14px;margin-top:20px}
+.tier-col{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:16px;padding:20px 16px;text-align:left;position:relative}
+.tier-col-featured{border-color:rgba(52,199,89,.4);background:rgba(52,199,89,.06)}
+.tier-badge-popular{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#34c759;color:#080c09;font-family:'DM Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1.5px;padding:2px 10px;border-radius:20px;white-space:nowrap}
+.tier-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--text);margin-bottom:4px}
+.tier-price{font-family:'Bebas Neue',sans-serif;font-size:32px;color:#ffd60a;line-height:1;margin-bottom:14px}
+.tier-price span{font-size:14px;color:var(--muted);font-family:'DM Sans',sans-serif}
+.tier-features{list-style:none;padding:0;margin-bottom:16px;display:flex;flex-direction:column;gap:7px}
+.tier-features li{font-size:12px;color:rgba(240,244,240,.8)}
+.tier-btn{width:100%;padding:10px;border:none;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;transition:.2s}
+.tier-btn-ref{background:var(--s1);border:1px solid var(--border);color:var(--text)}
+.tier-btn-ref:hover{border-color:#34c759;color:#34c759}
+.tier-btn-admin{background:#34c759;color:#080c09}
+.tier-btn-admin:hover{background:#2a9d47}
+@media(max-width:500px){.tier-compare{flex-direction:column}.expired-tiers-card{max-width:95vw}}
 
 /* ── ACTION BAR ──────────────────────────────────────── */
 .action-bar{display:flex;align-items:center;gap:10px;margin-bottom:24px;flex-wrap:wrap}
@@ -583,13 +600,47 @@ select option{background:#111711}
 
   <!-- PLAN EXPIRED OVERLAY -->
   <div class="trial-expired-overlay" id="trial-expired-overlay">
-    <div class="expired-card fu">
-      <div class="expired-icon">⏰</div>
+    <div class="expired-card expired-tiers-card">
+      <div class="expired-icon" id="expired-icon">⏰</div>
       <div class="expired-title" id="expired-title">TRIAL ENDED</div>
-      <div class="expired-msg" id="expired-msg">Your 7-day free trial has ended. Your league data and quizzes are safely preserved.</div>
-      <button class="expired-cta" id="expired-cta-btn" onclick="handleExpiredCta()">GET LEAGUE — $149/SEASON →</button>
-      <div style="margin-top:12px">
-        <div class="expired-email">Questions? cox.matthewb@gmail.com</div>
+      <div class="expired-msg" id="expired-msg">Your data is safely preserved. Choose a plan to continue.</div>
+
+      <div class="tier-compare">
+        <!-- Ref Pro -->
+        <div class="tier-col">
+          <div class="tier-name">REF PRO</div>
+          <div class="tier-price">$4.99<span>/mo</span></div>
+          <ul class="tier-features">
+            <li>✓ Unlimited self-study quizzes</li>
+            <li>✓ Progress tracking dashboard</li>
+            <li>✓ Streak &amp; performance badges</li>
+            <li>✓ All topic areas &amp; difficulties</li>
+          </ul>
+          <button class="tier-btn tier-btn-ref" onclick="redirectToCheckout(PRICE_REF_PRO, this)">
+            GET REF PRO →
+          </button>
+        </div>
+
+        <!-- Admin Pro -->
+        <div class="tier-col tier-col-featured">
+          <div class="tier-badge-popular">MOST POPULAR</div>
+          <div class="tier-name">ADMIN PRO</div>
+          <div class="tier-price">$14.99<span>/mo</span></div>
+          <ul class="tier-features">
+            <li>✓ Everything in Ref Pro</li>
+            <li>✓ Quiz creation &amp; sharing</li>
+            <li>✓ Custom league branding</li>
+            <li>✓ Rulebook upload</li>
+            <li>✓ Results dashboard</li>
+          </ul>
+          <button class="tier-btn tier-btn-admin" onclick="redirectToCheckout(PRICE_ADMIN_PRO, this)">
+            GET ADMIN PRO →
+          </button>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;font-size:11px;color:var(--muted)">
+        Questions? cox.matthewb@gmail.com
       </div>
     </div>
   </div>
@@ -1570,6 +1621,9 @@ async function checkTrialStatus() {
 const PRICE_LEAGUE     = 'price_1T8Z15JlYByErfPaTpRf3xic'; // $149/6 months
 const PRICE_INDIVIDUAL = 'price_1T8Z4lJlYByErfPaulsRF7EZ'; // $49/6 months
 const PRICE_REFEREE    = 'price_1RV06yJIYByErfPa9kZDaCaR';  // $9.99/month
+// NEW pricing tiers (create these in Stripe Dashboard first, then paste IDs here)
+const PRICE_REF_PRO   = 'REPLACE_WITH_STRIPE_REF_PRO_PRICE_ID';   // $4.99/month
+const PRICE_ADMIN_PRO = 'REPLACE_WITH_STRIPE_ADMIN_PRO_PRICE_ID'; // $14.99/month
 
 // Which priceId the expired overlay should use (set by showExpiredOverlay)
 let _expiredPriceId = PRICE_LEAGUE;
@@ -1691,15 +1745,11 @@ function showExpiredOverlay(reason) {
   const isLeague = reason === 'league';
   const title    = isLeague ? 'SEASON PASS ENDED' : 'TRIAL ENDED';
   const msg      = isLeague
-    ? 'Your league season pass has ended. Your quizzes, branding, and referee results are all preserved — renew to reactivate.'
-    : 'Your 7-day free trial has ended. Your data is safely preserved — choose a plan to continue.';
-  const ctaText  = isLeague ? 'RENEW — $149/SEASON →' : 'GET LEAGUE — $149/SEASON →';
-
-  _expiredPriceId = PRICE_LEAGUE; // both cases upgrade to league for admin
+    ? 'Your season pass has ended. Your quizzes, branding, and results are preserved — choose a plan to reactivate.'
+    : 'Your data is safely preserved. Choose a plan to continue.';
 
   document.getElementById('expired-title').textContent = title;
   document.getElementById('expired-msg').textContent   = msg;
-  document.getElementById('expired-cta-btn').textContent = ctaText;
   document.getElementById('trial-expired-overlay').classList.add('show');
 }
 

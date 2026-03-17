@@ -53,6 +53,11 @@
   to = "/admin.html"
   status = 200
 
+[[redirects]]
+  from = "/train"
+  to = "/train.html"
+  status = 200
+
 [[headers]]
   for = "/favicon*"
   [headers.values]
