@@ -4,7 +4,8 @@
     { "source": "/__/firebase/:path*", "destination": "https://refiq-b8142.firebaseapp.com/__/firebase/:path*" },
     { "source": "/q/:path*",           "destination": "/quiz.html" },
     { "source": "/app",                "destination": "/app.html" },
-    { "source": "/admin",              "destination": "/admin.html" }
+    { "source": "/admin",              "destination": "/admin.html" },
+    { "source": "/train",              "destination": "/train.html" }
   ],
   "headers": [
     {
