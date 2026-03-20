@@ -1385,6 +1385,8 @@ document.getElementById('loading').classList.add('show');
 
 // Guard: prevent concurrent calls (popup result + onAuthStateChanged both fire)
 let _adminAuthRunning = false;
+// Set to true once showShell() runs — used by the redirect timeout fallback
+let _loginCompleted = false;
 
 // Extract all post-login work into handleAdminAuth so it can be called from
 // either the redirect result path or the onAuthStateChanged path.
@@ -1424,13 +1426,41 @@ async function handleAdminAuth(u) {
   } else {
     showAuth();
   }
+  } catch(e) {
+    console.error('[Auth] handleAdminAuth error:', e);
+    showAuth(); // fallback — don't leave user stuck on spinner
   } finally { _adminAuthRunning = false; }
 }
 
 // ── AUTH INIT ────────────────────────────────────────────────────────────────
-getRedirectResult(auth).then((result) => {
+getRedirectResult(auth).then(async (result) => {
   if (result && result.user) {
-    handleAdminAuth(result.user);
+    console.log('[Auth] getRedirectResult: user =', result.user.email);
+
+    // Check custom claims — getIdTokenResult(true) forces a token refresh;
+    // on slow mobile connections this can hang, so we race it with a timeout.
+    try {
+      const tokenResult = await Promise.race([
+        result.user.getIdTokenResult(true),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('getIdTokenResult timeout')), 4000))
+      ]);
+      console.log('[Auth] claims:', JSON.stringify(tokenResult.claims));
+    } catch(e) {
+      console.warn('[Auth] getIdTokenResult failed or timed out:', e.message);
+    }
+
+    // 5-second safety net: if handleAdminAuth hangs (e.g. Firestore timeout
+    // on a slow mobile connection), force-reload /admin so onAuthStateChanged
+    // picks up the already-authenticated session instead.
+    const fallbackTimer = setTimeout(() => {
+      if (!_loginCompleted) {
+        console.warn('[Auth] Login timeout — forcing reload of /admin');
+        window.location.href = '/admin';
+      }
+    }, 5000);
+
+    await handleAdminAuth(result.user);
+    clearTimeout(fallbackTimer);
     return;
   }
   onAuthStateChanged(auth, (user) => {
@@ -1452,6 +1482,7 @@ function showAuth() {
   }
 }
 function showShell() {
+  _loginCompleted = true;
   document.getElementById('loading').classList.remove('show');
   document.getElementById('auth-screen').style.display='none';
   document.getElementById('shell').style.display='block';
