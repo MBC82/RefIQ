@@ -594,6 +594,7 @@ select option{background:#111711}
         <div class="user-avatar" id="user-avatar">M</div>
         <div><div class="user-name" id="user-name-display">Admin</div><div class="user-role" id="user-role-display">League Admin</div></div>
       </div>
+      <a href="mailto:refiqsupport@gmail.com" class="signout-btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:6px">✉ Get Help</a>
       <button class="signout-btn" id="signout-btn">Sign Out</button>
     </div>
   </div>
@@ -639,8 +640,18 @@ select option{background:#111711}
         </div>
       </div>
 
-      <div style="margin-top:16px;font-size:11px;color:var(--muted)">
-        Questions? cox.matthewb@gmail.com
+    </div>
+  </div>
+
+  <!-- PRO FEATURE GATE MODAL -->
+  <div class="trial-expired-overlay" id="pro-gate-modal" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="expired-card" style="max-width:420px">
+      <div class="expired-icon">🔒</div>
+      <div class="expired-title" id="pg-title">UPGRADE TO ADMIN PRO</div>
+      <div class="expired-msg" id="pg-msg">Unlock this feature by upgrading your plan.</div>
+      <div style="margin-top:24px;display:flex;flex-direction:column;gap:10px">
+        <button class="expired-cta" id="pg-upgrade-btn" onclick="showProGateCheckout()">Upgrade Now →</button>
+        <button class="expired-cta" style="background:transparent;border:1px solid var(--border);color:var(--muted);margin-top:0" onclick="document.getElementById('pro-gate-modal').classList.remove('show')">Maybe Later</button>
       </div>
     </div>
   </div>
@@ -858,13 +869,13 @@ select option{background:#111711}
                     <button class="seg-btn" data-v="rules">Rules Only</button>
                   </div>
                 </div>
-                <!-- ── RULEBOOK UPLOAD (Pro persistent) ───────────────── -->
-                <div class="field-wrap" id="rulebook-section">
-                  <label class="field-label">League Rulebook <span class="badge-pro">PRO</span></label>
+                <!-- ── RULE DOCUMENTS (Pro) ───────────────────────────── -->
+                <div class="field-wrap" id="rulebook-section" style="margin-bottom:0">
+                  <label class="field-label">Rule Documents <span class="badge-pro">PRO</span></label>
                   <!-- Locked (non-pro) -->
                   <div id="rulebook-locked" class="rulebook-zone rulebook-locked-zone" style="display:none">
                     <div class="rulebook-lock-icon">🔒</div>
-                    <div class="rulebook-zone-title">Upload Your Rulebook — Pro Feature</div>
+                    <div class="rulebook-zone-title">Upload Your League Rulebook — Pro Feature</div>
                     <div class="rulebook-zone-sub">Upgrade to generate questions from your official rulebook</div>
                   </div>
                   <!-- Loaded (file saved) -->
@@ -876,21 +887,20 @@ select option{background:#111711}
                   </div>
                   <!-- Drop zone (pro, no file / swapping) -->
                   <div id="rulebook-drop" class="rulebook-zone rulebook-drop-zone" style="display:none">
-                    <input id="rulebook-file" type="file" style="display:none">
+                    <input id="rulebook-file" type="file" style="display:none" accept=".txt,.pdf,.md,.doc,.docx">
                     <div class="rulebook-zone-icon">📂</div>
                     <div class="rulebook-zone-title">Drag your rulebook here or click to browse</div>
                     <div class="rulebook-zone-sub">PDF, Word (.docx), or plain text — saved to your account</div>
                   </div>
-                </div>
-
-                <div class="field-wrap" style="margin-bottom:0">
-                  <label class="field-label">Rule Documents <span style="color:var(--muted);font-size:9px;letter-spacing:0;text-transform:none;font-family:'DM Sans',sans-serif">(optional)</span></label>
-                  <div class="res-list" id="cr-res-list"></div>
-                  <div class="drop-zone" id="cr-drop">
-                    <input type="file" id="cr-file" accept=".txt,.pdf,.md,.doc,.docx" multiple>
-                    <div class="drop-zone-icon">📄</div>
-                    <div class="drop-zone-title">Drop rule documents here</div>
-                    <div class="drop-zone-sub">TXT, PDF, DOC, MD</div>
+                  <!-- Per-link supplemental docs (pro only, shown below upload) -->
+                  <div id="cr-res-list-wrap" style="display:none;margin-top:10px">
+                    <div class="res-list" id="cr-res-list"></div>
+                    <div class="drop-zone" id="cr-drop" style="margin-top:6px">
+                      <input type="file" id="cr-file" accept=".txt,.pdf,.md,.doc,.docx" multiple>
+                      <div class="drop-zone-icon">📄</div>
+                      <div class="drop-zone-title">Drop additional rule documents here</div>
+                      <div class="drop-zone-sub">TXT, PDF, DOC, MD · optional supplements</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1286,7 +1296,7 @@ import { getStorage, ref as storageRef, uploadBytes, getDownloadURL }
 // instead of a silent blank page.
 const firebaseConfig = {
   apiKey: 'AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM',
-  authDomain: 'refiq-b8142.firebaseapp.com',
+  authDomain: 'www.myrefiq.com',
   projectId: 'refiq-b8142',
   storageBucket: 'refiq-b8142.firebasestorage.app',
   messagingSenderId: '62305657245',
@@ -1397,7 +1407,7 @@ async function handleAdminAuth(u) {
       if (!lSnap.exists()) {
         await Promise.all([
           setDoc(doc(db,'users',u.uid),{ displayName: u.displayName||'', email: u.email, plan:'trial', trialStartDate:serverTimestamp(), createdAt: serverTimestamp() },{merge:true}),
-          setDoc(lRef,{ adminUid: u.uid, leagueName: u.displayName||u.email.split('@')[0]+' League', createdAt: serverTimestamp() })
+          setDoc(lRef,{ adminUid: u.uid, leagueName: '', createdAt: serverTimestamp() })
         ]);
       }
     } catch(e) { console.warn('Doc init error', e); }
@@ -1484,8 +1494,8 @@ function friendlyErr(code){
     'auth/weak-password':'Password must be 6+ characters.',
     'auth/too-many-requests':'Too many attempts. Try again later.',
     'auth/invalid-credential':'Email or password incorrect.',
-    'auth/unauthorized-domain':'This domain isn\'t authorized in Firebase. Add refiq.netlify.app to Firebase Auth → Authorized Domains.',
-    'auth/operation-not-allowed':'Google sign-in is not enabled. Enable it in Firebase Auth → Sign-in providers.',
+    'auth/unauthorized-domain':'This domain isn\'t authorized in Firebase. Add www.myrefiq.com to Firebase Auth → Authorized Domains.',
+    'auth/operation-not-allowed':'This sign-in method is not enabled. Enable Email/Password (and Google) in Firebase Auth → Sign-in providers.',
     'auth/popup-blocked':'Popup was blocked by your browser. Please allow popups for this site.',
     'auth/network-request-failed':'Network error. Check your connection and try again.',
     'auth/popup-closed-by-user':'Sign-in cancelled.',
@@ -1621,9 +1631,8 @@ async function checkTrialStatus() {
 const PRICE_LEAGUE     = 'price_1T8Z15JlYByErfPaTpRf3xic'; // $149/6 months
 const PRICE_INDIVIDUAL = 'price_1T8Z4lJlYByErfPaulsRF7EZ'; // $49/6 months
 const PRICE_REFEREE    = 'price_1RV06yJIYByErfPa9kZDaCaR';  // $9.99/month
-// NEW pricing tiers (create these in Stripe Dashboard first, then paste IDs here)
-const PRICE_REF_PRO   = 'REPLACE_WITH_STRIPE_REF_PRO_PRICE_ID';   // $4.99/month
-const PRICE_ADMIN_PRO = 'REPLACE_WITH_STRIPE_ADMIN_PRO_PRICE_ID'; // $14.99/month
+const PRICE_REF_PRO   = PRICE_REFEREE;  // $9.99/month — Referee subscription
+const PRICE_ADMIN_PRO = PRICE_LEAGUE;   // $149/season  — League plan
 
 // Which priceId the expired overlay should use (set by showExpiredOverlay)
 let _expiredPriceId = PRICE_LEAGUE;
@@ -1735,11 +1744,14 @@ async function redirectToCheckout(priceId, btnEl) {
   } catch (err) {
     console.error('Checkout error:', err);
     if (btnEl) { btnEl.disabled = false; btnEl.textContent = orig; }
-    alert('Could not start checkout — please try again or contact cox.matthewb@gmail.com');
+    const msg = err?.message || 'Unknown error';
+    alert(`Could not start checkout: ${msg}\n\nIf this keeps happening, contact support.`);
   }
 }
 
 window.redirectToCheckout = redirectToCheckout; // expose for inline onclick
+window.showProGateModal   = showProGateModal;
+window.showProGateCheckout = showProGateCheckout;
 
 function showExpiredOverlay(reason) {
   const isLeague = reason === 'league';
@@ -1751,6 +1763,16 @@ function showExpiredOverlay(reason) {
   document.getElementById('expired-title').textContent = title;
   document.getElementById('expired-msg').textContent   = msg;
   document.getElementById('trial-expired-overlay').classList.add('show');
+}
+
+function showProGateModal(heading, body) {
+  document.getElementById('pg-title').textContent = heading.toUpperCase();
+  document.getElementById('pg-msg').textContent   = body;
+  document.getElementById('pro-gate-modal').classList.add('show');
+}
+function showProGateCheckout() {
+  document.getElementById('pro-gate-modal').classList.remove('show');
+  redirectToCheckout(PRICE_LEAGUE, document.getElementById('pg-upgrade-btn'));
 }
 
 function handleCheckoutSuccess() {
@@ -1786,7 +1808,7 @@ async function loadLeagueAndBranding() {
   if(d.name)    document.getElementById('set-name').value = d.name;
   if(d.tagline) document.getElementById('set-tagline').value = d.tagline;
   if(d.email)   document.getElementById('set-email').value = d.email;
-  leagueName = d.name || d.leagueName || '';
+  leagueName = d.name || '';
   updatePreviewName(d.name||'YOUR LEAGUE');
   // Branding
   if(d.brandColor)  { brand.primary=d.brandColor;  applyColorToUI(d.brandColor, 'color-primary','hex-primary','swatch-primary'); }
@@ -1994,9 +2016,15 @@ function initRulebookUI() {
 
   if (!pro) {
     locked.style.display = 'block';
-    locked.onclick = () => redirectToCheckout(PRICE_LEAGUE, locked);
+    locked.onclick = () => showProGateModal(
+      'Upgrade to Admin Pro',
+      "Upload your league's rulebook so AI generates questions directly from your rules."
+    );
     return;
   }
+  // Show supplemental docs zone for pro users
+  const crWrap = document.getElementById('cr-res-list-wrap');
+  if (crWrap) crWrap.style.display = 'block';
 
   // Wire events once
   if (!drop._bound) {
@@ -2227,8 +2255,17 @@ async function preGenerateQuestions(age, num, src, mode, resources) {
   const divisionRules = getDivisionRulesAdmin(age);
   const divLabel = divisionRules.label;
   const modeStr = {mixed:'Mix rules and scenarios.',scenarios:'ALL scenario questions.',rules:'ALL rules recall.'}[mode] || 'Mix rules and scenarios.';
-  const srcStr  = src==='ifab'?'IFAB Laws only.':src==='league'?'League rules ONLY.':'Mix IFAB and league rules.';
-  const leagueSec    = (resources||[]).map(r=>`\n\n--- LEAGUE RULE DOCUMENT: ${r.name} ---\n${r.text}`).join('');
+  const hasRes = (resources||[]).length > 0;
+  const leagueNum = hasRes ? Math.ceil(num / 2) : 0;
+  const ifabNum   = num - leagueNum;
+  const srcStr = src==='ifab'
+    ? 'Use IFAB Laws 2025/26 only. Ignore any uploaded league rule documents.'
+    : src==='league'
+      ? `Use the uploaded league rule documents ONLY. Generate all ${num} questions directly from the league rules, focusing specifically on rules and modifications relevant to ${divLabel}. Do not use general IFAB Laws.`
+      : hasRes
+        ? `Generate exactly ${leagueNum} question${leagueNum!==1?'s':''} from the uploaded league rule documents — focus on age-group specific rules, local modifications, and rules that differ from standard IFAB for ${divLabel} — and exactly ${ifabNum} question${ifabNum!==1?'s':''} from IFAB Laws 2025/26 relevant to ${divLabel}. Mark each with source:"league" or source:"ifab" accordingly.`
+        : 'Use IFAB Laws 2025/26.';
+  const leagueSec = (resources||[]).map(r=>`\n\n--- LEAGUE RULE DOCUMENT: ${r.name} ---\n${r.text}`).join('');
   const rulebookSec  = cachedRulebookText
     ? `\n\nOFFICIAL LEAGUE RULEBOOK — Generate all questions strictly based on the rules and language in this document:\n${cachedRulebookText}`
     : '';
@@ -2362,8 +2399,16 @@ async function runPreview() {
   const mode = document.querySelector('#cr-mode-seg .seg-btn.active')?.dataset.v || 'mixed';
   const divLabels = {rec_young:'Recreational Young',rec_mid:'Recreational Mid',rec_upper:'Recreational Upper',high_school:'High School',adult_amateur:'Adult Amateur',competitive:'Competitive'};
   const modeStr = {mixed:'Mix rules and scenarios.',scenarios:'ALL scenario questions.',rules:'ALL rules recall.'}[mode]||'Mix.';
-  const srcStr = src==='ifab'?'IFAB Laws only.':src==='league'?'League rules only.':'Mix IFAB and league rules.';
-  const leagueSec = getEffectiveResources(src).map(r=>`\n\n--- LEAGUE RULE DOCUMENT: ${r.name} ---\n${r.text}`).join('');
+  const previewRes = getEffectiveResources(src);
+  const hasPreviewRes = previewRes.length > 0;
+  const srcStr = src==='ifab'
+    ? 'Use IFAB Laws 2025/26 only.'
+    : src==='league'
+      ? 'Use the uploaded league rule documents ONLY. Do not use general IFAB Laws.'
+      : hasPreviewRes
+        ? 'Generate 2 questions from the uploaded league rule documents (age-group specific rules and local modifications) and 1 question from IFAB Laws 2025/26. Mark each with source:"league" or source:"ifab".'
+        : 'Use IFAB Laws 2025/26.';
+  const leagueSec = previewRes.map(r=>`\n\n--- LEAGUE RULE DOCUMENT: ${r.name} ---\n${r.text}`).join('');
 
   const prompt = `Generate exactly 3 soccer referee quiz questions for: ${divLabels[age]||age}. ${modeStr} ${srcStr}\n\nIFAB LAWS:\n${IFAB_SHORT}${leagueSec}\n\nReturn ONLY a JSON array: [{"type":"rules|scenario","source":"ifab|league","question":"...","options":["A","B","C","D"],"correct":0,"lawRef":"Law 12","explanation":"..."}]`;
 
@@ -2775,7 +2820,9 @@ function renderLinks() {
   document.getElementById('links-empty').style.display='none';
   document.getElementById('links-grid').style.display='grid';
   document.getElementById('links-grid').innerHTML = allLinks.map(l=>{
-    const url = `https://www.myrefiq.com/q/${l.shortCode}`;
+    const slug = l.slug || l.id;
+    const title = l.linkName || l.name || 'Untitled Quiz';
+    const url = `https://www.myrefiq.com/q/${slug}`;
     const linkRes = allResults.filter(r=>r.quizLinkId===l.id);
     const completedRes = linkRes.filter(r => r.status !== 'started' && r.score !== undefined);
     const taken = completedRes.length;
@@ -2784,15 +2831,26 @@ function renderLinks() {
     const avgScore = taken ? Math.round(completedRes.reduce((a,r)=>a+Math.round(r.score/r.total*100),0)/taken) : null;
     const s = l.settings||{};
     const divLabels={rec_young:'Rec Young',rec_lower:'Rec Lower',rec_upper5:'Rec Upper (5-6)',rec_middle:'Rec Middle',comp_u9u10:'Comp U9/U10',comp_u11u12:'Comp U11/U12',comp_u13u14:'Comp U13/U14',comp_u15u16:'Comp U15/U16',comp_u17u18:'Comp U17/U18',hs_jv:'HS JV',hs_varsity:'HS Varsity',adult_rec:'Adult Rec',adult_comp:'Adult Comp',college_club:'College Club',college_varsity:'College Varsity',pdl:'PDL',rec_mid:'Rec Mid',rec_upper:'Rec Upper',high_school:'High School',adult_amateur:'Adult Amateur',competitive:'Competitive'};
-    const divLabel = divLabels[s.division]||s.division||'';
+    const divLabel = divLabels[l.division||s.division]||l.division||s.division||'';
+    const numQ = l.numberOfQuestions||s.num||10;
     const questionsReady = l.questions && l.questions.length > 0;
+    const b = l.branding||{};
+    const previewBg = b.bgColor||'#111711';
+    const previewAccent = b.primary||b.accent||'#ffd60a';
+    const logoHtml = b.logoDataUrl
+      ? `<img src="${b.logoDataUrl}" style="width:28px;height:28px;object-fit:contain;border-radius:4px">`
+      : `<span style="font-family:'Bebas Neue',sans-serif;font-size:15px;color:${previewAccent}">${title.charAt(0)||'Q'}</span>`;
+    const previewTile = `<div style="width:40px;height:40px;border-radius:11px;background:${previewBg};border:1.5px solid ${previewAccent};display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;position:relative">
+      <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:${previewAccent}"></div>
+      ${logoHtml}
+    </div>`;
     return `<div class="link-card">
       <div class="link-card-header">
-        <div class="link-card-icon">🔗</div>
+        ${previewTile}
         <div style="flex:1;min-width:0">
-          <div class="link-card-title">${l.name}</div>
-          <div class="link-card-url">/q/${l.shortCode}</div>
-          ${divLabel?`<div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px">${divLabel} · ${s.num||10} Qs${questionsReady?' · <span style="color:var(--green)">⚡ Ready</span>':''}</div>`:''}
+          <div class="link-card-title">${title}</div>
+          <div class="link-card-url">/q/${slug}</div>
+          ${divLabel?`<div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px">${divLabel} · ${numQ} Qs${questionsReady?' · <span style="color:var(--green)">⚡ Ready</span>':''}</div>`:''}
         </div>
         <div style="margin-left:8px;flex-shrink:0">
           ${passRate !== null
@@ -2860,20 +2918,24 @@ window.editLink = function(id) {
   document.getElementById('cr-actions').style.display = 'block';
 
   // Pre-fill name
-  document.getElementById('cr-name').value = l.name || '';
+  document.getElementById('cr-name').value = l.linkName || l.name || '';
 
   // Pre-fill division
-  if (s.division) {
-    const migratedDiv = DIVISION_MIGRATION[s.division] || s.division;
+  const div = l.division || s.division;
+  if (div) {
+    const migratedDiv = DIVISION_MIGRATION[div] || div;
     document.getElementById('cr-age').value = migratedDiv;
   }
 
-  // Pre-fill seg buttons
+  // Pre-fill seg buttons — support both old nested settings and new flat fields
+  const focusReverse = {'IFAB Only':'ifab','League Only':'league','Both':'both'};
+  const modeReverse  = {'Mixed':'mixed','Scenarios':'scenarios','Rules Only':'rules'};
+  const timePQ = l.timePerQuestion;
   const segMap = {
-    'cr-num-seg':  String(s.num || '10'),
-    'cr-time-seg': String(s.timeLimit || '0'),
-    'cr-src-seg':  s.source || 'both',
-    'cr-mode-seg': s.mode   || 'mixed'
+    'cr-num-seg':  String(l.numberOfQuestions || s.num || '10'),
+    'cr-time-seg': (!timePQ || timePQ==='none') ? String(s.timeLimit||'0') : String(timePQ),
+    'cr-src-seg':  focusReverse[l.focus] || s.source || 'both',
+    'cr-mode-seg': modeReverse[l.mode]   || s.mode   || 'mixed'
   };
   Object.entries(segMap).forEach(([segId,val])=>{
     document.querySelectorAll(`#${segId} .seg-btn`).forEach(b=>b.classList.toggle('active',b.dataset.v===val));
@@ -2884,7 +2946,7 @@ window.editLink = function(id) {
   renderCreateResources();
 
   // Show/update editing banner above the action buttons
-  const safeName = (l.name||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const safeName = (l.linkName||l.name||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   let banner = document.getElementById('cr-edit-banner');
   if (!banner) {
     banner = document.createElement('div');
@@ -2932,7 +2994,7 @@ function renderResults(data) {
   const linkSel = document.getElementById('rf-link-filter');
   const currentVal = linkSel.value;
   linkSel.innerHTML = '<option value="">All quizzes</option>' +
-    allLinks.map(l=>`<option value="${l.id}">${l.name}</option>`).join('');
+    allLinks.map(l=>`<option value="${l.id}">${l.linkName||l.name||'Untitled Quiz'}</option>`).join('');
   linkSel.value = currentVal;
   // Update count
   document.getElementById('rf-count').textContent = rows.length === allResults.length

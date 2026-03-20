@@ -2,8 +2,8 @@
 // Env var required: STRIPE_SECRET_KEY
 
 const PRICE_CONFIG = {
-  'price_1T8Z15JlYByErfPaTpRf3xic': { plan: 'league',     mode: 'payment',      months: 6  },
-  'price_1T8Z4lJlYByErfPaulsRF7EZ': { plan: 'individual', mode: 'payment',      months: 6  },
+  'price_1T8Z15JlYByErfPaTpRf3xic': { plan: 'league',     mode: 'payment',      months: 6    },
+  'price_1T8Z4lJlYByErfPaulsRF7EZ': { plan: 'individual', mode: 'payment',      months: 6    },
   'price_1RV06yJIYByErfPa9kZDaCaR': { plan: 'referee',    mode: 'subscription', months: null },
 };
 

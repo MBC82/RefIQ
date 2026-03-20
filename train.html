@@ -474,7 +474,6 @@ select option{background:#111711}
     <div class="pe-title">TRIAL ENDED</div>
     <p class="pe-msg">Your 7-day free trial has ended. Upgrade to continue training and keep your progress.</p>
     <button class="pe-btn" onclick="window.location.href='/admin'">UPGRADE →</button>
-    <p style="font-size:11px;color:#7a9080;margin-top:16px;font-family:'DM Mono',monospace">cox.matthewb@gmail.com</p>
   </div>
 </div>
 
@@ -512,7 +511,7 @@ import { getFirestore, doc, getDoc, setDoc, addDoc,
 
 const firebaseConfig = {
   apiKey:            'AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM',
-  authDomain:        'refiq-b8142.firebaseapp.com',
+  authDomain:        'www.myrefiq.com',
   projectId:         'refiq-b8142',
   storageBucket:     'refiq-b8142.firebasestorage.app',
   messagingSenderId: '62305657245',
@@ -1075,10 +1074,21 @@ function showAuthErr(m) {
 }
 function hideAuthErr() { document.getElementById('auth-err').style.display = 'none'; }
 function friendlyErr(code) {
-  return { 'auth/wrong-password':'Incorrect password.','auth/user-not-found':'No account with that email.',
-    'auth/email-already-in-use':'Email already in use.','auth/weak-password':'Password must be 6+ characters.',
-    'auth/invalid-email':'Invalid email address.','auth/too-many-requests':'Too many attempts. Try later.' }[code]
-    || 'Something went wrong. Please try again.';
+  const m = {
+    'auth/wrong-password':        'Incorrect password.',
+    'auth/user-not-found':        'No account with that email.',
+    'auth/invalid-credential':    'Email or password is incorrect.',
+    'auth/email-already-in-use':  'Email already in use — try signing in.',
+    'auth/weak-password':         'Password must be at least 6 characters.',
+    'auth/invalid-email':         'Invalid email address.',
+    'auth/too-many-requests':     'Too many attempts. Try again later.',
+    'auth/network-request-failed':'Network error. Check your connection.',
+    'auth/operation-not-allowed': 'This sign-in method is not enabled. Contact support.',
+    'auth/unauthorized-domain':   'Domain not authorized. Contact support.',
+    'auth/popup-blocked':         'Popup blocked — allow popups for this site and retry.',
+    'auth/popup-closed-by-user':  'Sign-in cancelled.',
+  };
+  return m[code] || `Sign-in failed (${code||'unknown'}). Try again.`;
 }
 
 try { await setPersistence(auth, indexedDBLocalPersistence); } catch(_) {}
@@ -1123,6 +1133,11 @@ document.getElementById('reg-btn').addEventListener('click', async () => {
 
 document.getElementById('google-btn').addEventListener('click', async () => {
   hideAuthErr();
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (isMobile) {
+    try { await signInWithRedirect(auth, gp); } catch(e) { showAuthErr(friendlyErr(e.code)); }
+    return;
+  }
   try {
     await signInWithPopup(auth, gp);
   } catch(e) {

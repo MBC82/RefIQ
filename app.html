@@ -564,6 +564,7 @@ select option{background:#111711}
     </div>
 
     <a href="/admin" class="admin-link">League Admin Dashboard →</a>
+    <a href="mailto:refiqsupport@gmail.com" class="admin-link" style="margin-top:0">Need help? refiqsupport@gmail.com</a>
   </div>
 
   <!-- QUIZ SCREEN -->
@@ -678,7 +679,7 @@ select option{background:#111711}
     <div class="upgrade-banner" id="res-upgrade" style="display:block">
       <div class="upgrade-title">WANT MORE QUESTIONS?</div>
       <div class="upgrade-sub">Upgrade to Ref Pro for unlimited quizzes and your full progress dashboard.</div>
-      <a href="/app#upgrade" class="upgrade-cta">UPGRADE — $9/MO →</a>
+      <a href="/#pricing" class="upgrade-cta">SEE PLANS →</a>
     </div>
     <div class="review-card fu">
       <div class="review-hdr">QUESTION REVIEW</div>
@@ -701,7 +702,6 @@ select option{background:#111711}
       <button class="pe-btn pe-btn-primary" id="pe-cta-primary" onclick="handlePeBtn('individual',this)">RENEW — $49/SEASON →</button>
       <button class="pe-btn pe-btn-secondary" id="pe-cta-secondary" onclick="handlePeBtn('league',this)">GET LEAGUE PLAN — $149/SEASON →</button>
     </div>
-    <p style="font-size:11px;color:#7a9080;margin-top:16px;font-family:'DM Mono',monospace">cox.matthewb@gmail.com</p>
   </div>
 </div>
 
@@ -740,7 +740,7 @@ import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
 // instead of a silent blank page.
 const firebaseConfig = {
   apiKey: 'AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM',
-  authDomain: 'refiq-b8142.firebaseapp.com',
+  authDomain: 'www.myrefiq.com',
   projectId: 'refiq-b8142',
   storageBucket: 'refiq-b8142.firebasestorage.app',
   messagingSenderId: '62305657245',
@@ -1185,6 +1185,7 @@ function applyTier() {
 
 // ── LEAGUE RULES COLLAPSE TOGGLE ─────────────────────────────────────────────
 function toggleRules() {
+  if (!isPro()) { window.location.href = '/admin'; return; }
   const expand  = document.getElementById('rules-expand');
   const btn     = document.getElementById('rules-toggle');
   const isOpen  = expand.style.display !== 'none';
@@ -1261,7 +1262,7 @@ document.getElementById('reg-btn').addEventListener('click', async()=>{
     const cred = await createUserWithEmailAndPassword(auth,email,pass);
     await updateProfile(cred.user,{displayName:name});
     await setDoc(doc(db,'users',cred.user.uid),{
-      name,email,tier:'free',role:'referee',createdAt:serverTimestamp()
+      name,email,tier:'free',role:'referee',plan:'trial',trialStartDate:serverTimestamp(),createdAt:serverTimestamp()
     });
   } catch(e){ authErr(friendlyAuthErr(e.code)); }
 });
@@ -1324,6 +1325,7 @@ dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');[.
 fi.addEventListener('change',e=>{[...e.target.files].forEach(handleFile);fi.value='';});
 
 function handleFile(file){
+  if (!isPro()) return;
   const ext=file.name.split('.').pop().toLowerCase();
   const reader=new FileReader();
   if(ext==='pdf'){
