@@ -2188,7 +2188,7 @@ function sanitizeResourceText(raw) {
     .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
     .replace(/\s{4,}/g, ' ')
     .trim()
-    .substring(0, 3000);
+    .substring(0, 6000);
 }
 
 // Called at quiz creation time so referees get instant questions (no API wait).
@@ -2203,7 +2203,7 @@ const DIVISION_RULES = {
     enforcement: `- NO cards — warnings and substitutions only\n- NO offside\n- NO penalty kicks — indirect free kick instead\n- Small-sided: 4v4 or 5v5, Size 3 ball\n- NEVER ask about cards or offside`
   },
   'rec-2nd': {
-    label: 'Recreational 2nd Grade (Ages 7–8)',
+    label: 'Recreational 1st–2nd Grade (Ages 6–8)',
     enforcement: `- Cautions used sparingly, NO red cards — player removed and substituted\n- Offside may not be enforced — note this where relevant\n- 5v5 to 7v7, Size 3 ball\n- Focus: restarts, fouls, basic positioning`
   },
   'rec-3rd4th': {
@@ -2217,6 +2217,94 @@ const DIVISION_RULES = {
   'rec-7th8th': {
     label: 'Recreational 7th–8th Grade (Ages 12–14)',
     enforcement: `- Full Laws apply — yellow and red cards, offside, all restarts\n- 11v11, Size 5 ball`
+  },
+  'comp-u8u9': {
+    label: 'Competitive U8/U9',
+    enforcement: `- NO cards — coaching and substitutions only\n- NO offside or minimal enforcement\n- Small-sided: 5v5 to 7v7, Size 3 ball\n- Focus: basic restarts, fouls, positioning\n- NEVER ask about cards or offside`
+  },
+  'comp-u9u10': {
+    label: 'Competitive U9/U10',
+    enforcement: `- Cautions allowed; red cards rare — player removed\n- Offside may be introduced gradually\n- 7v7, Size 4 ball\n- Focus: restarts, basic fouls, team play`
+  },
+  'comp-u11u12': {
+    label: 'Competitive U10/U11',
+    enforcement: `- Yellow cards apply; red cards used sparingly\n- Offside enforced\n- 9v9, Size 4 ball\n- Full restarts, misconduct basics`
+  },
+  'comp-u13u14': {
+    label: 'Competitive U12/U13',
+    enforcement: `- Full yellow and red cards apply\n- Offside strictly enforced\n- 11v11, Size 5 ball\n- All IFAB Laws with competitive enforcement`
+  },
+  'comp-u15u16': {
+    label: 'Competitive U14/U15',
+    enforcement: `- Full IFAB Laws apply — cards, offside, all restarts\n- 11v11, Size 5 ball\n- Competitive enforcement`
+  },
+  'comp-u17u18': {
+    label: 'Competitive U16/U17',
+    enforcement: `- Full IFAB Laws apply\n- 11v11, Size 5 ball\n- Near-adult level enforcement`
+  },
+  'comp-u19u23': {
+    label: 'Competitive U18/U19',
+    enforcement: `- Full IFAB Laws at adult level\n- 11v11, Size 5 ball`
+  },
+  'hs-middle': {
+    label: 'High School — Middle School',
+    enforcement: `- Full cards apply; discretion with cautions\n- Offside enforced\n- 11v11, Size 5 ball`
+  },
+  'hs-jv': {
+    label: 'High School — JV',
+    enforcement: `- Full NFHS/IFAB Laws apply\n- 11v11, Size 5 ball\n- Standard competitive enforcement`
+  },
+  'hs-varsity': {
+    label: 'High School — Varsity',
+    enforcement: `- Full NFHS/IFAB Laws apply\n- 11v11, Size 5 ball\n- Strict competitive enforcement`
+  },
+  'adult-rec': {
+    label: 'Adult Recreational',
+    enforcement: `- Full IFAB Laws apply\n- 11v11, Size 5 ball\n- Emphasis on player safety and fair play`
+  },
+  'adult-comp': {
+    label: 'Adult Competitive',
+    enforcement: `- Full IFAB Laws strictly applied\n- 11v11, Size 5 ball`
+  },
+  'adult-over30': {
+    label: 'Adult Over-30',
+    enforcement: `- Full IFAB Laws; lenient on physical challenges due to age\n- 11v11, Size 5 ball`
+  },
+  'adult-over40': {
+    label: 'Adult Over-40',
+    enforcement: `- Full IFAB Laws; emphasis on safety over strict enforcement\n- 11v11, Size 5 ball`
+  },
+  'adult-coed': {
+    label: 'Adult Co-Ed',
+    enforcement: `- Full IFAB Laws; often league-specific gender balance rules\n- 11v11, Size 5 ball`
+  },
+  'college-club': {
+    label: 'College — Club',
+    enforcement: `- Full IFAB Laws apply\n- 11v11, Size 5 ball`
+  },
+  'college-varsity': {
+    label: 'College — Varsity (NCAA)',
+    enforcement: `- NCAA rules apply (IFAB-based with NCAA modifications)\n- 11v11, Size 5 ball\n- Strict enforcement`
+  },
+  'pdl': {
+    label: 'Professional Development League',
+    enforcement: `- Full professional IFAB Laws strictly applied\n- 11v11, Size 5 ball`
+  },
+  'futsal': {
+    label: 'Futsal',
+    enforcement: `- FIFA Futsal Laws: 5v5 indoors, rolling substitutions\n- Accumulated fouls rule, NO offside, 4-second restart clock\n- NEVER apply outdoor IFAB Laws`
+  },
+  'indoor': {
+    label: 'Indoor Soccer',
+    enforcement: `- Indoor-specific rules: boards in play, rolling substitutions\n- NO offside in most formats\n- Focus: boards/walls, penalty shootouts, timing rules`
+  },
+  'beach': {
+    label: 'Beach Soccer',
+    enforcement: `- FIFA Beach Soccer Laws: 5v5, three 12-minute periods\n- Overhead kicks, rolling substitutions, no draws (penalty shootout)\n- NEVER apply standard outdoor IFAB Laws`
+  },
+  'all': {
+    label: 'All Divisions / General',
+    enforcement: `- Apply full IFAB Laws unless league documents specify otherwise\n- Consider scenarios applicable across multiple age groups`
   },
   'default': {
     label: 'Standard',
@@ -2258,12 +2346,15 @@ async function preGenerateQuestions(age, num, src, mode, resources) {
   const hasRes = (resources||[]).length > 0;
   const leagueNum = hasRes ? Math.ceil(num / 2) : 0;
   const ifabNum   = num - leagueNum;
+  const ageInstruct = hasRes
+    ? `IMPORTANT: The uploaded league documents may cover rules for multiple age groups. Carefully scan every section and identify rules that apply specifically to "${divLabel}" (look for matching age labels, grade levels, U-age designations, or equivalent terms). Use ONLY those age-specific sections when generating league-source questions. If a document section is not specific to this age group, skip it.`
+    : '';
   const srcStr = src==='ifab'
     ? 'Use IFAB Laws 2025/26 only. Ignore any uploaded league rule documents.'
     : src==='league'
-      ? `Use the uploaded league rule documents ONLY. Generate all ${num} questions directly from the league rules, focusing specifically on rules and modifications relevant to ${divLabel}. Do not use general IFAB Laws.`
+      ? `Use the uploaded league rule documents ONLY. Generate all ${num} questions directly from rules that apply to ${divLabel}. ${ageInstruct} Do not use general IFAB Laws.`
       : hasRes
-        ? `Generate exactly ${leagueNum} question${leagueNum!==1?'s':''} from the uploaded league rule documents — focus on age-group specific rules, local modifications, and rules that differ from standard IFAB for ${divLabel} — and exactly ${ifabNum} question${ifabNum!==1?'s':''} from IFAB Laws 2025/26 relevant to ${divLabel}. Mark each with source:"league" or source:"ifab" accordingly.`
+        ? `Generate exactly ${leagueNum} question${leagueNum!==1?'s':''} sourced from the uploaded league rule documents (source:"league") and exactly ${ifabNum} question${ifabNum!==1?'s':''} sourced from IFAB Laws 2025/26 (source:"ifab"), all relevant to ${divLabel}. ${ageInstruct}`
         : 'Use IFAB Laws 2025/26.';
   const leagueSec = (resources||[]).map(r=>`\n\n--- LEAGUE RULE DOCUMENT: ${r.name} ---\n${r.text}`).join('');
   const rulebookSec  = cachedRulebookText
