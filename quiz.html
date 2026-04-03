@@ -29,7 +29,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--green:#ffd60a;--green-dark:#b8940a;--gold:#ffd60a;--bg:#080c09;--surface:#111711;--surface2:#1a221b;--border:rgba(255,255,255,.08);--text:#f0f4f0;--muted:#7a9080;--red:#ff453a}
+:root{--gold:#ffd60a;--gold-dark:#b8940a;--gold:#ffd60a;--bg:#080c09;--surface:#111711;--surface2:#1a221b;--border:rgba(255,255,255,.08);--text:#f0f4f0;--muted:#7a9080;--red:#ff453a}
 html,body{height:100%}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh}
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,214,10,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,214,10,.025) 1px,transparent 1px);background-size:56px 56px}
@@ -41,7 +41,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 #loading{position:fixed;inset:0;z-index:200;background:rgba(8,12,9,.97);display:flex;align-items:center;justify-content:center}
 #loading.hide{display:none}
 .load-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:36px 44px;text-align:center;max-width:290px;width:90%}
-.spinner{width:44px;height:44px;border:3px solid rgba(255,255,255,.07);border-top-color:var(--green);border-radius:50%;animation:spin .75s linear infinite;margin:0 auto 16px}
+.spinner{width:44px;height:44px;border:3px solid rgba(255,255,255,.07);border-top-color:var(--gold);border-radius:50%;animation:spin .75s linear infinite;margin:0 auto 16px}
 .load-title{font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:3px;margin-bottom:6px}
 .load-sub{font-size:12px;color:var(--muted)}
 
@@ -51,8 +51,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .err-icon{font-size:52px;margin-bottom:16px}
 .err-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;margin-bottom:8px}
 .err-msg{font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.6;max-width:320px}
-.err-home{display:inline-block;padding:13px 28px;background:var(--green-dark);border-radius:14px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;text-decoration:none;transition:background .2s}
-.err-home:hover{background:var(--green);color:#080c09}
+.err-home{display:inline-block;padding:13px 28px;background:var(--gold-dark);border-radius:14px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;text-decoration:none;transition:background .2s}
+.err-home:hover{background:var(--gold);color:#080c09}
 
 /* ── NAME SCREEN ── */
 #name-screen{display:none;position:fixed;inset:0;z-index:100;background:var(--bg);align-items:center;justify-content:center;padding:24px}
@@ -99,7 +99,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .q-arc-of{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.45);margin-top:1px}
 .quiz-pos-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,.5);text-transform:uppercase}
 .prog-bar{height:4px;background:rgba(255,255,255,.08);border-radius:4px;margin:0 -16px 0;overflow:hidden;position:relative;z-index:1}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--gold));border-radius:4px;transition:width .5s cubic-bezier(.23,1,.32,1)}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold));border-radius:4px;transition:width .5s cubic-bezier(.23,1,.32,1)}
 
 /* Timer */
 .timer-wrap{display:none;align-items:center;gap:8px;margin-top:8px}
@@ -107,20 +107,20 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .timer-ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
 .timer-ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:#fff}
 .timer-bar-wrap{flex:1;height:5px;background:rgba(255,255,255,.1);border-radius:5px;overflow:hidden}
-.timer-bar{height:100%;background:linear-gradient(90deg,var(--green),var(--gold));border-radius:5px;transition:width 1s linear}
+.timer-bar{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold));border-radius:5px;transition:width 1s linear}
 .timer-bar.urgent{background:var(--red)}
 @keyframes timerPulse{0%,100%{opacity:1}50%{opacity:.4}}
 .timer-ring-num.urgent{animation:timerPulse .6s ease infinite;color:var(--red)}
 
 /* Question card */
 .q-card{background:var(--surface);border:1px solid rgba(255,214,10,.14);border-radius:24px;padding:22px 20px 18px;margin:16px 0 12px;position:relative;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.4)}
-.q-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--league-accent,var(--green)),var(--gold))}
+.q-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--league-accent,var(--gold)),var(--gold))}
 .pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;opacity:.6}
 .pill{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:20px;font-weight:400}
 .pill-s{background:rgba(255,214,10,.1);color:var(--gold);border:1px solid rgba(255,214,10,.22)}
-.pill-r{background:rgba(255,214,10,.08);color:var(--green);border:1px solid rgba(255,214,10,.2)}
+.pill-r{background:rgba(255,214,10,.08);color:var(--gold);border:1px solid rgba(255,214,10,.2)}
 .pill-l{background:rgba(255,214,10,.08);color:var(--gold);border:1px solid rgba(255,214,10,.2)}
-.pill-i{background:rgba(255,214,10,.1);color:var(--green);border:1px solid rgba(255,214,10,.22)}
+.pill-i{background:rgba(255,214,10,.1);color:var(--gold);border:1px solid rgba(255,214,10,.22)}
 .q-text{font-size:clamp(18px,4vw,22px);font-weight:800;line-height:1.45;margin-bottom:14px;margin-top:6px;color:#f4f8f4;letter-spacing:-.02em;font-family:var(--quiz-font,'DM Sans',sans-serif)}
 .q-ref{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:5px 11px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px}
 
@@ -130,28 +130,28 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .ans-btn{width:100%;border:1.5px solid rgba(255,255,255,.07);border-radius:18px;padding:15px 16px 15px 14px;display:flex;align-items:center;gap:13px;cursor:pointer;text-align:left;transition:border-color .18s,background .18s,transform .15s,box-shadow .18s;background:var(--surface);font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:transparent;animation:ansIn .28s ease both;position:relative;overflow:hidden}
 .ans-btn:not(:disabled):hover{border-color:rgba(255,214,10,.5);background:rgba(255,214,10,.06);transform:translateY(-1px);box-shadow:0 6px 24px rgba(255,214,10,.12)}
 .ans-btn:disabled{cursor:default}
-.ans-btn.correct{background:rgba(255,214,10,.12);border-color:var(--green);box-shadow:0 0 0 1px rgba(255,214,10,.2),0 8px 28px rgba(255,214,10,.18)}
+.ans-btn.correct{background:rgba(255,214,10,.12);border-color:var(--gold);box-shadow:0 0 0 1px rgba(255,214,10,.2),0 8px 28px rgba(255,214,10,.18)}
 .ans-btn.wrong{background:rgba(255,69,58,.07);border-color:#ff453a;box-shadow:0 0 0 1px rgba(255,69,58,.15)}
 .ans-btn.faded{opacity:.18;transform:scale(.99)}
-.ans-letter{width:42px;height:42px;border-radius:14px;background:rgba(255,214,10,.07);border:1.5px solid rgba(255,214,10,.18);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:19px;color:var(--green);flex-shrink:0;transition:all .18s;letter-spacing:1px}
-.ans-btn.correct .ans-letter{background:var(--green);border-color:var(--green);color:#000;box-shadow:0 0 16px rgba(255,214,10,.5)}
+.ans-letter{width:42px;height:42px;border-radius:14px;background:rgba(255,214,10,.07);border:1.5px solid rgba(255,214,10,.18);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:19px;color:var(--gold);flex-shrink:0;transition:all .18s;letter-spacing:1px}
+.ans-btn.correct .ans-letter{background:var(--gold);border-color:var(--gold);color:#000;box-shadow:0 0 16px rgba(255,214,10,.5)}
 .ans-btn.wrong .ans-letter{background:#ff453a;border-color:#ff453a;color:#fff}
 .ans-btn:not(:disabled):hover .ans-letter{background:rgba(255,214,10,.14);border-color:rgba(255,214,10,.5)}
 .ans-text{font-size:15px;color:var(--text);line-height:1.4;font-weight:500;flex:1}
 .ans-radio{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.12);flex-shrink:0;margin-left:auto;display:flex;align-items:center;justify-content:center;transition:all .18s}
-.ans-btn.correct .ans-radio{background:var(--green);border-color:var(--green)}
+.ans-btn.correct .ans-radio{background:var(--gold);border-color:var(--gold)}
 .ans-btn.wrong .ans-radio{background:#ff453a;border-color:#ff453a}
 .ans-btn:not(:disabled):hover .ans-radio{border-color:rgba(255,214,10,.5)}
 .ans-radio-dot{width:8px;height:8px;border-radius:50%;background:#fff;transform:scale(0);transition:transform .18s}
 .ans-btn.correct .ans-radio-dot,.ans-btn.wrong .ans-radio-dot{transform:scale(1)}
 
 /* Explanation */
-.exp-box{background:linear-gradient(135deg,rgba(255,214,10,.07),rgba(255,214,10,.03));border:1px solid rgba(255,214,10,.22);border-left:3px solid var(--green);border-radius:16px;padding:16px 18px;margin-bottom:14px;display:none;animation:ansIn .3s ease}
-.exp-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--green);margin-bottom:8px}
+.exp-box{background:linear-gradient(135deg,rgba(255,214,10,.07),rgba(255,214,10,.03));border:1px solid rgba(255,214,10,.22);border-left:3px solid var(--gold);border-radius:16px;padding:16px 18px;margin-bottom:14px;display:none;animation:ansIn .3s ease}
+.exp-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
 .exp-txt{font-size:13px;line-height:1.75;color:rgba(240,244,240,.88)}
 
 /* Next button */
-.next-btn{width:100%;padding:18px;background:linear-gradient(135deg,var(--league-accent,var(--green-dark)),#7a5800);border:none;border-radius:18px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;display:none;transition:all .22s;box-shadow:0 8px 28px rgba(255,214,10,.28);position:relative;overflow:hidden}
+.next-btn{width:100%;padding:18px;background:linear-gradient(135deg,var(--league-accent,var(--gold-dark)),#7a5800);border:none;border-radius:18px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;display:none;transition:all .22s;box-shadow:0 8px 28px rgba(255,214,10,.28);position:relative;overflow:hidden}
 .next-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);pointer-events:none}
 .next-btn:hover{filter:brightness(1.12);transform:translateY(-2px);box-shadow:0 14px 36px rgba(255,214,10,.38)}
 
@@ -170,19 +170,19 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .stat-num{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;margin-bottom:3px}
 .stat-lbl{font-size:11px;color:var(--muted)}
 .pass-badge{display:inline-flex;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600}
-.pass{background:rgba(255,214,10,.15);color:var(--green);border:1px solid rgba(255,214,10,.28)}
+.pass{background:rgba(255,214,10,.15);color:var(--gold);border:1px solid rgba(255,214,10,.28)}
 .fail{background:rgba(255,69,58,.08);color:var(--red);border:1px solid rgba(255,69,58,.22)}
 .review-card{background:var(--surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;margin-bottom:12px}
 .review-hdr{padding:13px 18px;border-bottom:1px solid var(--border);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--muted)}
 .review-item{display:flex;align-items:flex-start;gap:10px;padding:12px 18px;border-bottom:1px solid var(--border)}
 .review-item:last-child{border-bottom:none}
 .rev-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:2px}
-.rev-ok{background:rgba(255,214,10,.15);color:var(--green)}
+.rev-ok{background:rgba(255,214,10,.15);color:var(--gold)}
 .rev-fail{background:rgba(255,69,58,.1);color:var(--red)}
 .rev-q{font-size:13px;font-weight:500;line-height:1.45}
 .rev-ans{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:3px}
-.action-btn{width:100%;padding:17px;background:var(--green-dark);border:none;border-radius:18px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:3px;cursor:pointer;transition:all .2s;margin-bottom:9px;display:block;text-align:center;text-decoration:none}
-.action-btn:hover{background:var(--green);color:#080c09}
+.action-btn{width:100%;padding:17px;background:var(--gold-dark);border:none;border-radius:18px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:3px;cursor:pointer;transition:all .2s;margin-bottom:9px;display:block;text-align:center;text-decoration:none}
+.action-btn:hover{background:var(--gold);color:#080c09}
 .home-link{display:block;text-align:center;padding:13px;border:1.5px solid var(--border);border-radius:18px;color:var(--muted);font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;text-decoration:none;transition:all .2s;margin-bottom:9px}
 .home-link:hover{border-color:rgba(255,255,255,.2);color:var(--text)}
 
@@ -346,7 +346,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
         <div class="ring-center"><span class="ring-pct" id="ring-pct">0%</span><span class="ring-lbl">CORRECT</span></div>
       </div>
       <div class="stat-grid">
-        <div class="stat-box"><div class="stat-num" id="s-right" style="color:var(--green)">0</div><div class="stat-lbl">Correct</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-right" style="color:var(--gold)">0</div><div class="stat-lbl">Correct</div></div>
         <div class="stat-box"><div class="stat-num" id="s-wrong" style="color:var(--red)">0</div><div class="stat-lbl">Wrong</div></div>
         <div class="stat-box"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">Total</div></div>
       </div>
