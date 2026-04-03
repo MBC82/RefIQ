@@ -1229,6 +1229,14 @@ function showApp() {
 function authErr(m){ const e=document.getElementById('auth-err'); e.textContent=m; e.style.display='block'; }
 function authErrClear(){ document.getElementById('auth-err').style.display='none'; }
 
+// Open Create Account tab if linked from "Start Free"
+if (location.hash === '#signup') {
+  document.getElementById('tab-up').classList.add('active');
+  document.getElementById('tab-in').classList.remove('active');
+  document.getElementById('form-up').style.display = 'block';
+  document.getElementById('form-in').style.display = 'none';
+}
+
 document.getElementById('tab-in').addEventListener('click', () => {
   document.getElementById('tab-in').classList.add('active');
   document.getElementById('tab-up').classList.remove('active');
