@@ -1430,7 +1430,10 @@ async function handleAdminAuth(u) {
 // ── AUTH INIT ────────────────────────────────────────────────────────────────
 getRedirectResult(auth).then((result) => {
   if (result && result.user) {
-    handleAdminAuth(result.user);
+    handleAdminAuth(result.user).catch(e => {
+      console.warn('[Auth] redirect result handling error:', e);
+      if (!_adminAuthRunning) showAuth();
+    });
     return;
   }
   onAuthStateChanged(auth, (user) => {
@@ -2771,6 +2774,9 @@ document.getElementById('cr-save-btn').addEventListener('click', async()=>{
     try {
       await updateDoc(doc(db,'quizLinks',editingLinkId),{
         name,
+        linkName: name,
+        division: age,
+        numberOfQuestions: num,
         settings:{division:age,num,source:src,mode,timeLimit},
         resources:cleanResources,
         questions:[],
@@ -2921,7 +2927,26 @@ function renderLinks() {
     const passRate = taken ? Math.round(passed/taken*100) : null;
     const avgScore = taken ? Math.round(completedRes.reduce((a,r)=>a+Math.round(r.score/r.total*100),0)/taken) : null;
     const s = l.settings||{};
-    const divLabels={rec_young:'Rec Young',rec_lower:'Rec Lower',rec_upper5:'Rec Upper (5-6)',rec_middle:'Rec Middle',comp_u9u10:'Comp U9/U10',comp_u11u12:'Comp U11/U12',comp_u13u14:'Comp U13/U14',comp_u15u16:'Comp U15/U16',comp_u17u18:'Comp U17/U18',hs_jv:'HS JV',hs_varsity:'HS Varsity',adult_rec:'Adult Rec',adult_comp:'Adult Comp',college_club:'College Club',college_varsity:'College Varsity',pdl:'PDL',rec_mid:'Rec Mid',rec_upper:'Rec Upper',high_school:'High School',adult_amateur:'Adult Amateur',competitive:'Competitive'};
+    const divLabels={
+      // legacy underscore slugs
+      rec_young:'Rec Young',rec_lower:'Rec Lower',rec_upper5:'Rec Upper (5-6)',rec_middle:'Rec Middle',
+      comp_u9u10:'Comp U9/U10',comp_u11u12:'Comp U11/U12',comp_u13u14:'Comp U13/U14',
+      comp_u15u16:'Comp U15/U16',comp_u17u18:'Comp U17/U18',
+      hs_jv:'HS JV',hs_varsity:'HS Varsity',adult_rec:'Adult Rec',adult_comp:'Adult Comp',
+      college_club:'College Club',college_varsity:'College Varsity',pdl:'PDL',
+      rec_mid:'Rec Mid',rec_upper:'Rec Upper',high_school:'High School',
+      adult_amateur:'Adult Amateur',competitive:'Competitive',
+      // current hyphen slugs
+      'rec-prek':'Rec PreK','rec-k1':'Rec K/1st','rec-2nd':'Rec 1st–2nd',
+      'rec-3rd4th':'Rec 3rd–4th','rec-5th6th':'Rec 5th–6th','rec-7th8th':'Rec 7th–8th',
+      'comp-u8u9':'Comp U8/U9','comp-u9u10':'Comp U9/U10','comp-u11u12':'Comp U10/U11',
+      'comp-u13u14':'Comp U12/U13','comp-u15u16':'Comp U14/U15','comp-u17u18':'Comp U16/U17',
+      'comp-u19u23':'Comp U18/U19','hs-middle':'HS Middle','hs-jv':'HS JV',
+      'hs-varsity':'HS Varsity','adult-rec':'Adult Rec','adult-comp':'Adult Comp',
+      'adult-over30':'Adult 30+','adult-over40':'Adult 40+','adult-coed':'Adult Co-Ed',
+      'college-club':'College Club','college-varsity':'College Varsity (NCAA)',
+      'pdl':'PDL','futsal':'Futsal','indoor':'Indoor','beach':'Beach Soccer','all':'All Divisions'
+    };
     const divLabel = divLabels[l.division||s.division]||l.division||s.division||'';
     const numQ = l.numberOfQuestions||s.num||10;
     const questionsReady = l.questions && l.questions.length > 0;
