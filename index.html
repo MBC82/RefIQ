@@ -216,6 +216,8 @@ nav{
 .demo-opt.faded .demo-letter{
   background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.07);color:rgba(255,255,255,.3);
 }
+button.demo-opt{width:100%;text-align:left;font-family:inherit}
+.demo-opt:focus-visible{outline:2px solid var(--green);outline-offset:2px}
 
 /* Law explanation — slides in after answer */
 .demo-expl{
@@ -399,23 +401,23 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
       </div>
 
       <!-- Options -->
-      <div class="demo-opts">
-        <div class="demo-opt" onclick="selectAnswer(0)">
+      <div class="demo-opts" role="group" aria-label="Answer options">
+        <button class="demo-opt" onclick="selectAnswer(0)">
           <div class="demo-letter">A</div>
           <div class="demo-opt-text">Corner kick for the opposing team</div>
-        </div>
-        <div class="demo-opt" onclick="selectAnswer(1)">
+        </button>
+        <button class="demo-opt" onclick="selectAnswer(1)">
           <div class="demo-letter">B</div>
           <div class="demo-opt-text">Indirect free kick where GK possessed</div>
-        </div>
-        <div class="demo-opt" onclick="selectAnswer(2)">
+        </button>
+        <button class="demo-opt" onclick="selectAnswer(2)">
           <div class="demo-letter">C</div>
           <div class="demo-opt-text">Caution for GK + indirect FK</div>
-        </div>
-        <div class="demo-opt" onclick="selectAnswer(3)">
+        </button>
+        <button class="demo-opt" onclick="selectAnswer(3)">
           <div class="demo-letter">D</div>
           <div class="demo-opt-text">No call — 10-second rule applies</div>
-        </div>
+        </button>
       </div>
 
       <!-- Already a member link -->
