@@ -30,6 +30,9 @@
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
     }
   ],
+  "error": [
+    { "statusCode": 404, "destination": "/404.html" }
+  ],
   "functions": {
     "api/quiz.js": {
       "maxDuration": 60

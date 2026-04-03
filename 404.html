@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 — Page Not Found · RefIQ</title>
+<link rel="icon" href="/favicon.ico">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#ffd60a;
+  --bg:#080c09;--surface:#111711;
+  --border:rgba(255,255,255,.08);
+  --text:#f0f4f0;--muted:#8ea696;
+}
+html{overflow-x:hidden}
+body{
+  font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);
+  -webkit-font-smoothing:antialiased;min-height:100vh;
+  display:flex;flex-direction:column;
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,214,10,.012) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,214,10,.012) 1px,transparent 1px);
+  background-size:60px 60px;
+}
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;height:64px;
+  background:rgba(8,12,9,.92);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 24px;
+}
+.nav-inner{max-width:860px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+.nav-logo-text{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:4px;color:var(--green)}
+.main{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:64px 24px;position:relative;z-index:1;
+}
+.container{text-align:center;max-width:480px;width:100%}
+.error-code{
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(96px,20vw,160px);
+  letter-spacing:8px;color:var(--green);line-height:1;
+  opacity:.15;user-select:none;
+}
+.headline{
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(24px,5vw,36px);
+  letter-spacing:3px;color:#fff;margin-top:-12px;margin-bottom:16px;
+}
+.sub{font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:36px}
+.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;
+  text-decoration:none;transition:opacity .15s,transform .15s;cursor:pointer;
+  border:none;
+}
+.btn:hover{opacity:.85;transform:translateY(-1px)}
+.btn-primary{background:var(--green);color:#080c09}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text)}
+footer{
+  border-top:1px solid var(--border);padding:24px;
+  position:relative;z-index:1;
+}
+.footer-inner{
+  max-width:860px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.footer-links{display:flex;gap:16px;flex-wrap:wrap}
+.footer-links a{font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(--text)}
+.footer-copy{font-size:11px;color:rgba(122,144,128,.38);font-family:'DM Mono',monospace}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <span class="nav-logo-text">RefIQ</span>
+    </a>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="container">
+    <div class="error-code">404</div>
+    <h1 class="headline">Page Not Found</h1>
+    <p class="sub">This page doesn't exist or has been moved.<br>Head back and keep training.</p>
+    <div class="actions">
+      <a href="/" class="btn btn-primary">← Back to Home</a>
+      <a href="/app" class="btn btn-ghost">Go to App</a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <span style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:rgba(240,244,240,.28)">RefIQ</span>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/terms">Terms of Service</a>
+      <a href="mailto:refiqsupport@gmail.com">Contact</a>
+    </div>
+    <div class="footer-copy">© 2026 RefIQ LLC · Kansas City, Missouri</div>
+  </div>
+</footer>
+
+</body>
+</html>
