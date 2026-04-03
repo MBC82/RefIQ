@@ -288,7 +288,19 @@ nav{
 }
 .p-price sup{font-size:18px;color:var(--muted);vertical-align:top;margin-top:8px}
 .p-price sub{font-size:14px;color:var(--muted)}
-.p-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px}
+.p-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:0}
+.p-features{
+  list-style:none;display:flex;flex-direction:column;gap:9px;
+  margin:16px 0 20px;padding-top:16px;border-top:1px solid var(--border);
+}
+.p-features li{
+  display:flex;align-items:center;gap:9px;
+  font-size:13px;color:rgba(240,244,240,.78);line-height:1.4;
+}
+.p-features li.off{color:var(--muted);opacity:.5}
+.p-feat-icon{flex-shrink:0;width:16px;text-align:center;font-style:normal}
+.p-feat-icon.on{color:var(--green)}
+.p-feat-icon.off{color:var(--muted)}
 .p-btn{
   display:block;width:100%;padding:13px;border:none;border-radius:12px;
   font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;
@@ -447,21 +459,45 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
       <div class="p-card">
         <div class="p-name">REFEREE</div>
         <div class="p-price"><sup>$</sup>9<sub>.99/mo</sub></div>
-        <p class="p-desc">Unlimited AI-generated scenarios for individual officials. Cancel anytime.</p>
+        <p class="p-desc">Individual training. Cancel anytime.</p>
+        <ul class="p-features">
+          <li><i class="p-feat-icon on">✓</i> Unlimited AI-generated quizzes</li>
+          <li><i class="p-feat-icon on">✓</i> IFAB Laws &amp; scenario training</li>
+          <li><i class="p-feat-icon on">✓</i> Rules &amp; case study modes</li>
+          <li class="off"><i class="p-feat-icon off">—</i> Admin dashboard</li>
+          <li class="off"><i class="p-feat-icon off">—</i> League management</li>
+          <li class="off"><i class="p-feat-icon off">—</i> White-label branding</li>
+        </ul>
         <a href="/app" class="p-btn">GET REFEREE →</a>
       </div>
 
       <div class="p-card">
         <div class="p-name">SEASON</div>
         <div class="p-price"><sup>$</sup>49<sub>/season</sub></div>
-        <p class="p-desc">6-month season pass. Full access, one payment, no recurring charge.</p>
+        <p class="p-desc">6-month pass. One payment, no recurring charge.</p>
+        <ul class="p-features">
+          <li><i class="p-feat-icon on">✓</i> Unlimited AI-generated quizzes</li>
+          <li><i class="p-feat-icon on">✓</i> IFAB Laws &amp; scenario training</li>
+          <li><i class="p-feat-icon on">✓</i> Rules &amp; case study modes</li>
+          <li><i class="p-feat-icon on">✓</i> Full 6-month season access</li>
+          <li class="off"><i class="p-feat-icon off">—</i> Admin dashboard</li>
+          <li class="off"><i class="p-feat-icon off">—</i> White-label branding</li>
+        </ul>
         <a href="/admin?upgrade=price_1T8Z4lJlYByErfPaulsRF7EZ" class="p-btn">GET SEASON →</a>
       </div>
 
       <div class="p-card featured">
         <div class="p-name">LEAGUE</div>
         <div class="p-price"><sup>$</sup>149<sub>/season</sub></div>
-        <p class="p-desc">Admin dashboard, unlimited referees, white-label branding, rulebook upload.</p>
+        <p class="p-desc">Everything your league needs in one platform.</p>
+        <ul class="p-features">
+          <li><i class="p-feat-icon on">✓</i> Unlimited AI-generated quizzes</li>
+          <li><i class="p-feat-icon on">✓</i> Admin dashboard &amp; analytics</li>
+          <li><i class="p-feat-icon on">✓</i> Unlimited referees</li>
+          <li><i class="p-feat-icon on">✓</i> Quiz links &amp; result tracking</li>
+          <li><i class="p-feat-icon on">✓</i> White-label branding</li>
+          <li><i class="p-feat-icon on">✓</i> Rulebook upload</li>
+        </ul>
         <a href="/admin?upgrade=price_1T8Z15JlYByErfPaTpRf3xic" class="p-btn p-btn-league">GET LEAGUE →</a>
       </div>
 
