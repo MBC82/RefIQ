@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — RefIQ</title>
+<link rel="icon" href="/favicon.ico">
+<meta name="description" content="RefIQ Privacy Policy — how we collect, use, and protect your information.">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#ffd60a;--green-dark:#b8940a;
+  --bg:#080c09;--surface:#111711;--surface2:#1a221b;
+  --border:rgba(255,255,255,.08);
+  --text:#f0f4f0;--muted:#8ea696;
+}
+html{overflow-x:hidden}
+body{
+  font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);
+  -webkit-font-smoothing:antialiased;min-height:100vh;
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,214,10,.012) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,214,10,.012) 1px,transparent 1px);
+  background-size:60px 60px;
+}
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;height:64px;
+  background:rgba(8,12,9,.92);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 24px;
+}
+.nav-inner{max-width:860px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+.nav-logo-text{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:4px;color:var(--green)}
+.nav-back{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-back:hover{color:var(--text)}
+.page-wrap{max-width:860px;margin:0 auto;padding:104px 24px 80px;position:relative;z-index:1}
+.page-label{
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;
+  text-transform:uppercase;color:var(--green);margin-bottom:12px;display:block;
+}
+.page-title{
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,5vw,52px);
+  letter-spacing:3px;color:#fff;margin-bottom:8px;
+}
+.page-date{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:48px}
+.doc-body{display:flex;flex-direction:column;gap:36px}
+.doc-section{}
+.doc-section h2{
+  font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;
+  color:var(--green);margin-bottom:14px;padding-bottom:8px;
+  border-bottom:1px solid rgba(255,214,10,.12);
+}
+.doc-section p{font-size:15px;color:rgba(240,244,240,.82);line-height:1.75;margin-bottom:12px}
+.doc-section p:last-child{margin-bottom:0}
+.doc-section ul{padding-left:20px;display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.doc-section ul li{font-size:15px;color:rgba(240,244,240,.82);line-height:1.65}
+.doc-section a{color:var(--green);text-decoration:underline}
+.highlight-box{
+  background:var(--surface);border:1px solid rgba(255,214,10,.15);
+  border-radius:14px;padding:20px 24px;margin-bottom:24px;
+}
+.highlight-box p{font-size:14px;color:var(--muted);line-height:1.7;margin:0}
+footer{
+  border-top:1px solid var(--border);padding:24px;
+  position:relative;z-index:1;margin-top:40px;
+}
+.footer-inner{
+  max-width:860px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.footer-links{display:flex;gap:16px;flex-wrap:wrap}
+.footer-links a{font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(--text)}
+.footer-copy{font-size:11px;color:rgba(122,144,128,.38);font-family:'DM Mono',monospace}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <span class="nav-logo-text">RefIQ</span>
+    </a>
+    <a href="/" class="nav-back">← Back to Home</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <span class="page-label">Legal</span>
+  <h1 class="page-title">Privacy Policy</h1>
+  <div class="page-date">Effective Date: April 2, 2026 &nbsp;·&nbsp; RefIQ LLC &nbsp;·&nbsp; Kansas City, Missouri</div>
+
+  <div class="highlight-box">
+    <p>This Privacy Policy explains how RefIQ LLC ("RefIQ," "we," "us," or "our") collects, uses, and protects information when you use our website at <strong>www.myrefiq.com</strong> and related services. By using RefIQ, you agree to the practices described here.</p>
+  </div>
+
+  <div class="doc-body">
+
+    <div class="doc-section">
+      <h2>1. Information We Collect</h2>
+      <p><strong>Account Information.</strong> When you create an account, we collect your name, email address, and password (stored securely via Firebase Authentication).</p>
+      <p><strong>Profile &amp; Usage Data.</strong> We collect information about your subscription plan, quiz results, scores, and training activity to provide the service and generate analytics for league administrators.</p>
+      <p><strong>League &amp; Referee Data.</strong> League administrators may upload rule documents and create quiz links. Referee names entered when taking a quiz are collected and associated with quiz results.</p>
+      <p><strong>Payment Information.</strong> Payments are processed by Stripe, Inc. We do not store your credit card number, billing address, or other payment card details on our servers. Stripe's privacy policy governs their handling of your payment data.</p>
+      <p><strong>Technical Data.</strong> We automatically collect your IP address, browser type, device type, and pages visited when you use our service. This data is used for security, performance monitoring, and debugging.</p>
+    </div>
+
+    <div class="doc-section">
+      <h2>2. How We Use Your Information</h2>
+      <ul>
+        <li>To create and manage your account and subscription</li>
+        <li>To deliver AI-generated quiz questions and training content</li>
+        <li>To show league administrators quiz results and referee performance data</li>
+        <li>To process payments and send transactional emails (receipts, plan updates)</li>
+        <li>To improve our AI models, question quality, and platform features</li>
+        <li>To send service-related communications (we do not send marketing emails without consent)</li>
+        <li>To detect and prevent fraud, abuse, or violations of our Terms of Service</li>
+      </ul>
+    </div>
+
+    <div class="doc-section">
+      <h2>3. Third-Party Services</h2>
+      <p>We use the following third-party services to operate RefIQ. Each has its own privacy policy governing how they handle data:</p>
+      <ul>
+        <li><strong>Google Firebase</strong> — Authentication and database (Firestore). Data is stored on Google's infrastructure. <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase Privacy Policy</a></li>
+        <li><strong>Stripe, Inc.</strong> — Payment processing. <a href="https://stripe.com/privacy" target="_blank" rel="noopener">Stripe Privacy Policy</a></li>
+        <li><strong>Anthropic, PBC</strong> — AI quiz generation via the Claude API. Quiz prompts (including uploaded league rule documents) are sent to Anthropic's API. <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">Anthropic Privacy Policy</a></li>
+        <li><strong>Vercel, Inc.</strong> — Website hosting and serverless functions. <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">Vercel Privacy Policy</a></li>
+        <li><strong>Google Fonts</strong> — Font delivery. Your browser connects to Google's servers to load fonts.</li>
+      </ul>
+    </div>
+
+    <div class="doc-section">
+      <h2>4. Data Sharing</h2>
+      <p>We do not sell, rent, or trade your personal information to third parties. We share your information only in the following circumstances:</p>
+      <ul>
+        <li><strong>With your league administrator.</strong> If you take a quiz through a league-issued link, your name and quiz results are visible to the league administrator who created that quiz.</li>
+        <li><strong>Service providers.</strong> We share data with Firebase, Stripe, Anthropic, and Vercel solely to operate the service, as described above.</li>
+        <li><strong>Legal requirements.</strong> We may disclose information if required by law, court order, or to protect the rights and safety of RefIQ and its users.</li>
+        <li><strong>Business transfers.</strong> In the event of a merger, acquisition, or sale of assets, user data may be transferred as part of that transaction.</li>
+      </ul>
+    </div>
+
+    <div class="doc-section">
+      <h2>5. Data Retention</h2>
+      <p>We retain your account and quiz data for as long as your account is active. If you delete your account, we will remove your personal information within 30 days, except where we are required to retain records for legal or financial compliance purposes (e.g., Stripe transaction records).</p>
+      <p>Quiz results associated with a league may be retained by that league administrator independent of your account status.</p>
+    </div>
+
+    <div class="doc-section">
+      <h2>6. Your Rights</h2>
+      <p>Depending on your location, you may have certain rights regarding your personal data:</p>
+      <ul>
+        <li><strong>Access.</strong> You may request a copy of the personal data we hold about you.</li>
+        <li><strong>Correction.</strong> You may request that we correct inaccurate or incomplete data.</li>
+        <li><strong>Deletion.</strong> You may request that we delete your personal data, subject to legal retention requirements.</li>
+        <li><strong>Opt-out of marketing.</strong> You may opt out of any marketing communications at any time.</li>
+        <li><strong>California residents (CCPA).</strong> You have the right to know what personal information we collect, to delete it, and to opt out of any sale of personal information. We do not sell personal information.</li>
+      </ul>
+      <p>To exercise any of these rights, contact us at <a href="mailto:refiqsupport@gmail.com">refiqsupport@gmail.com</a>. We will respond within 30 days.</p>
+    </div>
+
+    <div class="doc-section">
+      <h2>7. Cookies &amp; Tracking</h2>
+      <p>RefIQ uses browser storage (localStorage and IndexedDB) to maintain your login session via Firebase Authentication. We do not use advertising cookies or third-party tracking pixels. Google Fonts may set cookies when delivering fonts to your browser.</p>
+    </div>
+
+    <div class="doc-section">
+      <h2>8. Children's Privacy</h2>
+      <p>RefIQ is designed for use by adult league administrators and referees. We do not knowingly collect personal information from children under 13. If you believe a child under 13 has provided us with personal information, please contact us immediately and we will delete it.</p>
+      <p>Note: Referees who take league quizzes may be minors. In this case, the league administrator is responsible for ensuring appropriate consent has been obtained under applicable law.</p>
+    </div>
+
+    <div class="doc-section">
+      <h2>9. Security</h2>
+      <p>We implement industry-standard security measures including Firebase Authentication, HTTPS encryption for all data in transit, and Firestore Security Rules to restrict data access. However, no method of transmission over the internet is 100% secure, and we cannot guarantee absolute security.</p>
+    </div>
+
+    <div class="doc-section">
+      <h2>10. Changes to This Policy</h2>
+      <p>We may update this Privacy Policy from time to time. We will notify registered users of material changes by email. The "Effective Date" at the top of this page reflects when the policy was last updated. Continued use of RefIQ after changes are posted constitutes your acceptance of the updated policy.</p>
+    </div>
+
+    <div class="doc-section">
+      <h2>11. Contact Us</h2>
+      <p>If you have questions or concerns about this Privacy Policy or our data practices, please contact us:</p>
+      <ul>
+        <li><strong>Email:</strong> <a href="mailto:refiqsupport@gmail.com">refiqsupport@gmail.com</a></li>
+        <li><strong>Company:</strong> RefIQ LLC</li>
+        <li><strong>Location:</strong> Kansas City, Missouri</li>
+      </ul>
+      <p>This policy is governed by the laws of the State of Missouri, United States.</p>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:rgba(240,244,240,.28)">RefIQ</span>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/terms">Terms of Service</a>
+      <a href="mailto:refiqsupport@gmail.com">Contact</a>
+    </div>
+    <div class="footer-copy">© 2026 RefIQ LLC · Kansas City, Missouri</div>
+  </div>
+</footer>
+
+</body>
+</html>

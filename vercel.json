@@ -5,7 +5,9 @@
     { "source": "/q/:path*",           "destination": "/quiz.html" },
     { "source": "/app",                "destination": "/app.html" },
     { "source": "/admin",              "destination": "/admin.html" },
-    { "source": "/train",              "destination": "/train.html" }
+    { "source": "/train",              "destination": "/train.html" },
+    { "source": "/privacy",            "destination": "/privacy.html" },
+    { "source": "/terms",              "destination": "/terms.html" }
   ],
   "headers": [
     {
