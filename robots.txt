@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /$
+Allow: /privacy
+Allow: /terms
+Disallow: /app
+Disallow: /admin
+Disallow: /train
+Disallow: /q/
+
+Sitemap: https://www.myrefiq.com/sitemap.xml
