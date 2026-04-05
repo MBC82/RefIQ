@@ -31,7 +31,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --gold:#ffd60a;--gold-dark:#b8940a;--gold:#ffd60a;
+  --gold:#ffd60a;--gold-dark:#b8940a;
   --bg:#080c09;--surface:#111711;
   --border:rgba(255,255,255,.08);
   --text:#f0f4f0;--muted:#8ea696;--red:#ff453a;
@@ -100,7 +100,7 @@ nav{
 .hero-headline{
   font-family:'Bebas Neue',sans-serif;
   font-size:clamp(38px,6vw,72px);
-  letter-spacing:3px;line-height:.95;color:#fff;margin-bottom:10px;
+  letter-spacing:3px;line-height:.95;color:#fff;margin-bottom:18px;
 }
 .hero-sub{
   font-size:clamp(14px,1.8vw,17px);color:var(--muted);letter-spacing:.2px;
@@ -260,6 +260,74 @@ button.demo-opt{width:100%;text-align:left;font-family:inherit}
   box-shadow:0 12px 32px rgba(255,214,10,.32);
 }
 
+/* Member login link (inside CTA wrap) */
+.member-link{display:block;text-align:center;margin-top:10px;font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s}
+.member-link:hover{color:var(--text)}
+
+/* ── HOW IT WORKS ── */
+.how-section{padding:clamp(60px,7vw,96px) 24px;position:relative;z-index:1;border-top:1px solid var(--border)}
+.how-inner{max-width:840px;margin:0 auto;text-align:center}
+.how-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,4vw,48px);letter-spacing:3px;color:#fff;margin-bottom:48px}
+.how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;position:relative}
+.how-steps::before{
+  content:'';position:absolute;top:27px;left:calc(16.7% + 24px);right:calc(16.7% + 24px);height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,214,10,.22),transparent);pointer-events:none;
+}
+.how-step{display:flex;flex-direction:column;align-items:center;gap:14px;padding:0 8px}
+.how-num{
+  width:54px;height:54px;border-radius:50%;flex-shrink:0;
+  background:rgba(255,214,10,.07);border:1.5px solid rgba(255,214,10,.28);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);
+}
+.how-step-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:#fff}
+.how-step-desc{font-size:13px;color:var(--muted);line-height:1.7;text-align:center}
+
+/* ── FINAL CTA ── */
+.final-cta-section{
+  padding:clamp(64px,8vw,104px) 24px;position:relative;z-index:1;
+  border-top:1px solid var(--border);text-align:center;overflow:hidden;
+}
+.final-cta-section::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 110%,rgba(255,214,10,.08) 0%,transparent 65%);
+}
+.final-cta-inner{max-width:540px;margin:0 auto;position:relative}
+.final-cta-title{
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,5vw,56px);
+  letter-spacing:3px;color:#fff;margin-bottom:12px;line-height:1;
+}
+.final-cta-sub{font-size:15px;color:var(--muted);margin-bottom:28px;line-height:1.6}
+.final-cta-btn{
+  display:inline-block;padding:18px 44px;background:var(--gold);color:#000;
+  border-radius:14px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;
+  text-decoration:none;transition:all .2s;box-shadow:0 8px 32px rgba(255,214,10,.22);
+}
+.final-cta-btn:hover{background:#ffe44d;transform:translateY(-2px);box-shadow:0 14px 40px rgba(255,214,10,.35)}
+.no-cc{font-size:11px;color:rgba(142,166,150,.45);font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:10px}
+.trust-badges{display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;margin-top:28px;padding-top:28px;border-top:1px solid var(--border)}
+.trust-badge{font-size:11px;color:rgba(142,166,150,.5);font-family:'DM Mono',monospace;letter-spacing:.5px}
+
+/* ── FAQ ── */
+.faq-section{padding:clamp(60px,7vw,96px) 24px;position:relative;z-index:1;border-top:1px solid var(--border)}
+.faq-inner{max-width:680px;margin:0 auto}
+.faq-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,4vw,48px);letter-spacing:3px;color:#fff;margin-bottom:40px;text-align:center}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-item:first-of-type{border-top:1px solid var(--border)}
+.faq-q{
+  width:100%;background:none;border:none;padding:20px 0;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  cursor:pointer;text-align:left;
+  font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;color:var(--text);transition:color .2s;
+}
+.faq-q:hover{color:var(--gold)}
+.faq-icon{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--muted);flex-shrink:0;transition:transform .25s,color .2s;line-height:1}
+.faq-item.open .faq-icon{transform:rotate(45deg);color:var(--gold)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .32s ease,padding .32s ease}
+.faq-item.open .faq-a{max-height:300px;padding-bottom:18px}
+.faq-a p{font-size:14px;color:var(--muted);line-height:1.75}
+.faq-a strong{color:rgba(240,244,240,.85)}
+
 /* ── PRICING ── */
 .pricing{
   padding:clamp(64px,7vw,100px) 24px;
@@ -275,7 +343,7 @@ button.demo-opt{width:100%;text-align:left;font-family:inherit}
   font-family:'Bebas Neue',sans-serif;
   font-size:clamp(32px,5vw,56px);letter-spacing:3px;margin-bottom:40px;color:#fff;
 }
-.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .p-card{
   background:var(--surface);border:1.5px solid var(--border);
   border-radius:20px;padding:28px 20px;
@@ -335,6 +403,10 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
 /* Responsive */
 @media(max-width:768px){
   .pricing-grid{grid-template-columns:1fr;max-width:400px;margin:0 auto}
+  .how-steps{grid-template-columns:1fr;gap:24px}
+  .how-steps::before{display:none}
+  .how-step{flex-direction:row;align-items:flex-start;gap:16px;text-align:left}
+  .how-step-title,.how-step-desc{text-align:left}
 }
 @media(max-width:600px){
   /* Shrink nav buttons to fit beside logo without crowding */
@@ -393,8 +465,13 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
       <div class="demo-prog"><div class="demo-prog-fill" id="demo-prog-fill"></div></div>
 
       <!-- Header -->
-      <div class="demo-header">
+      <div class="demo-header" style="justify-content:space-between">
         <span class="demo-label">▶ TEST YOUR KNOWLEDGE</span>
+        <div class="demo-pills" style="padding:0;opacity:.7;margin:0">
+          <span class="demo-pill pill-rules">⚽ Rules</span>
+          <span class="demo-pill pill-scenario">🎯 Scenario</span>
+          <span class="demo-pill pill-law">📚 Law 12</span>
+        </div>
       </div>
 
       <!-- Question -->
@@ -422,18 +499,6 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
         </button>
       </div>
 
-      <!-- Already a member link -->
-      <div style="text-align:center;padding:0 24px 4px">
-        <a href="/app" style="font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color=''">Already a member? Log in →</a>
-      </div>
-
-      <!-- Pills — subtle metadata, below answers -->
-      <div class="demo-pills">
-        <span class="demo-pill pill-rules">⚽ Rules</span>
-        <span class="demo-pill pill-scenario">🎯 Scenario</span>
-        <span class="demo-pill pill-law">📚 Law 12</span>
-      </div>
-
       <!-- Law explanation (hidden until answer) -->
       <div class="demo-expl" id="demo-expl">
         <div class="demo-expl-inner">
@@ -444,13 +509,49 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
 
       <!-- Gold CTA (hidden until answer) -->
       <div class="demo-cta-wrap" id="demo-cta">
-        <a href="/app" class="demo-cta-btn" id="demo-cta-btn">Unlock Full Training →</a>
+        <a href="/app#signup" class="demo-cta-btn" id="demo-cta-btn">Unlock Full Training →</a>
+        <a href="/app" class="member-link">Already a member? Log in →</a>
       </div>
 
     </div><!-- /.demo-card -->
   </div><!-- /.demo-card-wrap -->
 
 
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section">
+  <div class="how-inner">
+    <span class="section-label">How It Works</span>
+    <h2 class="how-title">THREE STEPS TO A SHARPER WHISTLE</h2>
+    <div class="how-steps">
+
+      <div class="how-step">
+        <div class="how-num">1</div>
+        <div>
+          <div class="how-step-title">PICK A SCENARIO</div>
+          <p class="how-step-desc">Choose from IFAB Laws, real match situations, or your league's own rulebook. Every question is generated fresh by AI.</p>
+        </div>
+      </div>
+
+      <div class="how-step">
+        <div class="how-num">2</div>
+        <div>
+          <div class="how-step-title">MAKE YOUR CALL</div>
+          <p class="how-step-desc">Select the correct restart, sanction, or ruling from four realistic options. No multiple-guess tricks — just real decisions.</p>
+        </div>
+      </div>
+
+      <div class="how-step">
+        <div class="how-num">3</div>
+        <div>
+          <div class="how-step-title">LEARN THE LAW</div>
+          <p class="how-step-desc">Get the exact Law citation explained in plain language. Right or wrong, you leave knowing the rule cold.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </section>
 
 <!-- PRICING -->
@@ -478,12 +579,12 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
       <div class="p-card">
         <div class="p-name">SEASON</div>
         <div class="p-price"><sup>$</sup>49<sub>/season</sub></div>
-        <p class="p-desc">6-month pass. One payment, no recurring charge.</p>
+        <p class="p-desc">One payment. 6 months of access. Equivalent to $8.17/mo — save 18%.</p>
         <ul class="p-features">
           <li><i class="p-feat-icon on">✓</i> Unlimited AI-generated quizzes</li>
           <li><i class="p-feat-icon on">✓</i> IFAB Laws &amp; scenario training</li>
           <li><i class="p-feat-icon on">✓</i> Rules &amp; case study modes</li>
-          <li><i class="p-feat-icon on">✓</i> Full 6-month season access</li>
+          <li><i class="p-feat-icon on">✓</i> No recurring charge — pay once</li>
           <li class="off"><i class="p-feat-icon off">—</i> Admin dashboard</li>
           <li class="off"><i class="p-feat-icon off">—</i> White-label branding</li>
         </ul>
@@ -509,10 +610,56 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
   </div>
 </section>
 
-<!-- TRUST LINE -->
-<div class="trust-line">
-  <strong>IFAB Laws 2025/26</strong> &nbsp;·&nbsp; AI-Powered &nbsp;·&nbsp; Used by referees at every level
-</div>
+<!-- FINAL CTA -->
+<section class="final-cta-section">
+  <div class="final-cta-inner">
+    <span class="section-label">Get Started</span>
+    <h2 class="final-cta-title">READY TO SHARPEN YOUR MATCH IQ?</h2>
+    <p class="final-cta-sub">Start with a 7-day free trial. No credit card required.</p>
+    <a href="/app#signup" class="final-cta-btn">Start Free Today →</a>
+    <p class="no-cc">Cancel anytime · IFAB Laws 2025/26 · AI-powered</p>
+    <div class="trust-badges">
+      <span class="trust-badge">🔒 Stripe Secure Payments</span>
+      <span class="trust-badge">🔐 SSL Encrypted</span>
+      <span class="trust-badge">⚖️ IFAB Laws 2025/26</span>
+      <span class="trust-badge">🤖 AI-Powered</span>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+  <div class="faq-inner">
+    <span class="section-label">FAQ</span>
+    <h2 class="faq-title">COMMON QUESTIONS</h2>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">Is there really a free trial? <span class="faq-icon">+</span></button>
+      <div class="faq-a"><p>Yes — every new account starts with a <strong>7-day free trial</strong>. No credit card required to get started. You get full access to AI-generated quizzes during the trial.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">What's the difference between Season and Referee plans? <span class="faq-icon">+</span></button>
+      <div class="faq-a"><p>The <strong>Referee plan ($9.99/mo)</strong> is a monthly subscription — ideal if you train year-round and want flexibility. The <strong>Season plan ($49)</strong> is a one-time payment for 6 months of access — better value if you train mainly during your competition season. After 6 months, you can renew for another season.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">Are the Laws up to date? <span class="faq-icon">+</span></button>
+      <div class="faq-a"><p>Yes. RefIQ uses <strong>IFAB Laws of the Game 2025/26</strong>, including the updated GK possession rule (corner kick, not indirect free kick). The AI is instructed to apply current Laws for every question generated.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">How is this different from just reading the Laws? <span class="faq-icon">+</span></button>
+      <div class="faq-a"><p>Reading is passive. RefIQ puts you in <strong>real scenarios and forces you to make a decision</strong>, then explains the exact rule. Active recall is proven to be significantly more effective than passive reading — you remember what you had to work for.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">Can league admins track their referees? <span class="faq-icon">+</span></button>
+      <div class="faq-a"><p>Yes — the <strong>League plan</strong> includes an admin dashboard where you can send quiz links to referees, track scores and pass rates, upload your own rulebook, and apply your league's branding. Referees take quizzes without needing a paid account.</p></div>
+    </div>
+
+  </div>
+</section>
 
 <!-- FOOTER -->
 <footer>
@@ -551,6 +698,14 @@ function selectAnswer(idx) {
     else                              opt.classList.add('faded');
   });
   showResult();
+}
+
+// FAQ accordion
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
 }
 
 // Shared post-answer reveal
