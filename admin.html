@@ -1397,13 +1397,14 @@ document.getElementById('loading').classList.add('show');
 // Guard: prevent concurrent calls (popup + onAuthStateChanged both fire)
 let _adminAuthRunning = false;
 
-// Safety net: if auth never settles in 9 s, show the login screen
-const _authFallback = setTimeout(() => { if (!_adminAuthRunning) showAuth(); }, 9000);
+// Safety net: if loading screen is still showing after 10s, force auth screen
+const _authFallback = setTimeout(() => {
+  if (document.getElementById('loading').classList.contains('show')) showAuth();
+}, 10000);
 
 async function handleAdminAuth(u) {
   if (_adminAuthRunning) return;
   _adminAuthRunning = true;
-  clearTimeout(_authFallback);
   try {
     if (u) {
       currentUser = u; leagueId = u.uid;
@@ -1422,6 +1423,7 @@ async function handleAdminAuth(u) {
         }
       } catch(e) { console.warn('Doc init error', e); }
 
+      clearTimeout(_authFallback);
       await init(); showShell(); await checkTrialStatus();
       const _qp = new URLSearchParams(window.location.search);
       if (_qp.get('checkout') === 'success') handleCheckoutSuccess();
@@ -1431,10 +1433,12 @@ async function handleAdminAuth(u) {
         setTimeout(() => redirectToCheckout(_upgradePrice, null), 500);
       }
     } else {
+      clearTimeout(_authFallback);
       showAuth();
     }
   } catch(e) {
     console.error('[Auth] handleAdminAuth error:', e);
+    clearTimeout(_authFallback);
     showAuth();
   } finally {
     _adminAuthRunning = false;
@@ -1442,20 +1446,29 @@ async function handleAdminAuth(u) {
 }
 
 // ── AUTH INIT ────────────────────────────────────────────────────────────────
-// Always subscribe to onAuthStateChanged first — Firebase fires it with the
-// correct user state after any redirect processing.
-onAuthStateChanged(auth, (user) => {
-  handleAdminAuth(user);
-});
+// Mirror app.html pattern: buffer onAuthStateChanged in case it fires before
+// getRedirectResult resolves (Firebase can fire it either before or after).
+let _authResolved = false;
+let _pendingAuthUser = undefined;
 
-// Call getRedirectResult to surface any redirect errors (auth state already
-// handled by onAuthStateChanged above).
-getRedirectResult(auth).catch(err => {
+getRedirectResult(auth).then(result => {
+  if (result && result.user) {
+    _authResolved = true;
+    handleAdminAuth(result.user);
+    return;
+  }
+  onAuthStateChanged(auth, u => {
+    if (!_authResolved) { _pendingAuthUser = u; return; }
+    handleAdminAuth(u);
+  });
+  _authResolved = true;
+  if (_pendingAuthUser !== undefined) handleAdminAuth(_pendingAuthUser);
+}).catch(err => {
   console.warn('[Auth] getRedirectResult error:', err.code);
   if (err.code && err.code !== 'auth/no-auth-event') {
     window._redirectAuthError = friendlyErr(err.code);
-    if (!_adminAuthRunning) showAuth();
   }
+  handleAdminAuth(null);
 });
 
 function showAuth() {
@@ -1807,8 +1820,12 @@ function handleCheckoutSuccess() {
 // ── INIT ──────────────────────────────────────────────────────────────────────
 async function init() {
   setLoad(true,'Loading your dashboard…');
+  const _timeout = new Promise((_,reject) => setTimeout(() => reject(new Error('init timeout')), 8000));
   try {
-    await Promise.all([loadLeagueAndBranding(), loadLinks(), loadResults(), loadGlobalResources(), loadUserDoc()]);
+    await Promise.race([
+      Promise.all([loadLeagueAndBranding(), loadLinks(), loadResults(), loadGlobalResources(), loadUserDoc()]),
+      _timeout
+    ]);
     renderOverview();
     showLinkUsage();
   } catch(e) { console.error('Init error',e); }
