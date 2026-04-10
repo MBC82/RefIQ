@@ -1397,8 +1397,8 @@ document.getElementById('loading').classList.add('show');
 // Guard: prevent concurrent calls (popup + onAuthStateChanged both fire)
 let _adminAuthRunning = false;
 
-// Fallback: if auth never resolves within 8 s, show the login screen
-const _authFallback = setTimeout(() => showAuth(), 8000);
+// Safety net: if auth never settles in 9 s, show the login screen
+const _authFallback = setTimeout(() => { if (!_adminAuthRunning) showAuth(); }, 9000);
 
 async function handleAdminAuth(u) {
   if (_adminAuthRunning) return;
@@ -1442,16 +1442,20 @@ async function handleAdminAuth(u) {
 }
 
 // ── AUTH INIT ────────────────────────────────────────────────────────────────
-// Process redirect result (required for mobile redirect flow), then always
-// rely on onAuthStateChanged as the single source of auth truth.
+// Always subscribe to onAuthStateChanged first — Firebase fires it with the
+// correct user state after any redirect processing.
+onAuthStateChanged(auth, (user) => {
+  handleAdminAuth(user);
+});
+
+// Call getRedirectResult to surface any redirect errors (auth state already
+// handled by onAuthStateChanged above).
 getRedirectResult(auth).catch(err => {
+  console.warn('[Auth] getRedirectResult error:', err.code);
   if (err.code && err.code !== 'auth/no-auth-event') {
     window._redirectAuthError = friendlyErr(err.code);
+    if (!_adminAuthRunning) showAuth();
   }
-}).finally(() => {
-  onAuthStateChanged(auth, (user) => {
-    handleAdminAuth(user);
-  });
 });
 
 function showAuth() {
