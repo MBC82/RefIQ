@@ -1394,66 +1394,64 @@ function bindColorPicker(inputId,brandKey,hexId,swatchId){
 // flash) while we wait for getRedirectResult — critical on mobile Safari.
 document.getElementById('loading').classList.add('show');
 
-// Guard: prevent concurrent calls (popup result + onAuthStateChanged both fire)
+// Guard: prevent concurrent calls (popup + onAuthStateChanged both fire)
 let _adminAuthRunning = false;
 
-// Extract all post-login work into handleAdminAuth so it can be called from
-// either the redirect result path or the onAuthStateChanged path.
+// Fallback: if auth never resolves within 8 s, show the login screen
+const _authFallback = setTimeout(() => showAuth(), 8000);
+
 async function handleAdminAuth(u) {
   if (_adminAuthRunning) return;
   _adminAuthRunning = true;
+  clearTimeout(_authFallback);
   try {
-  if (u) {
-    currentUser = u; leagueId = u.uid;
+    if (u) {
+      currentUser = u; leagueId = u.uid;
 
-    // ── ROLE FORK ────────────────────────────────────────────────────────────
-    try { currentRole = await determineAndWriteRole(u); }
-    catch(e) { console.warn('Role check error', e); currentRole = 'league'; }
-    // ─────────────────────────────────────────────────────────────────────────
+      try { currentRole = await determineAndWriteRole(u); }
+      catch(e) { console.warn('Role check error', e); currentRole = 'league'; }
 
-    // Ensure league doc exists (needed for Google sign-in users who skip create-account)
-    try {
-      const lRef = doc(db,'leagues',u.uid);
-      const lSnap = await getDoc(lRef);
-      if (!lSnap.exists()) {
-        await Promise.all([
-          setDoc(doc(db,'users',u.uid),{ displayName: u.displayName||'', email: u.email, plan:'trial', trialStartDate:serverTimestamp(), createdAt: serverTimestamp() },{merge:true}),
-          setDoc(lRef,{ adminUid: u.uid, leagueName: '', createdAt: serverTimestamp() })
-        ]);
+      try {
+        const lRef = doc(db,'leagues',u.uid);
+        const lSnap = await getDoc(lRef);
+        if (!lSnap.exists()) {
+          await Promise.all([
+            setDoc(doc(db,'users',u.uid),{ displayName: u.displayName||'', email: u.email, plan:'trial', trialStartDate:serverTimestamp(), createdAt: serverTimestamp() },{merge:true}),
+            setDoc(lRef,{ adminUid: u.uid, leagueName: '', createdAt: serverTimestamp() })
+          ]);
+        }
+      } catch(e) { console.warn('Doc init error', e); }
+
+      await init(); showShell(); await checkTrialStatus();
+      const _qp = new URLSearchParams(window.location.search);
+      if (_qp.get('checkout') === 'success') handleCheckoutSuccess();
+      const _upgradePrice = _qp.get('upgrade');
+      if (_upgradePrice) {
+        history.replaceState({}, '', '/admin');
+        setTimeout(() => redirectToCheckout(_upgradePrice, null), 500);
       }
-    } catch(e) { console.warn('Doc init error', e); }
-    await init(); showShell(); await checkTrialStatus();
-    // Handle post-Stripe-checkout success redirect
-    const _qp = new URLSearchParams(window.location.search);
-    if (_qp.get('checkout') === 'success') handleCheckoutSuccess();
-    // Handle pricing-page upgrade link: /admin?upgrade=priceId
-    const _upgradePrice = _qp.get('upgrade');
-    if (_upgradePrice) {
-      history.replaceState({}, '', '/admin');
-      setTimeout(() => redirectToCheckout(_upgradePrice, null), 500);
+    } else {
+      showAuth();
     }
-  } else {
+  } catch(e) {
+    console.error('[Auth] handleAdminAuth error:', e);
     showAuth();
+  } finally {
+    _adminAuthRunning = false;
   }
-  } finally { _adminAuthRunning = false; }
 }
 
 // ── AUTH INIT ────────────────────────────────────────────────────────────────
-getRedirectResult(auth).then((result) => {
-  if (result && result.user) {
-    handleAdminAuth(result.user).catch(e => {
-      console.warn('[Auth] redirect result handling error:', e);
-      if (!_adminAuthRunning) showAuth();
-    });
-    return;
+// Process redirect result (required for mobile redirect flow), then always
+// rely on onAuthStateChanged as the single source of auth truth.
+getRedirectResult(auth).catch(err => {
+  if (err.code && err.code !== 'auth/no-auth-event') {
+    window._redirectAuthError = friendlyErr(err.code);
   }
+}).finally(() => {
   onAuthStateChanged(auth, (user) => {
     handleAdminAuth(user);
   });
-}).catch((error) => {
-  console.error('Redirect result error:', error);
-  if (error.code && error.code !== 'auth/no-auth-event') window._redirectAuthError = friendlyErr(error.code);
-  handleAdminAuth(null);
 });
 
 function showAuth() {
