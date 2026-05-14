@@ -266,67 +266,52 @@ button.demo-opt{width:100%;text-align:left;font-family:inherit}
   padding:clamp(64px,7vw,100px) 24px;
   position:relative;z-index:1;border-top:1px solid var(--border);
 }
-.pricing-inner{max-width:800px;margin:0 auto;text-align:center}
+.pricing-inner{max-width:960px;margin:0 auto;text-align:center}
 .section-label{
   font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;
   text-transform:uppercase;color:var(--gold);margin-bottom:12px;display:block;
 }
 .pricing-title{
   font-family:'Bebas Neue',sans-serif;
-  font-size:clamp(32px,5vw,56px);letter-spacing:3px;margin-bottom:12px;color:#fff;
+  font-size:clamp(32px,5vw,56px);letter-spacing:3px;margin-bottom:40px;color:#fff;
 }
-.pricing-sub{font-size:14px;color:var(--muted);margin-bottom:40px;line-height:1.6}
-.pricing-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:720px;margin:0 auto}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .p-card{
   background:var(--surface);border:1.5px solid var(--border);
-  border-radius:20px;padding:32px 24px;
+  border-radius:20px;padding:28px 20px;
   transition:border-color .2s,transform .2s;text-align:left;
 }
 .p-card:hover{border-color:rgba(255,214,10,.22);transform:translateY(-2px)}
-.p-card.featured{border-color:rgba(255,214,10,.4);background:linear-gradient(160deg,rgba(255,214,10,.05) 0%,var(--surface) 60%)}
-.p-badge{
-  display:inline-block;background:var(--gold);color:#000;
-  font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;font-weight:500;
-  padding:3px 8px;border-radius:20px;text-transform:uppercase;margin-bottom:12px;
-}
-.p-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#fff;margin-bottom:6px}
+.p-card.featured{border-color:rgba(255,214,10,.35)}
+.p-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;margin-bottom:6px}
 .p-price{
-  font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:2px;
+  font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:2px;
   color:#fff;line-height:1;margin-bottom:4px;
 }
-.p-price sup{font-size:20px;color:var(--muted);vertical-align:top;margin-top:10px}
-.p-price sub{font-size:15px;color:var(--muted)}
+.p-price sup{font-size:18px;color:var(--muted);vertical-align:top;margin-top:8px}
+.p-price sub{font-size:14px;color:var(--muted)}
 .p-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:0}
 .p-features{
   list-style:none;display:flex;flex-direction:column;gap:9px;
-  margin:20px 0 24px;padding-top:20px;border-top:1px solid var(--border);
+  margin:16px 0 20px;padding-top:16px;border-top:1px solid var(--border);
 }
 .p-features li{
-  display:flex;align-items:flex-start;gap:9px;
-  font-size:13px;color:rgba(240,244,240,.82);line-height:1.4;
+  display:flex;align-items:center;gap:9px;
+  font-size:13px;color:rgba(240,244,240,.78);line-height:1.4;
 }
-.p-feat-icon{flex-shrink:0;width:16px;text-align:center;font-style:normal;margin-top:1px}
+.p-features li.off{color:var(--muted);opacity:.5}
+.p-feat-icon{flex-shrink:0;width:16px;text-align:center;font-style:normal}
 .p-feat-icon.on{color:var(--gold)}
+.p-feat-icon.off{color:var(--muted)}
 .p-btn{
-  display:block;width:100%;padding:14px;border:none;border-radius:12px;
-  font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;
+  display:block;width:100%;padding:13px;border:none;border-radius:12px;
+  font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;
   cursor:pointer;transition:all .2s;text-align:center;text-decoration:none;
   color:#fff;background:var(--gold-dark);box-sizing:border-box;
 }
 .p-btn:hover{background:var(--gold);color:#080c09}
-.p-btn-outline{
-  display:block;width:100%;padding:13px;border:1.5px solid var(--gold);border-radius:12px;
-  font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;
-  cursor:pointer;transition:all .2s;text-align:center;text-decoration:none;
-  color:var(--gold);background:transparent;box-sizing:border-box;
-}
-.p-btn-outline:hover{background:rgba(255,214,10,.1)}
-.pricing-also{
-  margin-top:28px;padding-top:24px;border-top:1px solid var(--border);
-  font-size:12px;color:var(--muted);
-}
-.pricing-also a{color:rgba(255,214,10,.7);text-decoration:none}
-.pricing-also a:hover{color:var(--gold)}
+.p-btn-league{color:#ffd60a;background:transparent;border:1.5px solid #ffd60a}
+.p-btn-league:hover{background:#ffd60a;color:#080c09}
 
 /* ── FINAL CTA ── */
 .final-cta-section{
@@ -394,8 +379,10 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
 .footer-copy{font-size:11px;color:rgba(122,144,128,.38);font-family:'DM Mono',monospace}
 
 /* Responsive */
-@media(max-width:768px){
+@media(max-width:900px){
   .pricing-grid{grid-template-columns:1fr;max-width:400px;margin:0 auto}
+}
+@media(max-width:768px){
   .features-grid{grid-template-columns:1fr}
   .how-steps{grid-template-columns:1fr;gap:24px}
   .how-steps::before{display:none}
@@ -582,47 +569,55 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
 <section class="pricing" id="pricing">
   <div class="pricing-inner">
     <span class="section-label">Plans</span>
-    <h2 class="pricing-title">SIMPLE, SEASON-BASED PRICING.</h2>
-    <p class="pricing-sub">No per-referee fees. No hidden charges. One flat rate for your whole league.</p>
+    <h2 class="pricing-title">START FREE. GO FURTHER.</h2>
     <div class="pricing-grid">
 
-      <!-- RefIQ Training -->
       <div class="p-card">
-        <div class="p-name">RefIQ TRAINING</div>
-        <div class="p-price"><sup>$</sup>149<sub>/6 months</sub></div>
-        <p class="p-desc">Everything your league needs to train referees at scale.</p>
+        <div class="p-name">REFEREE</div>
+        <div class="p-price"><sup>$</sup>9<sub>.99/mo</sub></div>
+        <p class="p-desc">Individual training. Cancel anytime.</p>
         <ul class="p-features">
-          <li><i class="p-feat-icon on">✓</i> Unlimited quiz links</li>
-          <li><i class="p-feat-icon on">✓</i> Custom league branding</li>
-          <li><i class="p-feat-icon on">✓</i> Results tracking &amp; analytics</li>
-          <li><i class="p-feat-icon on">✓</i> Division-specific questions</li>
-          <li><i class="p-feat-icon on">✓</i> Rulebook upload</li>
-          <li><i class="p-feat-icon on">✓</i> Unlimited referees</li>
+          <li><i class="p-feat-icon on">✓</i> Unlimited AI-generated quizzes</li>
+          <li><i class="p-feat-icon on">✓</i> IFAB Laws &amp; scenario training</li>
+          <li><i class="p-feat-icon on">✓</i> Rules &amp; case study modes</li>
+          <li class="off"><i class="p-feat-icon off">—</i> Admin dashboard</li>
+          <li class="off"><i class="p-feat-icon off">—</i> League management</li>
+          <li class="off"><i class="p-feat-icon off">—</i> White-label branding</li>
         </ul>
-        <a href="/admin?upgrade=price_1T8Z15JlYByErfPaTpRf3xic" class="p-btn">GET TRAINING →</a>
+        <a href="/app" class="p-btn">GET REFEREE →</a>
       </div>
 
-      <!-- RefIQ Pro -->
-      <div class="p-card featured">
-        <div class="p-badge">Most Complete</div>
-        <div class="p-name">RefIQ PRO</div>
-        <div class="p-price"><sup>$</sup>99<sub>/month</sub></div>
-        <p class="p-desc">Everything in Training, plus full game assignment and league management tools.</p>
+      <div class="p-card">
+        <div class="p-name">SEASON</div>
+        <div class="p-price"><sup>$</sup>49<sub>/season</sub></div>
+        <p class="p-desc">One payment. 6 months of access. Equivalent to $8.17/mo — save 18%.</p>
         <ul class="p-features">
-          <li><i class="p-feat-icon on">✓</i> Everything in Training</li>
-          <li><i class="p-feat-icon on">✓</i> Game assignment tools</li>
-          <li><i class="p-feat-icon on">✓</i> Availability management</li>
-          <li><i class="p-feat-icon on">✓</i> Payment tracking</li>
-          <li><i class="p-feat-icon on">✓</i> Referee pool management</li>
-          <li><i class="p-feat-icon on">✓</i> Priority support</li>
+          <li><i class="p-feat-icon on">✓</i> Unlimited AI-generated quizzes</li>
+          <li><i class="p-feat-icon on">✓</i> IFAB Laws &amp; scenario training</li>
+          <li><i class="p-feat-icon on">✓</i> Rules &amp; case study modes</li>
+          <li><i class="p-feat-icon on">✓</i> No recurring charge — pay once</li>
+          <li class="off"><i class="p-feat-icon off">—</i> Admin dashboard</li>
+          <li class="off"><i class="p-feat-icon off">—</i> White-label branding</li>
         </ul>
-        <a href="/admin" class="p-btn-outline">COMING SOON →</a>
+        <a href="/admin?upgrade=price_1T8Z4lJlYByErfPaulsRF7EZ" class="p-btn">GET SEASON →</a>
+      </div>
+
+      <div class="p-card featured">
+        <div class="p-name">LEAGUE</div>
+        <div class="p-price"><sup>$</sup>149<sub>/season</sub></div>
+        <p class="p-desc">Everything your league needs in one platform.</p>
+        <ul class="p-features">
+          <li><i class="p-feat-icon on">✓</i> Unlimited AI-generated quizzes</li>
+          <li><i class="p-feat-icon on">✓</i> Admin dashboard &amp; analytics</li>
+          <li><i class="p-feat-icon on">✓</i> Unlimited referees</li>
+          <li><i class="p-feat-icon on">✓</i> Quiz links &amp; result tracking</li>
+          <li><i class="p-feat-icon on">✓</i> White-label branding</li>
+          <li><i class="p-feat-icon on">✓</i> Rulebook upload</li>
+        </ul>
+        <a href="/admin?upgrade=price_1T8Z15JlYByErfPaTpRf3xic" class="p-btn p-btn-league">GET LEAGUE →</a>
       </div>
 
     </div>
-    <p class="pricing-also">
-      Individual referee? Get the <a href="/app">Referee ($9.99/mo)</a> or <a href="/admin?upgrade=price_1T8Z4lJlYByErfPaulsRF7EZ">Season ($49/6mo)</a> plan. · All plans start with a <a href="/admin">7-day free trial</a>.
-    </p>
   </div>
 </section>
 
