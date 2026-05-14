@@ -124,6 +124,43 @@ nav{
 }
 .hero-cta-secondary:hover{background:rgba(255,214,10,.08);transform:translateY(-1px)}
 
+/* ── HERO TOGGLE ── */
+.hero-toggle-wrap{
+  display:flex;justify-content:center;
+  animation:fadeUp .5s .08s ease both;margin-top:28px;
+}
+.hero-toggle{
+  display:flex;align-items:center;gap:2px;
+  background:rgba(255,255,255,.06);border:1px solid var(--border);
+  border-radius:14px;padding:4px;
+}
+.hero-toggle-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:9px 22px;border-radius:10px;border:none;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;letter-spacing:.2px;
+  transition:background .25s ease,color .25s ease,box-shadow .25s ease;
+  background:transparent;color:var(--muted);white-space:nowrap;
+}
+.hero-toggle-btn.active{
+  background:var(--gold);color:#000;
+  box-shadow:0 2px 12px rgba(255,214,10,.28);
+}
+.hero-toggle-icon{font-size:15px;line-height:1}
+
+/* ── PANELS (grid-stack crossfade) ── */
+.demo-panels{
+  display:grid;width:100%;max-width:620px;
+  animation:fadeUp .5s .15s ease both;margin-top:24px;
+}
+.demo-panel{
+  grid-area:1/1;width:100%;
+  transition:opacity .38s ease, transform .38s ease;
+}
+.demo-panel.hidden{
+  opacity:0;pointer-events:none;transform:translateY(10px);
+}
+
 /* ── DEMO CARD ── */
 .demo-card-wrap{
   width:100%;max-width:620px;
@@ -219,6 +256,79 @@ button.demo-opt{width:100%;text-align:left;font-family:inherit}
 .demo-cta-btn:hover{background:#ffe44d;transform:translateY(-1px);box-shadow:0 12px 32px rgba(255,214,10,.32)}
 .member-link{display:block;text-align:center;margin-top:10px;font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s}
 .member-link:hover{color:var(--text)}
+
+/* ── ASSIGNMENT MOCK CARD ── */
+.assign-card{
+  background:var(--surface);
+  border:1px solid rgba(255,214,10,.18);
+  border-radius:20px;overflow:hidden;
+  box-shadow:0 24px 64px rgba(0,0,0,.55);
+}
+.assign-header{
+  padding:14px 20px;
+  background:linear-gradient(160deg,rgba(255,214,10,.13) 0%,rgba(255,214,10,.04) 55%,transparent 100%);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.assign-label{font-family:'DM Sans',sans-serif;font-size:12px;letter-spacing:.12em;font-weight:600;color:var(--gold)}
+.assign-pills{display:flex;gap:5px;align-items:center}
+.assign-pill{
+  font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.6px;
+  text-transform:uppercase;padding:2px 7px;border-radius:20px;font-weight:400;
+  background:rgba(255,255,255,.04);color:var(--muted);border:1px solid rgba(255,255,255,.08);
+}
+.assign-body{padding:20px 24px 4px}
+.assign-matchup{
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,4vw,30px);
+  letter-spacing:2px;color:#fff;line-height:1;margin-bottom:8px;
+}
+.assign-vs{color:rgba(255,214,10,.55);margin:0 10px}
+.assign-meta{
+  display:flex;flex-wrap:wrap;gap:10px;font-size:12px;
+  color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.3px;
+  margin-bottom:20px;margin-top:4px;
+}
+.assign-meta-item{display:flex;align-items:center;gap:5px}
+/* Officials */
+.assign-officials-label{
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;
+  text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:10px;
+}
+.assign-officials{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.assign-ref-row{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 14px;border-radius:12px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+}
+.assign-role-badge{
+  font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.5px;
+  min-width:32px;color:rgba(255,255,255,.4);flex-shrink:0;
+}
+.assign-ref-name{font-size:14px;font-weight:600;color:var(--text);flex:1}
+.assign-chip{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:4px 10px;border-radius:20px;
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.8px;font-weight:500;
+  text-transform:uppercase;
+}
+.chip-confirmed{background:rgba(52,199,89,.12);color:#34c759;border:1px solid rgba(52,199,89,.28)}
+.chip-pending{background:rgba(255,214,10,.1);color:var(--gold);border:1px solid rgba(255,214,10,.25)}
+.chip-declined{background:rgba(255,69,58,.1);color:var(--red);border:1px solid rgba(255,69,58,.25)}
+/* Bottom bar */
+.assign-footer{padding:0 24px 24px;display:flex;align-items:center;gap:10px}
+.assign-cta-btn{
+  display:block;flex:1;padding:14px;
+  background:var(--gold);color:#000;border:none;border-radius:14px;
+  font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;
+  cursor:pointer;transition:all .2s;text-align:center;text-decoration:none;
+  box-shadow:0 6px 20px rgba(255,214,10,.2);
+}
+.assign-cta-btn:hover{background:#ffe44d;transform:translateY(-1px)}
+.assign-edit-link{
+  font-size:12px;color:var(--muted);text-decoration:none;
+  transition:color .2s;white-space:nowrap;text-align:center;
+  padding:0 4px;
+}
+.assign-edit-link:hover{color:var(--text)}
 
 /* ── FEATURES SECTION ── */
 .features-section{
@@ -441,63 +551,126 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
     <a href="/assign.html" class="hero-cta-secondary">Manage Assignments →</a>
   </div>
 
-  <div class="demo-card-wrap">
-    <div class="demo-card">
+  <!-- Toggle switch -->
+  <div class="hero-toggle-wrap">
+    <div class="hero-toggle" role="tablist">
+      <button class="hero-toggle-btn active" id="toggle-training" role="tab" onclick="setPanel('training')">
+        <span class="hero-toggle-icon">🧠</span> Training
+      </button>
+      <button class="hero-toggle-btn" id="toggle-assign" role="tab" onclick="setPanel('assign')">
+        <span class="hero-toggle-icon">📋</span> Assignments
+      </button>
+    </div>
+  </div>
 
-      <!-- Progress bar -->
-      <div class="demo-prog"><div class="demo-prog-fill" id="demo-prog-fill"></div></div>
+  <!-- Panels -->
+  <div class="demo-panels">
 
-      <!-- Header -->
-      <div class="demo-header" style="justify-content:space-between">
-        <span class="demo-label">▶ TEST YOUR KNOWLEDGE</span>
-        <div class="demo-pills" style="padding:0;opacity:.7;margin:0">
-          <span class="demo-pill pill-rules">⚽ Rules</span>
-          <span class="demo-pill pill-scenario">🎯 Scenario</span>
-          <span class="demo-pill pill-law">📚 Law 12</span>
+    <!-- ── TRAINING PANEL ── -->
+    <div class="demo-panel" id="panel-training">
+      <div class="demo-card">
+        <div class="demo-prog"><div class="demo-prog-fill" id="demo-prog-fill"></div></div>
+        <div class="demo-header" style="justify-content:space-between">
+          <span class="demo-label">▶ TEST YOUR KNOWLEDGE</span>
+          <div class="demo-pills" style="padding:0;opacity:.7;margin:0">
+            <span class="demo-pill pill-rules">⚽ Rules</span>
+            <span class="demo-pill pill-scenario">🎯 Scenario</span>
+            <span class="demo-pill pill-law">📚 Law 12</span>
+          </div>
+        </div>
+        <div class="demo-body">
+          <div class="demo-qtext">A GK holds the ball for 9 seconds. An opponent protests verbally. What is the correct call?</div>
+        </div>
+        <div class="demo-opts" role="group" aria-label="Answer options">
+          <button class="demo-opt" onclick="selectAnswer(0)">
+            <div class="demo-letter">A</div>
+            <div class="demo-opt-text">Corner kick for the opposing team</div>
+          </button>
+          <button class="demo-opt" onclick="selectAnswer(1)">
+            <div class="demo-letter">B</div>
+            <div class="demo-opt-text">Indirect free kick where GK possessed</div>
+          </button>
+          <button class="demo-opt" onclick="selectAnswer(2)">
+            <div class="demo-letter">C</div>
+            <div class="demo-opt-text">Caution for GK + indirect FK</div>
+          </button>
+          <button class="demo-opt" onclick="selectAnswer(3)">
+            <div class="demo-letter">D</div>
+            <div class="demo-opt-text">No call — 10-second rule applies</div>
+          </button>
+        </div>
+        <div class="demo-expl" id="demo-expl">
+          <div class="demo-expl-inner">
+            <span class="demo-expl-law">📚 Law 12 — GK Restrictions (2025/26)</span>
+            <p class="demo-expl-text">Under the 2025/26 IFAB Laws, a goalkeeper who holds the ball longer than permitted is penalized with a <strong>corner kick</strong> for the opposing team — not an indirect free kick. The opponent's verbal protest has no effect on the restart; any dissent should be dealt with separately.</p>
+          </div>
+        </div>
+        <div class="demo-cta-wrap" id="demo-cta">
+          <a href="/admin" class="demo-cta-btn" id="demo-cta-btn">Unlock Full Training →</a>
+          <a href="/admin" class="member-link">Already a member? Log in →</a>
         </div>
       </div>
+    </div><!-- /#panel-training -->
 
-      <!-- Question -->
-      <div class="demo-body">
-        <div class="demo-qtext">A GK holds the ball for 9 seconds. An opponent protests verbally. What is the correct call?</div>
-      </div>
+    <!-- ── ASSIGNMENTS PANEL ── -->
+    <div class="demo-panel hidden" id="panel-assign">
+      <div class="assign-card">
 
-      <!-- Options -->
-      <div class="demo-opts" role="group" aria-label="Answer options">
-        <button class="demo-opt" onclick="selectAnswer(0)">
-          <div class="demo-letter">A</div>
-          <div class="demo-opt-text">Corner kick for the opposing team</div>
-        </button>
-        <button class="demo-opt" onclick="selectAnswer(1)">
-          <div class="demo-letter">B</div>
-          <div class="demo-opt-text">Indirect free kick where GK possessed</div>
-        </button>
-        <button class="demo-opt" onclick="selectAnswer(2)">
-          <div class="demo-letter">C</div>
-          <div class="demo-opt-text">Caution for GK + indirect FK</div>
-        </button>
-        <button class="demo-opt" onclick="selectAnswer(3)">
-          <div class="demo-letter">D</div>
-          <div class="demo-opt-text">No call — 10-second rule applies</div>
-        </button>
-      </div>
-
-      <!-- Law explanation (hidden until answer) -->
-      <div class="demo-expl" id="demo-expl">
-        <div class="demo-expl-inner">
-          <span class="demo-expl-law">📚 Law 12 — GK Restrictions (2025/26)</span>
-          <p class="demo-expl-text">Under the 2025/26 IFAB Laws, a goalkeeper who holds the ball longer than permitted is penalized with a <strong>corner kick</strong> for the opposing team — not an indirect free kick. The opponent's verbal protest has no effect on the restart; any dissent should be dealt with separately.</p>
+        <!-- Header -->
+        <div class="assign-header">
+          <span class="assign-label">📅 GAME ASSIGNMENT</span>
+          <div class="assign-pills">
+            <span class="assign-pill">⚽ U16 Competitive</span>
+            <span class="assign-pill">📍 Sat May 17</span>
+          </div>
         </div>
-      </div>
 
-      <!-- Gold CTA (hidden until answer) -->
-      <div class="demo-cta-wrap" id="demo-cta">
-        <a href="/admin" class="demo-cta-btn" id="demo-cta-btn">Unlock Full Training →</a>
-        <a href="/admin" class="member-link">Already a member? Log in →</a>
-      </div>
+        <!-- Game info -->
+        <div class="assign-body">
+          <div class="assign-matchup">
+            FC United<span class="assign-vs">VS</span>River City SC
+          </div>
+          <div class="assign-meta">
+            <span class="assign-meta-item">🕙 10:30 AM</span>
+            <span class="assign-meta-item">📍 Riverside Park · Field 3</span>
+            <span class="assign-meta-item">👥 3 officials required</span>
+          </div>
 
-    </div><!-- /.demo-card -->
-  </div><!-- /.demo-card-wrap -->
+          <!-- Officials -->
+          <div class="assign-officials-label">Officials</div>
+          <div class="assign-officials">
+
+            <div class="assign-ref-row">
+              <span class="assign-role-badge">CR</span>
+              <span class="assign-ref-name">Jordan Mitchell</span>
+              <span class="assign-chip chip-confirmed">✓ Confirmed</span>
+            </div>
+
+            <div class="assign-ref-row">
+              <span class="assign-role-badge">AR1</span>
+              <span class="assign-ref-name">Alex Rivera</span>
+              <span class="assign-chip chip-pending">⏳ Pending</span>
+            </div>
+
+            <div class="assign-ref-row">
+              <span class="assign-role-badge">AR2</span>
+              <span class="assign-ref-name">Sam Chen</span>
+              <span class="assign-chip chip-declined">✕ Declined</span>
+            </div>
+
+          </div>
+        </div><!-- /.assign-body -->
+
+        <!-- Footer actions -->
+        <div class="assign-footer">
+          <a href="/assign.html" class="assign-cta-btn">Manage Assignments →</a>
+          <a href="/assign.html" class="assign-edit-link">Edit Game</a>
+        </div>
+
+      </div><!-- /.assign-card -->
+    </div><!-- /#panel-assign -->
+
+  </div><!-- /.demo-panels -->
 
 </section>
 
@@ -701,6 +874,16 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
 const CORRECT = 0;
 let answered  = false;
 
+// ── TOGGLE ───────────────────────────────────────────────────────────────────
+function setPanel(name) {
+  const panels = ['training', 'assign'];
+  panels.forEach(p => {
+    document.getElementById('panel-' + p).classList.toggle('hidden', p !== name);
+    document.getElementById('toggle-' + p).classList.toggle('active', p === name);
+  });
+}
+
+// ── QUIZ ─────────────────────────────────────────────────────────────────────
 function selectAnswer(idx) {
   if (answered) return;
   answered = true;
@@ -715,13 +898,6 @@ function selectAnswer(idx) {
   showResult();
 }
 
-function toggleFaq(btn) {
-  const item = btn.closest('.faq-item');
-  const isOpen = item.classList.contains('open');
-  document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
-  if (!isOpen) item.classList.add('open');
-}
-
 function showResult() {
   document.getElementById('demo-prog-fill').style.width = '100%';
   document.getElementById('demo-expl').classList.add('show');
@@ -729,6 +905,14 @@ function showResult() {
   setTimeout(() => {
     document.getElementById('demo-cta').scrollIntoView({behavior:'smooth', block:'nearest'});
   }, 480);
+}
+
+// ── FAQ ──────────────────────────────────────────────────────────────────────
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
 }
 </script>
 
