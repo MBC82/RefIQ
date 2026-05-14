@@ -53,6 +53,8 @@ export default async function handler(req, res) {
 
   if (config.mode === 'subscription') {
     params.set('payment_method_collection', 'always');
+    // Propagate userId to subscription metadata so customer.subscription.deleted webhook can find it
+    params.set('subscription_data[metadata][userId]', userId || '');
   }
 
   try {

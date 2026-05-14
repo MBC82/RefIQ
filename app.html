@@ -782,6 +782,9 @@ try {
   throw _initErr; // halt module execution
 }
 const gp = new GoogleAuthProvider();
+gp.setCustomParameters({ prompt: 'select_account' });
+// Set persistence at page load — NOT inside the click handler.
+setPersistence(auth, indexedDBLocalPersistence).catch(() => {});
 
 // ── AUTH GATE ────────────────────────────────────────────────────────────────
 // Show loading overlay immediately so the user sees a spinner (not a blank/login
@@ -790,33 +793,31 @@ const gp = new GoogleAuthProvider();
 document.getElementById('loading').classList.add('show');
 
 // ── AUTH INIT ────────────────────────────────────────────────────────────────
+// Register onAuthStateChanged first so auth state is buffered immediately.
+// getRedirectResult then resolves and processes whatever state was captured.
 let authResolved = false;
 let pendingAuthUser = undefined;
+
+onAuthStateChanged(auth, u => {
+  if (!authResolved) { pendingAuthUser = u; return; }
+  handleAuthState(u);
+});
+
 getRedirectResult(auth).then(async result => {
-  console.log('getRedirectResult:', JSON.stringify({
-    hasResult: !!result,
-    hasUser: !!(result?.user),
-    email: result?.user?.email ?? null
-  }));
   if (result && result.user) {
     authResolved = true;
     handleAuthState(result.user);
     return;
   }
-  onAuthStateChanged(auth, u => {
-    if (!authResolved) { pendingAuthUser = u; return; }
-    handleAuthState(u);
-  });
   authResolved = true;
-  if (pendingAuthUser !== undefined) {
-    handleAuthState(pendingAuthUser);
-  }
+  if (pendingAuthUser !== undefined) handleAuthState(pendingAuthUser);
 }).catch((error) => {
-  console.error('Redirect result error:', error);
   if (error.code && error.code !== 'auth/no-auth-event') {
     window._redirectAuthError = friendlyAuthErr(error.code);
   }
-  handleAuthState(null);
+  authResolved = true;
+  if (pendingAuthUser !== undefined) handleAuthState(pendingAuthUser);
+  else handleAuthState(null);
 });
 
 const FREE_LIMIT = 5;
@@ -1100,7 +1101,7 @@ async function loadProfile(u) {
 }
 
 function isPro() {
-  return userPlan==='league'||userPlan==='individual'||userPlan==='active'||role==='admin';
+  return userPlan==='league'||userPlan==='individual'||userPlan==='referee'||userPlan==='active'||role==='admin';
 }
 
 function checkPlanAccess(d) {
@@ -1291,31 +1292,25 @@ document.getElementById('reg-btn').addEventListener('click', async()=>{
   } catch(e){ authErr(friendlyAuthErr(e.code)); }
 });
 
-document.getElementById('google-btn').addEventListener('click', async function() {
+document.getElementById('google-btn').addEventListener('click', function() {
   authErrClear();
   const btn = this, orig = btn.innerHTML;
   btn.disabled = true; btn.style.opacity = '0.6';
   const reset = () => { btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = orig; };
-  try { await setPersistence(auth, indexedDBLocalPersistence); } catch(_) {}
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  if (isMobile) {
-    btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';
-    signInWithRedirect(auth, gp).catch(err => { reset(); authErr(friendlyAuthErr(err.code)); });
-    return;
-  }
+  // Use popup on ALL platforms — no await before signInWithPopup (preserves user-gesture chain).
   btn.innerHTML = '<span style="opacity:.7">Signing in with Google…</span>';
-  try {
-    const result = await signInWithPopup(auth, gp);
+  signInWithPopup(auth, gp).then(result => {
     if (result?.user) handleAuthState(result.user);
-  } catch(e) {
+  }).catch(e => {
     if (e.code === 'auth/popup-blocked') {
-      reset(); authErr('Popup blocked — please allow popups for this site and try again.');
+      btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';
+      signInWithRedirect(auth, gp).catch(err => { reset(); authErr(friendlyAuthErr(err.code)); });
     } else if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
-      reset(); // user dismissed — silent reset is correct
+      reset();
     } else {
       reset(); authErr(friendlyAuthErr(e.code));
     }
-  }
+  });
 });
 
 document.getElementById('signout-btn').addEventListener('click',()=>signOut(auth));

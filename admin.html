@@ -599,6 +599,10 @@ select option{background:#111711}
       <div class="nav-divider"></div>
       <button class="nav-item" data-page="branding"><span class="nav-icon"><svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span>Branding Studio</button>
       <button class="nav-item" data-page="settings"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>Settings</button>
+      <a href="/assign.html" class="nav-item" style="text-decoration:none">
+        <span class="nav-icon" style="font-size:16px">📋</span>
+        <span>Assignments</span>
+      </a>
     </div>
     <div class="sidebar-bottom">
       <div class="user-block">
@@ -1334,6 +1338,11 @@ try {
   throw _initErr; // halt module execution
 }
 const gp = new GoogleAuthProvider();
+gp.setCustomParameters({ prompt: 'select_account' });
+// Set persistence at page load — NOT inside the click handler.
+// Doing it inside the handler with await breaks Safari's user-gesture chain
+// and causes the popup to be blocked before it even opens.
+setPersistence(auth, indexedDBLocalPersistence).catch(() => {});
 
 let currentUser = null, leagueId = null, currentRole = null;
 let brand = { primary:'#ffd60a', accent:'#ffd60a', bg:'dark', bgColor:'#0a0f0b', font:'Bebas Neue', logoDataUrl:null };
@@ -1349,17 +1358,23 @@ const VALID_ROLES    = new Set(['operator','league','referee']);
 
 // ── ROLE SYSTEM ──────────────────────────────────────────────────────────────
 // On admin.html:
+//  - operator email → always 'operator' (takes priority over stored role)
 //  - existing valid role → trust it (returning referees get bounced to /app)
-//  - operator email     → 'operator'
 //  - new / legacy user  → 'league'  (they landed on admin.html intentionally;
 //                          league doc is created after this returns)
 async function determineAndWriteRole(u) {
+  // Operator email always wins — regardless of what's stored in Firestore.
+  // This fixes the case where the account was created before the operator
+  // role was set, so Firestore has role:'league' and it would never be upgraded.
+  if (u.email === OPERATOR_EMAIL) {
+    await setDoc(doc(db,'users',u.uid),{role:'operator'},{merge:true});
+    return 'operator';
+  }
   const snap = await getDoc(doc(db,'users',u.uid));
   const existingRole = snap.exists() ? snap.data().role : null;
   if (VALID_ROLES.has(existingRole)) return existingRole;
-  const newRole = (u.email === OPERATOR_EMAIL) ? 'operator' : 'league';
-  await setDoc(doc(db,'users',u.uid),{role:newRole},{merge:true});
-  return newRole;
+  await setDoc(doc(db,'users',u.uid),{role:'league'},{merge:true});
+  return 'league';
 }
 
 // ── SHARED UTILITIES ──────────────────────────────────────────────────────────
@@ -1394,13 +1409,13 @@ function bindColorPicker(inputId,brandKey,hexId,swatchId){
 // flash) while we wait for getRedirectResult — critical on mobile Safari.
 document.getElementById('loading').classList.add('show');
 
-// Guard: prevent concurrent calls (popup + onAuthStateChanged both fire)
-let _adminAuthRunning = false;
+// Buffer: onAuthStateChanged can fire before getRedirectResult resolves.
+// We capture the pending user and process it once redirect result is known.
+let _authResolved = false;
+let _pendingUser   = undefined;
 
-// Safety net: if loading screen is still showing after 10s, force auth screen
-const _authFallback = setTimeout(() => {
-  if (document.getElementById('loading').classList.contains('show')) showAuth();
-}, 10000);
+// Guard: prevent concurrent calls (popup result + onAuthStateChanged both fire)
+let _adminAuthRunning = false;
 
 async function handleAdminAuth(u) {
   if (_adminAuthRunning) return;
@@ -1423,7 +1438,6 @@ async function handleAdminAuth(u) {
         }
       } catch(e) { console.warn('Doc init error', e); }
 
-      clearTimeout(_authFallback);
       await init(); showShell(); await checkTrialStatus();
       const _qp = new URLSearchParams(window.location.search);
       if (_qp.get('checkout') === 'success') handleCheckoutSuccess();
@@ -1433,42 +1447,34 @@ async function handleAdminAuth(u) {
         setTimeout(() => redirectToCheckout(_upgradePrice, null), 500);
       }
     } else {
-      clearTimeout(_authFallback);
       showAuth();
     }
-  } catch(e) {
-    console.error('[Auth] handleAdminAuth error:', e);
-    clearTimeout(_authFallback);
-    showAuth();
-  } finally {
-    _adminAuthRunning = false;
-  }
+  } finally { _adminAuthRunning = false; }
 }
 
 // ── AUTH INIT ────────────────────────────────────────────────────────────────
-// Mirror app.html pattern: buffer onAuthStateChanged in case it fires before
-// getRedirectResult resolves (Firebase can fire it either before or after).
-let _authResolved = false;
-let _pendingAuthUser = undefined;
+// Register onAuthStateChanged FIRST (top-level, synchronous) so auth state
+// is captured even if it fires before getRedirectResult resolves.
+onAuthStateChanged(auth, u => {
+  if (!_authResolved) { _pendingUser = u; return; }
+  handleAdminAuth(u);
+});
 
+// Then check for a pending redirect result. On completion (success or error),
+// mark auth resolved and process whatever user state we have.
 getRedirectResult(auth).then(result => {
   if (result && result.user) {
     _authResolved = true;
     handleAdminAuth(result.user);
     return;
   }
-  onAuthStateChanged(auth, u => {
-    if (!_authResolved) { _pendingAuthUser = u; return; }
-    handleAdminAuth(u);
-  });
   _authResolved = true;
-  if (_pendingAuthUser !== undefined) handleAdminAuth(_pendingAuthUser);
+  if (_pendingUser !== undefined) handleAdminAuth(_pendingUser);
 }).catch(err => {
-  console.warn('[Auth] getRedirectResult error:', err.code);
-  if (err.code && err.code !== 'auth/no-auth-event') {
-    window._redirectAuthError = friendlyErr(err.code);
-  }
-  handleAdminAuth(null);
+  if (err.code && err.code !== 'auth/no-auth-event') window._redirectAuthError = friendlyErr(err.code);
+  _authResolved = true;
+  if (_pendingUser !== undefined) handleAdminAuth(_pendingUser);
+  else handleAdminAuth(null);
 });
 
 function showAuth() {
@@ -1575,34 +1581,27 @@ document.getElementById('reg-btn').addEventListener('click',async()=>{
     // onAuthStateChanged will now fire and call init() + showShell()
   }catch(e){authErr(friendlyErr(e.code));}
 });
-document.getElementById('google-btn').addEventListener('click', async function() {
+document.getElementById('google-btn').addEventListener('click', function() {
   authErr('');
   const btn = this, orig = btn.innerHTML;
   btn.disabled = true; btn.style.opacity = '0.6';
   const reset = () => { btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = orig; };
-  try { await setPersistence(auth, indexedDBLocalPersistence); } catch(_) {}
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  if (isMobile) {
-    btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';
-    signInWithRedirect(auth, gp).catch(err => { reset(); authErr(friendlyErr(err.code)); });
-    return;
-  }
-  // Desktop: popup (runs entirely through firebaseapp.com — no redirect state issues)
+  // Use popup on ALL platforms — signInWithRedirect fails on iOS Safari (ITP).
+  // NO await before signInWithPopup — that would break the user-gesture chain.
   btn.innerHTML = '<span style="opacity:.7">Signing in with Google…</span>';
-  try {
-    const result = await signInWithPopup(auth, gp);
-    // Use result.user directly — don't rely solely on onAuthStateChanged
+  signInWithPopup(auth, gp).then(result => {
     if (result?.user) handleAdminAuth(result.user);
-  } catch(e) {
+  }).catch(e => {
     if (e.code === 'auth/popup-blocked') {
+      // Genuine popup block — fall back to redirect
       btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';
       signInWithRedirect(auth, gp).catch(err => { reset(); authErr(friendlyErr(err.code)); });
     } else if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
-      reset(); // user dismissed — silent reset is correct
+      reset();
     } else {
       reset(); authErr(friendlyErr(e.code));
     }
-  }
+  });
 });
 document.getElementById('signout-btn').addEventListener('click',()=>signOut(auth));
 
@@ -1616,16 +1615,16 @@ async function checkTrialStatus() {
     if (!d) return;
     const plan = d.plan;
 
-    // Active league season pass — check if seasonEnd has passed
-    if (plan === 'league') {
+    // Active season pass — check if seasonEnd has passed
+    if (plan === 'league' || plan === 'individual') {
       if (d.seasonEnd) {
         const end = d.seasonEnd.toDate?.() || new Date(d.seasonEnd);
         if (Date.now() > end.getTime()) {
           setDoc(doc(db,'users',currentUser.uid),{plan:'expired'},{merge:true}).catch(()=>{});
-          showExpiredOverlay('league');
+          showExpiredOverlay(plan);
         }
       }
-      return; // active league — no banner
+      return; // active season pass — no banner
     }
 
     // Trial plan — count remaining days
@@ -1684,7 +1683,9 @@ function handleExpiredCta() {
 function isProUser() {
   const plan = cachedUserData?.plan || 'trial';
   const role = cachedUserData?.role || '';
-  return role === 'admin' || currentRole === 'operator'
+  return role === 'admin'
+      || currentRole === 'operator'
+      || currentUser?.email === OPERATOR_EMAIL   // belt-and-suspenders: always grant operator by email
       || ['league', 'individual', 'active'].includes(plan);
 }
 
@@ -1813,8 +1814,8 @@ function handleCheckoutSuccess() {
   setTimeout(() => toast.remove(), 4000);
   // Clean URL
   history.replaceState({}, '', '/admin');
-  // Reload user doc to reflect new plan
-  loadUserDoc().then(() => checkTrialStatus());
+  // Delay before reloading plan — webhook needs time to write the new plan to Firestore
+  setTimeout(() => loadUserDoc().then(() => checkTrialStatus()), 2000);
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────

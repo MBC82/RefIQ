@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RefIQ — Game Assignments</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#080c09">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── RESET + TOKENS ── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#ffd60a;--gold-dark:#b8940a;--gold-dim:rgba(255,214,10,.12);
+  --bg:#080c09;--s1:#111711;--s2:#1a221b;
+  --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.12);
+  --text:#f0f4f0;--muted:#7a9080;--red:#ff453a;--green:#34c759;
+  --sidebar-w:200px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;display:flex}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);
+  background:var(--s1);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;z-index:50;
+}
+.sidebar-logo{
+  padding:18px 16px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.sidebar-logo-text{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--gold)}
+.sidebar-logo-sub{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px}
+.sidebar-nav{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
+  font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;
+  text-decoration:none;border:none;background:transparent;width:100%;text-align:left;
+  transition:background .15s,color .15s;
+}
+.nav-item:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.nav-item.active{background:var(--gold-dim);color:var(--gold)}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.sidebar-divider{height:1px;background:var(--border);margin:8px 8px}
+.sidebar-bottom{padding:12px 8px;border-top:1px solid var(--border)}
+.signout-btn{
+  display:flex;align-items:center;gap:8px;width:100%;padding:9px 12px;border-radius:10px;
+  background:transparent;border:none;color:var(--muted);font-size:13px;font-weight:600;
+  cursor:pointer;transition:background .15s,color .15s;font-family:'DM Sans',sans-serif;
+}
+.signout-btn:hover{background:rgba(255,255,255,.04);color:var(--text)}
+
+/* ── MAIN CONTENT ── */
+.main{margin-left:var(--sidebar-w);flex:1;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+
+/* ── PAGE HEADER ── */
+.page-header{
+  padding:28px 32px 0;border-bottom:1px solid var(--border);
+}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;color:var(--gold)}
+.page-sub{font-size:13px;color:var(--muted);margin-top:3px;margin-bottom:20px}
+
+/* ── TAB NAV ── */
+.tab-nav{display:flex;gap:4px;padding:0 32px;margin-top:16px;border-bottom:1px solid var(--border)}
+.tab-btn{
+  padding:10px 20px 11px;background:transparent;border:none;border-bottom:2px solid transparent;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:var(--muted);
+  cursor:pointer;transition:color .15s,border-color .15s;margin-bottom:-1px;
+}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* ── TAB PANELS ── */
+.tab-panel{display:none;flex:1;padding:28px 32px;overflow-y:auto}
+.tab-panel.active{display:block}
+
+/* ── TOOLBAR ── */
+.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+.btn{
+  display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;
+  border:none;text-decoration:none;transition:all .2s;white-space:nowrap;
+}
+.btn-gold{background:var(--gold);color:#000}
+.btn-gold:hover{background:#ffe44d}
+.btn-secondary{background:var(--s2);color:var(--text);border:1px solid var(--border2)}
+.btn-secondary:hover{border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.06)}
+.btn-danger{background:rgba(255,69,58,.12);color:var(--red);border:1px solid rgba(255,69,58,.25)}
+.btn-danger:hover{background:rgba(255,69,58,.2)}
+.btn-sm{padding:6px 13px;font-size:12px;border-radius:8px}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;flex:1}
+.filter-select{
+  padding:8px 12px;background:var(--s2);border:1px solid var(--border2);border-radius:9px;
+  color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;
+}
+.filter-select:focus{border-color:rgba(255,214,10,.4)}
+.filter-input{
+  padding:8px 12px;background:var(--s2);border:1px solid var(--border2);border-radius:9px;
+  color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;
+}
+.filter-input:focus{border-color:rgba(255,214,10,.4)}
+
+/* ── EMPTY STATE ── */
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:80px 24px;text-align:center;
+}
+.empty-icon{font-size:48px;margin-bottom:16px;opacity:.45}
+.empty-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:rgba(255,255,255,.35);margin-bottom:8px}
+.empty-sub{font-size:13px;color:var(--muted);max-width:320px;line-height:1.65;margin-bottom:20px}
+
+/* ── GAMES LIST ── */
+.games-list{display:flex;flex-direction:column;gap:12px}
+.game-card{
+  background:var(--s1);border:1px solid var(--border);border-radius:14px;
+  padding:16px 20px;display:grid;
+  grid-template-columns:120px 1fr auto;gap:16px;align-items:start;
+  transition:border-color .2s;
+}
+.game-card:hover{border-color:var(--border2)}
+.game-date-col{display:flex;flex-direction:column;gap:2px}
+.game-date{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:var(--gold);line-height:1}
+.game-time{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.5px}
+.game-info{}
+.game-matchup{font-weight:700;font-size:15px;margin-bottom:4px}
+.game-meta{font-size:12px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.game-refs{display:flex;gap:6px;flex-wrap:wrap}
+.ref-chip{
+  display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;
+  font-size:11px;font-weight:600;font-family:'DM Mono',monospace;letter-spacing:.3px;
+}
+.ref-chip.confirmed{background:rgba(52,199,89,.12);color:var(--green);border:1px solid rgba(52,199,89,.25)}
+.ref-chip.pending{background:rgba(255,214,10,.1);color:var(--gold);border:1px solid rgba(255,214,10,.2)}
+.ref-chip.declined{background:rgba(255,69,58,.1);color:var(--red);border:1px solid rgba(255,69,58,.2)}
+.ref-chip.empty{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border);font-style:italic}
+.game-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.status-badge{
+  display:inline-block;padding:3px 10px;border-radius:20px;
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;font-weight:500;
+  text-transform:uppercase;
+}
+.status-open{background:rgba(255,214,10,.1);color:var(--gold);border:1px solid rgba(255,214,10,.2)}
+.status-assigned{background:rgba(52,199,89,.1);color:var(--green);border:1px solid rgba(52,199,89,.2)}
+.status-confirmed{background:rgba(52,199,89,.14);color:var(--green);border:1px solid rgba(52,199,89,.3)}
+.status-complete{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--border)}
+
+/* ── MODAL ── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(8,12,9,.88);backdrop-filter:blur(12px);
+  align-items:center;justify-content:center;padding:24px;
+}
+.modal-overlay.show{display:flex}
+.modal{
+  background:var(--s1);border:1px solid var(--border2);border-radius:20px;
+  padding:32px 28px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;
+  position:relative;
+}
+.modal-lg{max-width:680px}
+.modal-title{
+  font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;
+  color:var(--gold);margin-bottom:24px;
+}
+.modal-close{
+  position:absolute;top:20px;right:20px;width:32px;height:32px;
+  background:rgba(255,255,255,.06);border:none;border-radius:8px;
+  color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .15s,color .15s;
+}
+.modal-close:hover{background:rgba(255,255,255,.1);color:var(--text)}
+
+/* ── FORM ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full{grid-column:1/-1}
+.field-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:.5px;text-transform:uppercase}
+.field{
+  padding:11px 13px;background:var(--s2);border:1px solid var(--border2);border-radius:10px;
+  color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;width:100%;
+  transition:border-color .2s;
+}
+.field:focus{border-color:rgba(255,214,10,.45)}
+.field::placeholder{color:rgba(255,255,255,.2)}
+select.field option{background:var(--s2)}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)}
+
+/* ── REF SEARCH ── */
+.ref-search-results{
+  margin-top:8px;background:var(--s2);border:1px solid var(--border2);border-radius:10px;
+  max-height:200px;overflow-y:auto;
+}
+.ref-search-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border);
+}
+.ref-search-item:last-child{border-bottom:none}
+.ref-search-item:hover{background:rgba(255,255,255,.04)}
+.ref-search-name{font-weight:600;font-size:14px}
+.ref-search-email{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace}
+.assigned-refs-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.assigned-ref-row{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;
+  background:var(--s2);border-radius:10px;border:1px solid var(--border);
+}
+.assigned-ref-name{flex:1;font-weight:600;font-size:13px}
+.role-select{
+  padding:5px 10px;background:var(--bg);border:1px solid var(--border2);border-radius:7px;
+  color:var(--text);font-size:12px;font-family:'DM Mono',monospace;outline:none;
+}
+
+/* ── SECTION HEADING ── */
+.section-heading{
+  font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;
+  color:rgba(255,255,255,.6);margin-bottom:16px;padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+
+/* ── AVAIL SECTION ── */
+.avail-create-card{
+  background:var(--s1);border:1px solid var(--border);border-radius:16px;
+  padding:24px;margin-bottom:28px;
+}
+.avail-link-display{
+  display:flex;align-items:center;gap:10px;margin-top:12px;
+  padding:11px 14px;background:var(--s2);border:1px solid var(--border2);border-radius:10px;
+}
+.avail-link-url{flex:1;font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);word-break:break-all}
+.copy-btn{
+  padding:6px 14px;background:var(--gold-dim);border:1px solid rgba(255,214,10,.3);border-radius:8px;
+  color:var(--gold);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;
+  font-family:'DM Sans',sans-serif;transition:background .15s;
+}
+.copy-btn:hover{background:rgba(255,214,10,.2)}
+
+/* ── DATA TABLE ── */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{
+  text-align:left;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--muted);padding:8px 14px;
+  border-bottom:1px solid var(--border);white-space:nowrap;
+}
+.data-table td{
+  padding:12px 14px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;
+}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:rgba(255,255,255,.02)}
+.data-table .td-name{font-weight:600}
+.data-table .td-mono{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+.data-table .td-score{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold)}
+.inline-edit{
+  background:transparent;border:none;border-bottom:1px dashed rgba(255,255,255,.15);
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;
+  outline:none;width:100%;padding:2px 0;
+  transition:border-color .2s;
+}
+.inline-edit:focus{border-bottom-color:rgba(255,214,10,.5)}
+.table-wrap{background:var(--s1);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+
+/* ── AUTH ── */
+#auth-loading{
+  position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;
+  justify-content:center;flex-direction:column;gap:12px;z-index:999;
+}
+.spinner{
+  width:36px;height:36px;border:3px solid rgba(255,214,10,.15);
+  border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--muted)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  :root{--sidebar-w:0px}
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .tab-nav{padding:0 16px}
+  .tab-panel{padding:20px 16px}
+  .toolbar{flex-direction:column;align-items:flex-start}
+  .page-header{padding:20px 16px 0}
+  .game-card{grid-template-columns:1fr;gap:10px}
+  .game-actions{flex-direction:row;align-items:center}
+  .form-grid{grid-template-columns:1fr}
+  .form-group.full{grid-column:1}
+}
+@media(min-width:1280px){
+  :root{--sidebar-w:220px}
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH LOADING -->
+<div id="auth-loading">
+  <div class="spinner"></div>
+  <div class="spinner-label">LOADING…</div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div>
+      <div class="sidebar-logo-text">RefIQ</div>
+      <div class="sidebar-logo-sub">Assignments</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="/admin" class="nav-item">
+      <span class="nav-icon">📊</span> Overview
+    </a>
+    <a href="/admin" class="nav-item">
+      <span class="nav-icon">➕</span> Create Quiz
+    </a>
+    <a href="/admin" class="nav-item">
+      <span class="nav-icon">🔗</span> My Quizzes
+    </a>
+    <a href="/admin" class="nav-item">
+      <span class="nav-icon">📋</span> Results
+    </a>
+    <div class="sidebar-divider"></div>
+    <a href="/assign.html" class="nav-item active">
+      <span class="nav-icon">📅</span> Assignments
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <button class="signout-btn" id="signout-btn">
+      <span>🚪</span> Sign Out
+    </button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main-shell" style="display:none">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="page-title">GAME ASSIGNMENTS</div>
+    <div class="page-sub" id="league-sub">Manage game scheduling and referee assignments</div>
+  </div>
+
+  <!-- TAB NAV -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('games',this)">📅 Games</button>
+    <button class="tab-btn" onclick="switchTab('availability',this)">📆 Availability</button>
+    <button class="tab-btn" onclick="switchTab('pool',this)">👥 Referee Pool</button>
+  </div>
+
+  <!-- ── TAB: GAMES ── -->
+  <div class="tab-panel active" id="tab-games">
+    <div class="toolbar">
+      <button class="btn btn-gold" onclick="openAddGameModal()">+ Add Game</button>
+      <div class="filter-row">
+        <input type="date" class="filter-input" id="filter-date-from" title="From date" oninput="renderGames()">
+        <input type="date" class="filter-input" id="filter-date-to" title="To date" oninput="renderGames()">
+        <select class="filter-select" id="filter-division" onchange="renderGames()">
+          <option value="">All Divisions</option>
+          <optgroup label="Recreational — Young">
+            <option value="rec-prek">Recreational — PreK</option>
+            <option value="rec-k1">Recreational — K/1st Grade</option>
+            <option value="rec-2nd">Recreational — 1st–2nd Grade</option>
+            <option value="rec-3rd4th">Recreational — 3rd–4th Grade</option>
+            <option value="rec-5th6th">Recreational — 5th–6th Grade</option>
+            <option value="rec-7th8th">Recreational — 7th–8th Grade</option>
+          </optgroup>
+          <optgroup label="Competitive Youth">
+            <option value="comp-u8u9">Competitive — U8/U9</option>
+            <option value="comp-u9u10">Competitive — U9/U10</option>
+            <option value="comp-u11u12">Competitive — U10/U11</option>
+            <option value="comp-u13u14">Competitive — U12/U13</option>
+            <option value="comp-u15u16">Competitive — U14/U15</option>
+            <option value="comp-u17u18">Competitive — U16/U17</option>
+            <option value="comp-u19u23">Competitive — U18/U19</option>
+          </optgroup>
+          <optgroup label="High School">
+            <option value="hs-middle">High School — Middle</option>
+            <option value="hs-jv">High School — JV</option>
+            <option value="hs-varsity">High School — Varsity</option>
+          </optgroup>
+          <optgroup label="Adult">
+            <option value="adult-rec">Adult — Recreational</option>
+            <option value="adult-comp">Adult — Competitive</option>
+            <option value="adult-over30">Adult — Over 30</option>
+            <option value="adult-over40">Adult — Over 40</option>
+            <option value="adult-coed">Adult — Co-Ed</option>
+          </optgroup>
+          <optgroup label="College">
+            <option value="college-club">College — Club</option>
+            <option value="college-varsity">College — Varsity (NCAA)</option>
+          </optgroup>
+          <optgroup label="Advanced">
+            <option value="pdl">Professional Development League</option>
+            <option value="futsal">Futsal</option>
+            <option value="indoor">Indoor Soccer</option>
+          </optgroup>
+        </select>
+        <select class="filter-select" id="filter-status" onchange="renderGames()">
+          <option value="">All Statuses</option>
+          <option value="open">Open</option>
+          <option value="assigned">Assigned</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="complete">Complete</option>
+        </select>
+      </div>
+    </div>
+    <div id="games-container">
+      <div class="empty-state" id="games-empty">
+        <div class="empty-icon">📅</div>
+        <div class="empty-title">NO GAMES YET</div>
+        <div class="empty-sub">Add your first game to get started managing assignments.</div>
+        <button class="btn btn-gold" onclick="openAddGameModal()">+ Add Your First Game</button>
+      </div>
+    </div>
+  </div><!-- /tab-games -->
+
+  <!-- ── TAB: AVAILABILITY ── -->
+  <div class="tab-panel" id="tab-availability">
+
+    <!-- Create window -->
+    <div class="avail-create-card">
+      <div class="section-heading">CREATE AVAILABILITY WINDOW</div>
+      <div class="form-grid" style="margin-bottom:16px">
+        <div class="form-group">
+          <label class="field-label">Window Name</label>
+          <input type="text" class="field" id="avail-name" placeholder="e.g. Spring 2026 Season">
+        </div>
+        <div class="form-group">
+          <label class="field-label">Division / Group</label>
+          <input type="text" class="field" id="avail-group" placeholder="e.g. U14 Competitive">
+        </div>
+        <div class="form-group">
+          <label class="field-label">Start Date</label>
+          <input type="date" class="field" id="avail-start">
+        </div>
+        <div class="form-group">
+          <label class="field-label">End Date</label>
+          <input type="date" class="field" id="avail-end">
+        </div>
+      </div>
+      <button class="btn btn-gold" onclick="createAvailWindow()">Generate Availability Link →</button>
+      <div id="avail-link-result" style="display:none" class="avail-link-display">
+        <span class="avail-link-url" id="avail-link-url"></span>
+        <button class="copy-btn" onclick="copyAvailLink()">Copy</button>
+      </div>
+    </div>
+
+    <!-- Responses -->
+    <div class="section-heading">AVAILABILITY RESPONSES</div>
+    <div id="avail-responses-container">
+      <div class="empty-state">
+        <div class="empty-icon">📆</div>
+        <div class="empty-title">NO RESPONSES YET</div>
+        <div class="empty-sub">Share an availability link with your referees. Their responses will appear here.</div>
+      </div>
+    </div>
+
+  </div><!-- /tab-availability -->
+
+  <!-- ── TAB: REFEREE POOL ── -->
+  <div class="tab-panel" id="tab-pool">
+    <div class="toolbar" style="margin-bottom:16px">
+      <input type="text" class="filter-input" id="pool-search" placeholder="🔍  Search by name or email…" oninput="filterPool()" style="min-width:240px">
+    </div>
+    <div id="pool-container">
+      <div class="empty-state" id="pool-empty">
+        <div class="empty-icon">👥</div>
+        <div class="empty-title">NO REFEREES YET</div>
+        <div class="empty-sub">Referees who take your quiz links will appear here automatically.</div>
+      </div>
+    </div>
+  </div><!-- /tab-pool -->
+
+</div><!-- /.main -->
+
+<!-- ── ADD/EDIT GAME MODAL ── -->
+<div class="modal-overlay" id="game-modal" onclick="if(event.target===this)closeGameModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeGameModal()">✕</button>
+    <div class="modal-title" id="game-modal-title">ADD GAME</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="field-label">Date</label>
+        <input type="date" class="field" id="gf-date">
+      </div>
+      <div class="form-group">
+        <label class="field-label">Kick-off Time</label>
+        <input type="time" class="field" id="gf-time">
+      </div>
+      <div class="form-group">
+        <label class="field-label">Home Team</label>
+        <input type="text" class="field" id="gf-home" placeholder="Home team name">
+      </div>
+      <div class="form-group">
+        <label class="field-label">Away Team</label>
+        <input type="text" class="field" id="gf-away" placeholder="Away team name">
+      </div>
+      <div class="form-group full">
+        <label class="field-label">Division</label>
+        <select class="field" id="gf-division">
+          <option value="">Select division…</option>
+          <optgroup label="Recreational — Young">
+            <option value="rec-prek">Recreational — PreK (Ages 3–4)</option>
+            <option value="rec-k1">Recreational — K / 1st Grade (Ages 5–6)</option>
+            <option value="rec-2nd">Recreational — 1st–2nd Grade (Ages 6–8)</option>
+            <option value="rec-3rd4th">Recreational — 3rd–4th Grade (Ages 8–10)</option>
+            <option value="rec-5th6th">Recreational — 5th–6th Grade (Ages 10–12)</option>
+            <option value="rec-7th8th">Recreational — 7th–8th Grade (Ages 12–14)</option>
+          </optgroup>
+          <optgroup label="Competitive Youth">
+            <option value="comp-u8u9">Competitive — U8/U9</option>
+            <option value="comp-u9u10">Competitive — U9/U10</option>
+            <option value="comp-u11u12">Competitive — U10/U11</option>
+            <option value="comp-u13u14">Competitive — U12/U13</option>
+            <option value="comp-u15u16">Competitive — U14/U15</option>
+            <option value="comp-u17u18">Competitive — U16/U17</option>
+            <option value="comp-u19u23">Competitive — U18/U19</option>
+          </optgroup>
+          <optgroup label="High School">
+            <option value="hs-middle">High School — Middle School</option>
+            <option value="hs-jv">High School — JV</option>
+            <option value="hs-varsity">High School — Varsity</option>
+          </optgroup>
+          <optgroup label="Adult">
+            <option value="adult-rec">Adult — Recreational</option>
+            <option value="adult-comp">Adult — Competitive</option>
+            <option value="adult-over30">Adult — Over 30</option>
+            <option value="adult-over40">Adult — Over 40</option>
+            <option value="adult-coed">Adult — Co-Ed</option>
+          </optgroup>
+          <optgroup label="College">
+            <option value="college-club">College — Club</option>
+            <option value="college-varsity">College — Varsity (NCAA)</option>
+          </optgroup>
+          <optgroup label="Advanced">
+            <option value="pdl">Professional Development League</option>
+            <option value="futsal">Futsal</option>
+            <option value="indoor">Indoor Soccer</option>
+            <option value="beach">Beach Soccer</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label class="field-label">Location / Field</label>
+        <input type="text" class="field" id="gf-location" placeholder="Field name or address">
+      </div>
+      <div class="form-group">
+        <label class="field-label">Officials Needed</label>
+        <select class="field" id="gf-officials">
+          <option value="1">1 Official</option>
+          <option value="2">2 Officials</option>
+          <option value="3" selected>3 Officials (CR + 2 ARs)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="field-label">Status</label>
+        <select class="field" id="gf-status">
+          <option value="open">Open</option>
+          <option value="assigned">Assigned</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="complete">Complete</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label class="field-label">Notes</label>
+        <textarea class="field" id="gf-notes" rows="2" placeholder="Optional notes for this game…" style="resize:vertical"></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeGameModal()">Cancel</button>
+      <button class="btn btn-gold" id="save-game-btn" onclick="saveGame()">Save Game →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ASSIGN REFS MODAL ── -->
+<div class="modal-overlay" id="assign-modal" onclick="if(event.target===this)closeAssignModal()">
+  <div class="modal modal-lg">
+    <button class="modal-close" onclick="closeAssignModal()">✕</button>
+    <div class="modal-title">ASSIGN REFEREES</div>
+    <div id="assign-game-info" style="margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+      <div id="assign-game-title" style="font-weight:700;font-size:16px;margin-bottom:4px"></div>
+      <div id="assign-game-meta" style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace"></div>
+    </div>
+
+    <div class="section-heading" style="margin-bottom:12px">SEARCH REFEREE POOL</div>
+    <input type="text" class="field" id="ref-search-input" placeholder="Search by name or email…" oninput="searchRefs()" style="margin-bottom:8px">
+    <div class="ref-search-results" id="ref-search-results" style="display:none"></div>
+
+    <div class="section-heading" style="margin-top:20px;margin-bottom:12px">ASSIGNED OFFICIALS</div>
+    <div class="assigned-refs-list" id="assigned-refs-list">
+      <div style="font-size:13px;color:var(--muted);font-style:italic;padding:8px 0">No officials assigned yet. Search above to add.</div>
+    </div>
+
+    <div id="assign-notify-box" style="margin-top:20px;padding:14px;background:rgba(255,214,10,.06);border:1px solid rgba(255,214,10,.15);border-radius:10px;display:none">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;color:var(--gold);margin-bottom:8px">ASSIGNMENT NOTIFICATION PREVIEW</div>
+      <div id="assign-notify-text" style="font-size:12px;color:rgba(255,255,255,.6);line-height:1.7;font-family:'DM Mono',monospace;white-space:pre-wrap"></div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeAssignModal()">Cancel</button>
+      <button class="btn btn-gold" onclick="saveAssignments()">Save Assignments →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DELETE CONFIRM MODAL ── -->
+<div class="modal-overlay" id="delete-modal" onclick="if(event.target===this)closeDeleteModal()">
+  <div class="modal" style="max-width:400px;text-align:center">
+    <div style="font-size:40px;margin-bottom:12px">🗑️</div>
+    <div class="modal-title" style="justify-content:center">DELETE GAME</div>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.6">This will permanently delete the game and all assignments. This cannot be undone.</p>
+    <div class="form-actions" style="justify-content:center;border-top:none;padding-top:0">
+      <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn btn-danger" id="confirm-delete-btn" onclick="confirmDeleteGame()">Delete Game</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp }                                       from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut }                from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, doc, getDoc, getDocs,
+         addDoc, updateDoc, deleteDoc, query, where,
+         orderBy, serverTimestamp }                            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// ── FIREBASE INIT ──────────────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey:            'AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM',
+  authDomain:        'www.myrefiq.com',
+  projectId:         'refiq-b8142',
+  storageBucket:     'refiq-b8142.firebasestorage.app',
+  messagingSenderId: '62305657245',
+  appId:             '1:62305657245:web:d6e35a80859ee8fdd08f74',
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let currentUser  = null;
+let leagueId     = null;
+let allGames     = [];       // fetched from Firestore
+let refPool      = [];       // aggregated from quiz_results
+let pendingDeleteId = null;
+let editingGameId   = null;
+let assigningGame   = null;  // game object being assigned
+let tempAssigned    = [];    // refs being assigned in modal
+
+// ── AUTH GUARD ────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async u => {
+  if (!u) {
+    window.location.href = '/admin';
+    return;
+  }
+  currentUser = u;
+  leagueId    = u.uid;
+
+  // Check role
+  try {
+    const snap = await getDoc(doc(db, 'users', u.uid));
+    const d    = snap.data() || {};
+    const role = d.role || '';
+    if (role === 'referee') {
+      window.location.href = '/app';
+      return;
+    }
+  } catch(e) { /* allow through on error */ }
+
+  // Load data then show
+  document.getElementById('auth-loading').style.display = 'none';
+  document.getElementById('main-shell').style.display   = 'flex';
+  document.getElementById('main-shell').style.flexDirection = 'column';
+  document.getElementById('main-shell').style.flex      = '1';
+
+  await Promise.all([loadGames(), loadRefPool(), loadAvailability()]);
+});
+
+document.getElementById('signout-btn').addEventListener('click', () => signOut(auth).then(() => window.location.href = '/admin'));
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────────
+window.switchTab = function(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+};
+
+// ── LOAD GAMES ────────────────────────────────────────────────────────────────
+async function loadGames() {
+  try {
+    const q = query(
+      collection(db, 'gameAssignments'),
+      where('leagueId', '==', leagueId),
+      orderBy('date', 'asc')
+    );
+    const snap = await getDocs(q);
+    allGames = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch(e) {
+    // If no index yet, fall back to unordered
+    try {
+      const snap = await getDocs(query(collection(db,'gameAssignments'), where('leagueId','==',leagueId)));
+      allGames = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      allGames.sort((a,b) => {
+        const ta = a.date?.toDate?.()?.getTime() || 0;
+        const tb = b.date?.toDate?.()?.getTime() || 0;
+        return ta - tb;
+      });
+    } catch(_) {}
+  }
+  renderGames();
+}
+
+// ── RENDER GAMES ──────────────────────────────────────────────────────────────
+window.renderGames = function() {
+  const fromVal  = document.getElementById('filter-date-from').value;
+  const toVal    = document.getElementById('filter-date-to').value;
+  const divVal   = document.getElementById('filter-division').value;
+  const statVal  = document.getElementById('filter-status').value;
+
+  let filtered = allGames.filter(g => {
+    const gDate = g.date?.toDate?.() || (g.date ? new Date(g.date) : null);
+    if (fromVal && gDate && gDate < new Date(fromVal)) return false;
+    if (toVal   && gDate && gDate > new Date(toVal + 'T23:59:59')) return false;
+    if (divVal  && g.division !== divVal) return false;
+    if (statVal && g.status   !== statVal) return false;
+    return true;
+  });
+
+  const container = document.getElementById('games-container');
+  const empty     = document.getElementById('games-empty');
+
+  if (filtered.length === 0) {
+    container.innerHTML = '';
+    container.appendChild(empty);
+    empty.style.display = 'flex';
+    empty.style.flexDirection = 'column';
+    empty.style.alignItems = 'center';
+    return;
+  }
+  empty.style.display = 'none';
+
+  container.innerHTML = '<div class="games-list">' +
+    filtered.map(g => renderGameCard(g)).join('') +
+    '</div>';
+};
+
+function fmtDate(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate?.() || new Date(ts);
+  return d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+}
+
+function renderGameCard(g) {
+  const refs    = g.assignedRefs || [];
+  const needsN  = parseInt(g.officialsNeeded || 3);
+  const roles   = ['CR','AR1','AR2'].slice(0, needsN);
+  const chipMap = refs.reduce((m,r) => { m[r.role] = r; return m; }, {});
+
+  const chips = roles.map(role => {
+    const r = chipMap[role];
+    if (r) {
+      const cls = r.status === 'confirmed' ? 'confirmed' : r.status === 'declined' ? 'declined' : 'pending';
+      return `<span class="ref-chip ${cls}">${role}: ${r.name.split(' ')[0]}</span>`;
+    }
+    return `<span class="ref-chip empty">${role}: unassigned</span>`;
+  }).join('');
+
+  const statusMap = { open:'status-open', assigned:'status-assigned', confirmed:'status-confirmed', complete:'status-complete' };
+  const statusCls = statusMap[g.status] || 'status-open';
+  const statusTxt = (g.status||'open').toUpperCase();
+
+  return `
+  <div class="game-card" id="gc-${g.id}">
+    <div class="game-date-col">
+      <div class="game-date">${fmtDate(g.date)}</div>
+      <div class="game-time">${g.time || '—'}</div>
+    </div>
+    <div class="game-info">
+      <div class="game-matchup">${escHtml(g.homeTeam||'TBD')} vs ${escHtml(g.awayTeam||'TBD')}</div>
+      <div class="game-meta">
+        <span>📍 ${escHtml(g.location||'TBD')}</span>
+        <span>⚽ ${escHtml(g.division||'—')}</span>
+        ${g.notes ? `<span style="color:var(--muted)">📝 ${escHtml(g.notes)}</span>` : ''}
+      </div>
+      <div class="game-refs">${chips}</div>
+    </div>
+    <div class="game-actions">
+      <span class="status-badge ${statusCls}">${statusTxt}</span>
+      <button class="btn btn-secondary btn-sm" onclick="openAssignModal('${g.id}')">Assign Refs</button>
+      <button class="btn btn-secondary btn-sm" onclick="openEditGameModal('${g.id}')">Edit</button>
+      <button class="btn btn-danger btn-sm" onclick="openDeleteModal('${g.id}')">Delete</button>
+    </div>
+  </div>`;
+}
+
+// ── ADD / EDIT GAME MODAL ─────────────────────────────────────────────────────
+window.openAddGameModal = function() {
+  editingGameId = null;
+  document.getElementById('game-modal-title').textContent = 'ADD GAME';
+  clearGameForm();
+  document.getElementById('game-modal').classList.add('show');
+};
+
+window.openEditGameModal = function(id) {
+  const g = allGames.find(x => x.id === id);
+  if (!g) return;
+  editingGameId = id;
+  document.getElementById('game-modal-title').textContent = 'EDIT GAME';
+  const date = g.date?.toDate?.() || (g.date ? new Date(g.date) : null);
+  document.getElementById('gf-date').value      = date ? date.toISOString().split('T')[0] : '';
+  document.getElementById('gf-time').value      = g.time || '';
+  document.getElementById('gf-home').value      = g.homeTeam || '';
+  document.getElementById('gf-away').value      = g.awayTeam || '';
+  document.getElementById('gf-division').value  = g.division || '';
+  document.getElementById('gf-location').value  = g.location || '';
+  document.getElementById('gf-officials').value = String(g.officialsNeeded || 3);
+  document.getElementById('gf-status').value    = g.status || 'open';
+  document.getElementById('gf-notes').value     = g.notes || '';
+  document.getElementById('game-modal').classList.add('show');
+};
+
+window.closeGameModal = function() {
+  document.getElementById('game-modal').classList.remove('show');
+  editingGameId = null;
+};
+
+function clearGameForm() {
+  ['gf-date','gf-time','gf-home','gf-away','gf-location','gf-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('gf-division').value  = '';
+  document.getElementById('gf-officials').value = '3';
+  document.getElementById('gf-status').value    = 'open';
+}
+
+window.saveGame = async function() {
+  const dateVal = document.getElementById('gf-date').value;
+  const home    = document.getElementById('gf-home').value.trim();
+  const away    = document.getElementById('gf-away').value.trim();
+  if (!dateVal || !home || !away) {
+    alert('Please fill in Date, Home Team, and Away Team at minimum.');
+    return;
+  }
+  const btn = document.getElementById('save-game-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+
+  const data = {
+    leagueId,
+    createdBy:       currentUser.uid,
+    date:            new Date(dateVal + 'T00:00:00'),
+    time:            document.getElementById('gf-time').value,
+    homeTeam:        home,
+    awayTeam:        away,
+    division:        document.getElementById('gf-division').value,
+    location:        document.getElementById('gf-location').value.trim(),
+    officialsNeeded: parseInt(document.getElementById('gf-officials').value),
+    status:          document.getElementById('gf-status').value,
+    notes:           document.getElementById('gf-notes').value.trim(),
+  };
+
+  try {
+    if (editingGameId) {
+      await updateDoc(doc(db, 'gameAssignments', editingGameId), data);
+    } else {
+      data.assignedRefs = [];
+      data.createdAt    = serverTimestamp();
+      await addDoc(collection(db, 'gameAssignments'), data);
+    }
+    closeGameModal();
+    await loadGames();
+  } catch(e) {
+    console.error('saveGame error:', e);
+    alert('Save failed: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save Game →';
+  }
+};
+
+// ── DELETE GAME ───────────────────────────────────────────────────────────────
+window.openDeleteModal = function(id) {
+  pendingDeleteId = id;
+  document.getElementById('delete-modal').classList.add('show');
+};
+window.closeDeleteModal = function() {
+  document.getElementById('delete-modal').classList.remove('show');
+  pendingDeleteId = null;
+};
+window.confirmDeleteGame = async function() {
+  if (!pendingDeleteId) return;
+  const btn = document.getElementById('confirm-delete-btn');
+  btn.disabled = true; btn.textContent = 'Deleting…';
+  try {
+    await deleteDoc(doc(db, 'gameAssignments', pendingDeleteId));
+    closeDeleteModal();
+    await loadGames();
+  } catch(e) {
+    alert('Delete failed: ' + e.message);
+    btn.disabled = false; btn.textContent = 'Delete Game';
+  }
+};
+
+// ── ASSIGN REFS MODAL ─────────────────────────────────────────────────────────
+window.openAssignModal = function(id) {
+  const g = allGames.find(x => x.id === id);
+  if (!g) return;
+  assigningGame = g;
+  tempAssigned  = (g.assignedRefs || []).map(r => ({ ...r }));
+
+  document.getElementById('assign-game-title').textContent  = `${g.homeTeam || 'TBD'} vs ${g.awayTeam || 'TBD'}`;
+  document.getElementById('assign-game-meta').textContent   = `${fmtDate(g.date)} · ${g.time || ''} · ${g.location || ''}`;
+  document.getElementById('ref-search-input').value = '';
+  document.getElementById('ref-search-results').style.display = 'none';
+  renderAssignedList();
+  updateNotificationPreview();
+  document.getElementById('assign-modal').classList.add('show');
+};
+window.closeAssignModal = function() {
+  document.getElementById('assign-modal').classList.remove('show');
+  assigningGame = null; tempAssigned = [];
+};
+
+window.searchRefs = function() {
+  const q   = document.getElementById('ref-search-input').value.toLowerCase().trim();
+  const box = document.getElementById('ref-search-results');
+  if (!q) { box.style.display = 'none'; return; }
+  const matches = refPool.filter(r =>
+    r.name.toLowerCase().includes(q) || r.email.toLowerCase().includes(q)
+  ).slice(0, 8);
+  if (!matches.length) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  box.innerHTML = matches.map(r => `
+    <div class="ref-search-item" onclick="addRefToGame('${escAttr(r.name)}','${escAttr(r.email)}','${escAttr(r.uid||'')}')">
+      <div>
+        <div class="ref-search-name">${escHtml(r.name)}</div>
+        <div class="ref-search-email">${escHtml(r.email)}</div>
+      </div>
+      <span style="font-size:11px;color:var(--gold);font-family:'DM Mono',monospace">+ Add</span>
+    </div>`).join('');
+};
+
+window.addRefToGame = function(name, email, uid) {
+  const g      = assigningGame;
+  const needed = parseInt(g?.officialsNeeded || 3);
+  const roles  = ['CR','AR1','AR2'].slice(0, needed);
+  const taken  = tempAssigned.map(r => r.role);
+  const free   = roles.find(r => !taken.includes(r));
+  if (!free) { alert('All positions are filled. Remove a ref first.'); return; }
+  if (tempAssigned.find(r => r.email === email)) { alert('This referee is already assigned.'); return; }
+  tempAssigned.push({ name, email, uid, role: free, status: 'pending' });
+  document.getElementById('ref-search-input').value = '';
+  document.getElementById('ref-search-results').style.display = 'none';
+  renderAssignedList();
+  updateNotificationPreview();
+};
+
+function renderAssignedList() {
+  const el = document.getElementById('assigned-refs-list');
+  if (!tempAssigned.length) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--muted);font-style:italic;padding:8px 0">No officials assigned yet. Search above to add.</div>';
+    return;
+  }
+  el.innerHTML = tempAssigned.map((r, i) => `
+    <div class="assigned-ref-row">
+      <div class="assigned-ref-name">${escHtml(r.name)}<div style="font-size:11px;font-weight:400;color:var(--muted);font-family:'DM Mono',monospace">${escHtml(r.email)}</div></div>
+      <select class="role-select" onchange="updateRefRole(${i}, this.value)">
+        <option value="CR"  ${r.role==='CR' ?'selected':''}>CR</option>
+        <option value="AR1" ${r.role==='AR1'?'selected':''}>AR1</option>
+        <option value="AR2" ${r.role==='AR2'?'selected':''}>AR2</option>
+      </select>
+      <select class="role-select" onchange="updateRefStatus(${i}, this.value)">
+        <option value="pending"   ${r.status==='pending'  ?'selected':''}>Pending</option>
+        <option value="confirmed" ${r.status==='confirmed'?'selected':''}>Confirmed</option>
+        <option value="declined"  ${r.status==='declined' ?'selected':''}>Declined</option>
+      </select>
+      <button class="btn btn-danger btn-sm" onclick="removeRef(${i})">Remove</button>
+    </div>`).join('');
+}
+
+window.updateRefRole   = (i, v) => { tempAssigned[i].role   = v; updateNotificationPreview(); };
+window.updateRefStatus = (i, v) => { tempAssigned[i].status = v; updateNotificationPreview(); };
+window.removeRef       = (i)    => { tempAssigned.splice(i, 1); renderAssignedList(); updateNotificationPreview(); };
+
+function updateNotificationPreview() {
+  const box = document.getElementById('assign-notify-box');
+  const txt = document.getElementById('assign-notify-text');
+  if (!tempAssigned.length || !assigningGame) { box.style.display = 'none'; return; }
+  const g = assigningGame;
+  const lines = tempAssigned.map(r =>
+    `To: ${r.email}\nSubject: Game Assignment — ${fmtDate(g.date)}\n\nHi ${r.name.split(' ')[0]},\n\nYou have been assigned as ${r.role} for:\n  ${g.homeTeam} vs ${g.awayTeam}\n  ${fmtDate(g.date)} · ${g.time || 'TBD'}\n  ${g.location || 'Location TBD'}\n\nPlease confirm your availability. Reply to this email or log in to RefIQ.\n\n— RefIQ Assignments`
+  ).join('\n\n---\n\n');
+  txt.textContent = lines;
+  box.style.display = 'block';
+}
+
+window.saveAssignments = async function() {
+  if (!assigningGame) return;
+  try {
+    await updateDoc(doc(db, 'gameAssignments', assigningGame.id), {
+      assignedRefs: tempAssigned,
+      status: tempAssigned.length > 0 ? (assigningGame.status === 'open' ? 'assigned' : assigningGame.status) : 'open',
+    });
+    closeAssignModal();
+    await loadGames();
+  } catch(e) { alert('Save failed: ' + e.message); }
+};
+
+// ── LOAD AVAILABILITY ─────────────────────────────────────────────────────────
+async function loadAvailability() {
+  try {
+    const q    = query(collection(db,'refereeAvailability'), where('leagueId','==',leagueId));
+    const snap = await getDocs(q);
+    const rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderAvailability(rows);
+  } catch(e) { /* silently skip */ }
+}
+
+function renderAvailability(rows) {
+  const container = document.getElementById('avail-responses-container');
+  if (!rows.length) return; // empty state already shown
+  container.innerHTML = `
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr>
+          <th>Name</th><th>Email</th><th>Dates Available</th><th>Window</th><th>Updated</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr>
+              <td class="td-name">${escHtml(r.name || '—')}</td>
+              <td class="td-mono">${escHtml(r.email || '—')}</td>
+              <td><span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold)">${(r.dates||[]).length}</span></td>
+              <td class="td-mono">${escHtml(r.windowName || '—')}</td>
+              <td class="td-mono">${r.updatedAt ? fmtDate(r.updatedAt) : '—'}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ── AVAILABILITY WINDOW CREATOR ───────────────────────────────────────────────
+window.createAvailWindow = async function() {
+  const name  = document.getElementById('avail-name').value.trim();
+  const start = document.getElementById('avail-start').value;
+  const end   = document.getElementById('avail-end').value;
+  if (!name || !start || !end) { alert('Please fill in Window Name, Start Date, and End Date.'); return; }
+
+  let windowId;
+  try {
+    const ref = await addDoc(collection(db, 'availabilityWindows'), {
+      leagueId, name, start, end,
+      group: document.getElementById('avail-group').value.trim(),
+      createdAt: serverTimestamp(),
+    });
+    windowId = ref.id;
+  } catch(e) {
+    // If write fails (no Firestore rules yet), generate a local ID
+    windowId = Math.random().toString(36).slice(2, 10);
+  }
+
+  const link = `${window.location.origin}/availability/${windowId}`;
+  document.getElementById('avail-link-url').textContent = link;
+  document.getElementById('avail-link-result').style.display = 'flex';
+};
+
+window.copyAvailLink = function() {
+  const url = document.getElementById('avail-link-url').textContent;
+  navigator.clipboard.writeText(url).catch(() => {});
+  const btn = document.querySelector('.copy-btn');
+  const orig = btn.textContent;
+  btn.textContent = 'Copied!'; btn.style.color = 'var(--green)';
+  setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 1800);
+};
+
+// ── LOAD REF POOL ─────────────────────────────────────────────────────────────
+async function loadRefPool() {
+  try {
+    const q    = query(collection(db,'quiz_results'), where('leagueId','==',leagueId));
+    const snap = await getDocs(q);
+    // Aggregate by email — latest score, average, last active
+    const map  = {};
+    snap.docs.forEach(d => {
+      const r = d.data();
+      const key = r.userId || r.email || r.refereeName;
+      if (!key) return;
+      if (!map[key]) {
+        map[key] = {
+          uid:      r.userId || '',
+          name:     r.refereeName || 'Unknown',
+          email:    r.email || '—',
+          scores:   [],
+          lastAt:   null,
+          cert:     '',
+          notes:    '',
+        };
+      }
+      if (r.score != null && r.total) {
+        map[key].scores.push(Math.round((r.score / r.total) * 100));
+      }
+      const ts = r.createdAt?.toDate?.() || (r.createdAt ? new Date(r.createdAt) : null);
+      if (ts && (!map[key].lastAt || ts > map[key].lastAt)) map[key].lastAt = ts;
+    });
+    refPool = Object.values(map).sort((a,b) => a.name.localeCompare(b.name));
+    renderRefPool(refPool);
+  } catch(e) { /* silently skip — no results yet */ }
+}
+
+window.filterPool = function() {
+  const q = document.getElementById('pool-search').value.toLowerCase();
+  renderRefPool(q ? refPool.filter(r => r.name.toLowerCase().includes(q) || r.email.toLowerCase().includes(q)) : refPool);
+};
+
+function renderRefPool(rows) {
+  const container = document.getElementById('pool-container');
+  const empty     = document.getElementById('pool-empty');
+  if (!rows.length) {
+    container.innerHTML = '';
+    container.appendChild(empty);
+    empty.style.display = 'flex';
+    empty.style.flexDirection = 'column';
+    empty.style.alignItems = 'center';
+    return;
+  }
+  empty.style.display = 'none';
+  const avg = r => r.scores.length ? Math.round(r.scores.reduce((s,v)=>s+v,0)/r.scores.length) : null;
+  container.innerHTML = `
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr>
+          <th>Name</th><th>Email</th><th>Avg Score</th><th>Quizzes</th><th>Last Active</th>
+          <th>Certification</th><th>Notes</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map((r,i) => {
+            const a = avg(r);
+            return `<tr>
+              <td class="td-name">${escHtml(r.name)}</td>
+              <td class="td-mono">${escHtml(r.email)}</td>
+              <td class="td-score">${a != null ? a + '%' : '—'}</td>
+              <td style="color:var(--muted)">${r.scores.length}</td>
+              <td class="td-mono">${r.lastAt ? r.lastAt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'}) : '—'}</td>
+              <td><input class="inline-edit" value="${escAttr(r.cert||'')}" placeholder="e.g. Grade 8" onchange="poolRows[${i}].cert=this.value" style="min-width:80px"></td>
+              <td><input class="inline-edit" value="${escAttr(r.notes||'')}" placeholder="Notes…" onchange="poolRows[${i}].notes=this.value" style="min-width:120px"></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  window.poolRows = rows; // expose for inline-edit callbacks
+}
+
+// ── UTILITIES ─────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(s) {
+  return String(s||'').replace(/'/g,'&#39;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
