@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>RefIQ — Referee Portal</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#ffd60a;--gold-dark:#b8940a;--gold-dim:rgba(255,214,10,.12);
+  --red:#ff453a;--green:#34c759;
+  --bg:#080c09;--s1:#111711;--s2:#1a221b;--s3:#222e23;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);
+  --text:#f0f4f0;--muted:#7a9080;--muted2:#5a6e5f
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,214,10,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,214,10,.018) 1px,transparent 1px);
+  background-size:60px 60px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fadeUp .4s ease both}
+
+/* Topbar */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(8,12,9,.97);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:56px}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.topbar-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--gold)}
+.topbar-sub{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px}
+.topbar-user{font-size:13px;color:var(--muted)}
+.signout-btn{padding:6px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .15s}
+.signout-btn:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
+
+/* Main layout */
+.main{max-width:840px;margin:0 auto;padding:24px 16px 60px;position:relative;z-index:1}
+
+/* Tab nav */
+.portal-tab-nav{display:flex;gap:4px;margin-bottom:20px;flex-wrap:wrap}
+.portal-tab-btn{padding:9px 16px;background:var(--s2);border:1px solid var(--border);color:var(--muted);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s}
+.portal-tab-btn.active{background:var(--gold);color:#080c09;border-color:var(--gold)}
+.portal-tab-panel{display:none}
+.portal-tab-panel.active{display:block}
+
+/* Cards */
+.p-card{background:var(--s1);border:1px solid var(--border2);border-radius:14px;padding:16px 18px;margin-bottom:12px}
+.p-card-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;margin-bottom:4px}
+.p-card-meta{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px;line-height:1.7}
+.p-chip{display:inline-flex;align-items:center;padding:3px 9px;border-radius:5px;font-size:10px;font-family:'DM Mono',monospace;font-weight:600;margin-top:4px}
+.chip-confirmed{background:rgba(52,199,89,.15);color:#34c759;border:1px solid rgba(52,199,89,.25)}
+.chip-pending{background:rgba(255,214,10,.12);color:var(--gold);border:1px solid rgba(255,214,10,.2)}
+.chip-declined{background:rgba(255,69,58,.12);color:var(--red);border:1px solid rgba(255,69,58,.2)}
+
+/* Form */
+.p-field{width:100%;background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:10px;transition:border-color .2s;-webkit-appearance:none}
+.p-field:focus{border-color:var(--gold)}
+.p-label{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px;display:block;margin-bottom:4px}
+.p-btn{padding:11px 22px;background:var(--gold);color:#080c09;border:none;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;transition:all .18s}
+.p-btn:hover{background:var(--gold-dark);color:#fff}
+.p-btn:disabled{opacity:.5;cursor:not-allowed}
+.p-section-heading{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--muted);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.empty-state{text-align:center;padding:48px 16px}
+.empty-icon{font-size:40px;margin-bottom:10px;opacity:.4}
+.empty-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:rgba(255,255,255,.3);margin-bottom:6px}
+.empty-sub{font-size:13px;color:var(--muted);max-width:280px;margin:0 auto;line-height:1.6}
+
+/* Loading */
+#portal-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:14px;text-align:center;position:relative;z-index:1}
+.spinner{width:34px;height:34px;border:3px solid rgba(255,214,10,.15);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div>
+      <div class="topbar-logo">REFIQ</div>
+      <div class="topbar-sub">REFEREE PORTAL</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span class="topbar-user" id="portal-user-name"></span>
+    <button class="signout-btn" id="portal-signout-btn">Sign Out</button>
+  </div>
+</div>
+
+<!-- Loading -->
+<div id="portal-loading">
+  <div class="spinner"></div>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--muted)">LOADING</div>
+</div>
+
+<!-- Main content -->
+<div class="main fu" id="portal-main" style="display:none">
+
+  <!-- Tab nav -->
+  <div class="portal-tab-nav">
+    <button class="portal-tab-btn active" onclick="switchPortalTab('upcoming',this)">📅 Upcoming</button>
+    <button class="portal-tab-btn" onclick="switchPortalTab('past',this)">⏮ Past Games</button>
+    <button class="portal-tab-btn" onclick="switchPortalTab('quizzes',this)">📝 Quiz History</button>
+    <button class="portal-tab-btn" onclick="switchPortalTab('profile',this)">👤 Profile</button>
+    <button class="portal-tab-btn" onclick="switchPortalTab('availability',this)">📆 Availability</button>
+  </div>
+
+  <!-- UPCOMING TAB -->
+  <div class="portal-tab-panel active" id="portal-tab-upcoming">
+    <div class="p-section-heading">UPCOMING ASSIGNMENTS</div>
+    <div id="portal-upcoming-list">
+      <div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">NO UPCOMING GAMES</div><div class="empty-sub">Your confirmed or pending assignments will appear here.</div></div>
+    </div>
+  </div>
+
+  <!-- PAST GAMES TAB -->
+  <div class="portal-tab-panel" id="portal-tab-past">
+    <div class="p-section-heading">PAST GAMES</div>
+    <div id="portal-past-list">
+      <div class="empty-state"><div class="empty-icon">⏮</div><div class="empty-title">NO PAST GAMES</div><div class="empty-sub">Your completed assignments will appear here.</div></div>
+    </div>
+  </div>
+
+  <!-- QUIZ HISTORY TAB -->
+  <div class="portal-tab-panel" id="portal-tab-quizzes">
+    <div class="p-section-heading">QUIZ HISTORY</div>
+    <div id="portal-quizzes-list">
+      <div class="empty-state"><div class="empty-icon">📝</div><div class="empty-title">NO QUIZZES YET</div><div class="empty-sub">Complete a quiz link to see your history here.</div></div>
+    </div>
+  </div>
+
+  <!-- PROFILE TAB -->
+  <div class="portal-tab-panel" id="portal-tab-profile">
+    <div class="p-section-heading">MY PROFILE</div>
+    <div class="p-card">
+      <label class="p-label">FULL NAME</label>
+      <input type="text" class="p-field" id="portal-prof-name" placeholder="Your name">
+      <label class="p-label">PHONE</label>
+      <input type="tel" class="p-field" id="portal-prof-phone" placeholder="(555) 555-5555">
+      <label class="p-label">CERTIFICATION LEVEL</label>
+      <select class="p-field" id="portal-prof-cert">
+        <option value="">Select…</option>
+        <option value="Grade 9">Grade 9</option>
+        <option value="Grade 8">Grade 8</option>
+        <option value="Grade 7">Grade 7</option>
+        <option value="Grade 6">Grade 6</option>
+        <option value="Grade 5">Grade 5</option>
+        <option value="National">National</option>
+      </select>
+      <label class="p-label">CERTIFICATION EXPIRY</label>
+      <input type="date" class="p-field" id="portal-prof-cert-expiry">
+      <button class="p-btn" id="portal-prof-save-btn" onclick="portalSaveProfile()">SAVE PROFILE</button>
+      <div id="portal-prof-msg" style="margin-top:10px;font-size:12px;display:none"></div>
+    </div>
+  </div>
+
+  <!-- AVAILABILITY TAB -->
+  <div class="portal-tab-panel" id="portal-tab-availability">
+    <div class="p-section-heading">MY AVAILABILITY</div>
+    <div id="portal-avail-windows">
+      <div class="empty-state"><div class="empty-icon">📆</div><div class="empty-title">NO WINDOWS YET</div><div class="empty-sub">Your assignor will share availability windows for you to respond to.</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, addDoc, collection, query,
+  where, getDocs, orderBy, serverTimestamp, limit }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM',
+  authDomain: 'www.myrefiq.com',
+  projectId: 'refiq-b8142',
+  storageBucket: 'refiq-b8142.firebasestorage.app',
+  messagingSenderId: '62305657245',
+  appId: '1:62305657245:web:d6e35a80859ee8fdd08f74'
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let currentUser = null;
+let userData    = null;
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+
+function fmtDate(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate?.() || new Date(ts);
+  return d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = '/admin'; return; }
+  currentUser = user;
+  document.getElementById('portal-user-name').textContent = user.displayName || user.email;
+
+  // Load user doc
+  try {
+    const snap = await getDoc(doc(db,'users', user.uid));
+    if (snap.exists()) {
+      userData = snap.data();
+      // Pre-fill profile form
+      document.getElementById('portal-prof-name').value         = userData.name || user.displayName || '';
+      document.getElementById('portal-prof-phone').value        = userData.phone || '';
+      document.getElementById('portal-prof-cert').value         = userData.certificationLevel || '';
+      document.getElementById('portal-prof-cert-expiry').value  = userData.certExpiry || '';
+    }
+  } catch(_) {}
+
+  // Load all tabs
+  await Promise.all([
+    loadUpcoming(),
+    loadPast(),
+    loadQuizHistory(),
+    loadAvailability()
+  ]);
+
+  document.getElementById('portal-loading').style.display = 'none';
+  document.getElementById('portal-main').style.display    = 'block';
+});
+
+document.getElementById('portal-signout-btn').addEventListener('click', () => signOut(auth));
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────────
+window.switchPortalTab = function(name, btn) {
+  document.querySelectorAll('.portal-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.portal-tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('portal-tab-' + name).classList.add('active');
+};
+
+// ── UPCOMING ASSIGNMENTS ──────────────────────────────────────────────────────
+async function loadUpcoming() {
+  const el = document.getElementById('portal-upcoming-list');
+  try {
+    const email = currentUser.email;
+    const snap = await getDocs(query(
+      collection(db,'assignmentLinks'),
+      where('refEmail','==',email)
+    ));
+    const links = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .filter(l => l.status !== 'declined');
+    if (!links.length) return;
+
+    // Load game docs for each link
+    const now = new Date();
+    const upcoming = [];
+    for (const l of links) {
+      if (!l.gameId) continue;
+      try {
+        const gSnap = await getDoc(doc(db,'gameAssignments', l.gameId));
+        if (!gSnap.exists()) continue;
+        const g = { id: gSnap.id, ...gSnap.data() };
+        const gd = g.date?.toDate?.() || (g.date ? new Date(g.date) : null);
+        if (gd && gd >= now) upcoming.push({ link: l, game: g });
+      } catch(_) {}
+    }
+
+    if (!upcoming.length) return;
+    upcoming.sort((a,b) => {
+      const ta = a.game.date?.toDate?.()?.getTime() || 0;
+      const tb = b.game.date?.toDate?.()?.getTime() || 0;
+      return ta - tb;
+    });
+
+    el.innerHTML = upcoming.map(({ link, game }) => {
+      const chipCls = link.status === 'confirmed' ? 'chip-confirmed' : 'chip-pending';
+      const chipLbl = link.status === 'confirmed' ? 'Confirmed' : 'Pending';
+      const mapUrl  = game.location ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(game.location)}` : null;
+      return `<div class="p-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+          <div style="flex:1">
+            <div class="p-card-title">${esc(game.homeTeam||'TBD')} vs ${esc(game.awayTeam||'TBD')}</div>
+            <div class="p-card-meta">
+              ${fmtDate(game.date)}${game.time ? ' · ' + esc(game.time) : ''}<br>
+              ${game.location ? `📍 ${mapUrl?`<a href="${mapUrl}" target="_blank" rel="noopener" style="color:var(--muted)">${esc(game.location)}</a>`:esc(game.location)}` : ''}
+              ${game.division ? `<br>⚽ ${esc(game.division)}` : ''}
+            </div>
+            <span class="p-chip ${chipCls}">${chipLbl}</span>
+            <span class="p-chip chip-pending" style="margin-left:4px">${esc(link.refRole||'CR')}</span>
+          </div>
+          ${link.slug ? `<a href="/r/${esc(link.slug)}" style="padding:6px 12px;background:rgba(255,214,10,.1);color:var(--gold);border:1px solid rgba(255,214,10,.2);border-radius:8px;font-size:11px;font-family:'DM Mono',monospace;text-decoration:none;white-space:nowrap">View →</a>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { console.warn('Upcoming load error', e); }
+}
+
+// ── PAST GAMES ────────────────────────────────────────────────────────────────
+async function loadPast() {
+  const el = document.getElementById('portal-past-list');
+  try {
+    const email = currentUser.email;
+    const snap  = await getDocs(query(collection(db,'assignmentLinks'), where('refEmail','==',email)));
+    const links = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (!links.length) return;
+    const now  = new Date();
+    const past = [];
+    for (const l of links) {
+      if (!l.gameId) continue;
+      try {
+        const gSnap = await getDoc(doc(db,'gameAssignments', l.gameId));
+        if (!gSnap.exists()) continue;
+        const g = { id: gSnap.id, ...gSnap.data() };
+        const gd = g.date?.toDate?.() || (g.date ? new Date(g.date) : null);
+        if (gd && gd < now) past.push({ link: l, game: g });
+      } catch(_) {}
+    }
+    if (!past.length) return;
+    past.sort((a,b) => {
+      const ta = a.game.date?.toDate?.()?.getTime() || 0;
+      const tb = b.game.date?.toDate?.()?.getTime() || 0;
+      return tb - ta;
+    });
+
+    // Fetch ratings for all past game IDs
+    const gameIds = [...new Set(past.map(p => p.game.id))];
+    const ratingsMap = {}; // gameId → stars for this ref
+    for (const gid of gameIds) {
+      try {
+        const rSnap = await getDocs(query(collection(db,'refRatings'), where('gameId','==',gid)));
+        if (!rSnap.empty) {
+          const rData = rSnap.docs[0].data();
+          const myRating = (rData.ratings||[]).find(r => r.refEmail === email || r.refName === (userData?.name||''));
+          if (myRating && myRating.stars) ratingsMap[gid] = myRating.stars;
+        }
+      } catch(_) {}
+    }
+
+    el.innerHTML = past.map(({ link, game }) => {
+      const payment = (game.payments||[]).find(p => p.refEmail === email);
+      const payChip = payment
+        ? `<span class="p-chip ${payment.status==='paid'?'chip-confirmed':payment.status==='waived'?'chip-pending':'chip-declined'}" style="margin-left:4px">${payment.status==='paid'?'💰 Paid $'+payment.amount:'💰 '+payment.status}</span>`
+        : '';
+      const stars = ratingsMap[game.id];
+      const starHtml = stars
+        ? `<div style="margin-top:6px;font-size:13px;color:var(--gold)">${'★'.repeat(stars)}${'☆'.repeat(5-stars)} <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Your rating</span></div>`
+        : '';
+      return `<div class="p-card">
+        <div class="p-card-title">${esc(game.homeTeam||'TBD')} vs ${esc(game.awayTeam||'TBD')}</div>
+        <div class="p-card-meta">${fmtDate(game.date)}${game.division?' · '+esc(game.division):''}</div>
+        <span class="p-chip chip-pending">${esc(link.refRole||'CR')}</span>
+        <span class="p-chip ${link.status==='confirmed'?'chip-confirmed':link.status==='declined'?'chip-declined':'chip-pending'}" style="margin-left:4px">${esc(link.status||'pending')}</span>
+        ${payChip}
+        ${starHtml}
+      </div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+// ── QUIZ HISTORY ──────────────────────────────────────────────────────────────
+async function loadQuizHistory() {
+  const el = document.getElementById('portal-quizzes-list');
+  try {
+    const snap = await getDocs(query(
+      collection(db,'quiz_results'),
+      where('userId','==',currentUser.uid),
+      orderBy('createdAt','desc')
+    ));
+    if (snap.empty) return;
+    el.innerHTML = snap.docs.map(d => {
+      const r   = d.data();
+      const pct = r.total ? Math.round((r.score/r.total)*100) : 0;
+      const dt  = r.createdAt?.toDate?.() || (r.createdAt ? new Date(r.createdAt) : null);
+      return `<div class="p-card" style="display:flex;align-items:center;gap:14px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:${pct>=70?'var(--green)':'var(--gold)';};width:60px;text-align:center;line-height:1">${pct}%</div>
+        <div>
+          <div style="font-weight:600;font-size:13px">${esc(r.quizLinkName||r.linkName||'Quiz')}</div>
+          <div class="p-card-meta">${r.score}/${r.total} correct · ${dt?dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—'}</div>
+          ${r.passed?'<span class="p-chip chip-confirmed" style="margin-top:4px">PASSED</span>':'<span class="p-chip chip-declined" style="margin-top:4px">NOT PASSED</span>'}
+        </div>
+      </div>`;
+    }).join('');
+  } catch(_) {}
+}
+
+// ── PROFILE SAVE ──────────────────────────────────────────────────────────────
+window.portalSaveProfile = async function() {
+  const btn = document.getElementById('portal-prof-save-btn');
+  const msg = document.getElementById('portal-prof-msg');
+  btn.disabled = true; btn.textContent = 'SAVING…';
+  try {
+    const data = {
+      name:              document.getElementById('portal-prof-name').value.trim(),
+      phone:             document.getElementById('portal-prof-phone').value.trim(),
+      certificationLevel:document.getElementById('portal-prof-cert').value,
+      certExpiry:        document.getElementById('portal-prof-cert-expiry').value,
+      updatedAt:         serverTimestamp()
+    };
+    await setDoc(doc(db,'users',currentUser.uid), data, { merge: true });
+    msg.textContent = '✓ Profile saved.'; msg.style.color = 'var(--green)'; msg.style.display = 'block';
+    setTimeout(() => { msg.style.display = 'none'; }, 3000);
+  } catch(e) {
+    msg.textContent = 'Save failed: ' + e.message; msg.style.color = 'var(--red)'; msg.style.display = 'block';
+  } finally { btn.disabled = false; btn.textContent = 'SAVE PROFILE'; }
+};
+
+// ── AVAILABILITY ──────────────────────────────────────────────────────────────
+async function loadAvailability() {
+  const el = document.getElementById('portal-avail-windows');
+  try {
+    const snap = await getDocs(collection(db,'availabilityWindows'));
+    if (snap.empty) return;
+    const windows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Check which ones the user already responded to
+    const respSnap = await getDocs(query(collection(db,'refereeAvailability'), where('userId','==',currentUser.uid)));
+    const responded = new Set(respSnap.docs.map(d => d.data().windowId));
+    el.innerHTML = windows.map(w => {
+      const hasResponded = responded.has(w.id);
+      return `<div class="p-card">
+        <div class="p-card-title">${esc(w.name||'Availability Window')}</div>
+        <div class="p-card-meta">${w.start||''} → ${w.end||''}${w.group?' · '+esc(w.group):''}</div>
+        ${hasResponded
+          ? '<span class="p-chip chip-confirmed" style="margin-top:6px">RESPONDED</span>'
+          : `<button onclick="portalOpenAvailForm('${w.id}','${esc(w.name||'')}','${w.start||''}','${w.end||''}')" style="margin-top:10px;padding:7px 16px;background:var(--gold);color:#080c09;border:none;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;cursor:pointer">Submit Availability</button>`}
+      </div>`;
+    }).join('');
+  } catch(_) {}
+}
+
+window.portalOpenAvailForm = function(windowId, windowName, start, end) {
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7)';
+  modal.innerHTML = `
+    <div style="background:var(--s1);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:28px;width:90%;max-width:480px;max-height:90vh;overflow-y:auto;position:relative">
+      <button onclick="this.closest('div[style]').remove()" style="position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer">✕</button>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;margin-bottom:4px">SUBMIT AVAILABILITY</div>
+      <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:16px">${esc(windowName)} · ${esc(start)} to ${esc(end)}</div>
+      <label class="p-label">AVAILABLE DATES (one per line, YYYY-MM-DD)</label>
+      <textarea class="p-field" id="avail-dates-input" rows="6" placeholder="2026-03-01&#10;2026-03-08&#10;2026-03-15" style="resize:vertical"></textarea>
+      <label class="p-label">NOTES</label>
+      <input type="text" class="p-field" id="avail-notes-input" placeholder="Any scheduling notes…">
+      <button onclick="portalSubmitAvailability('${esc(windowId)}','${esc(windowName)}')" class="p-btn" style="width:100%">SUBMIT →</button>
+    </div>`;
+  document.body.appendChild(modal);
+};
+
+window.portalSubmitAvailability = async function(windowId, windowName) {
+  const datesRaw = document.getElementById('avail-dates-input').value;
+  const notes    = document.getElementById('avail-notes-input').value.trim();
+  const dates    = datesRaw.split('\n').map(d => d.trim()).filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d));
+  if (!dates.length) { alert('Please enter at least one valid date (YYYY-MM-DD).'); return; }
+  try {
+    await addDoc(collection(db,'refereeAvailability'), {
+      windowId, windowName,
+      userId:  currentUser.uid,
+      email:   currentUser.email,
+      name:    currentUser.displayName || '',
+      dates, notes,
+      createdAt: serverTimestamp()
+    });
+    document.querySelector('div[style*="position:fixed"]')?.remove();
+    await loadAvailability();
+  } catch(e) { alert('Submit failed: ' + e.message); }
+};
+</script>
+</body>
+</html>

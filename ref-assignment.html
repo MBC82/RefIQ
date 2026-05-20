@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Assignment — RefIQ</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080c09; --surface:#111711; --s2:#1a221b;
+    --gold:#ffd60a; --gold-dark:#b8940a;
+    --green:#34c759; --red:#ff453a;
+    --text:rgba(255,255,255,.92); --muted:#7a9080;
+    --border:rgba(255,255,255,.08);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+
+  /* ── TOPBAR ── */
+  .topbar{width:100%;padding:14px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);background:var(--surface)}
+  .topbar-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--gold)}
+  .topbar-sub{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px}
+  .league-brand-bar{height:5px;width:100%;flex-shrink:0}
+
+  /* ── PAGE LAYOUT ── */
+  .page{width:100%;max-width:560px;padding:28px 16px 60px;margin:0 auto}
+
+  /* ── LEAGUE HEADER ── */
+  .league-header{display:flex;align-items:center;gap:14px;margin-bottom:28px;padding:16px;background:var(--surface);border-radius:14px;border:1px solid var(--border)}
+  .league-logo{width:52px;height:52px;object-fit:contain;border-radius:10px;background:var(--s2)}
+  .league-logo-placeholder{width:52px;height:52px;border-radius:10px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:24px}
+  .league-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px}
+  .league-tagline{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace}
+
+  /* ── GAME CARD ── */
+  .game-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:22px}
+  .game-card-header{padding:18px 20px 14px;border-bottom:1px solid var(--border)}
+  .game-date-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+  .game-matchup{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;line-height:1.1;margin-bottom:4px}
+  .game-meta{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace}
+  .game-meta a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+  .game-card-body{padding:16px 20px}
+  .role-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;background:rgba(255,214,10,.1);border:1px solid rgba(255,214,10,.2);border-radius:8px;margin-bottom:16px}
+  .role-badge-label{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;color:var(--gold)}
+  .role-desc{font-size:11px;color:var(--muted)}
+
+  /* ── OTHER OFFICIALS ── */
+  .officials-heading{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;color:var(--muted);margin-bottom:8px}
+  .official-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+  .official-row:last-child{border-bottom:none}
+  .official-role{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);width:30px;flex-shrink:0}
+  .official-name{flex:1;font-size:13px;font-weight:600}
+  .official-chip{padding:2px 9px;border-radius:5px;font-size:10px;font-family:'DM Mono',monospace;font-weight:600}
+  .chip-confirmed{background:rgba(52,199,89,.15);color:#34c759;border:1px solid rgba(52,199,89,.25)}
+  .chip-pending{background:rgba(255,214,10,.12);color:var(--gold);border:1px solid rgba(255,214,10,.2)}
+  .chip-declined{background:rgba(255,69,58,.12);color:var(--red);border:1px solid rgba(255,69,58,.2)}
+
+  /* ── ACTION SECTION ── */
+  .action-section{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px}
+  .action-heading{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;margin-bottom:6px}
+  .action-sub{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.6}
+  .action-btns{display:flex;gap:10px}
+  .btn-confirm{flex:1;padding:13px;background:var(--green);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity .15s}
+  .btn-confirm:hover{opacity:.88}
+  .btn-confirm:disabled{opacity:.4;cursor:not-allowed}
+  .btn-decline{flex:1;padding:13px;background:rgba(255,69,58,.1);color:var(--red);border:1px solid rgba(255,69,58,.25);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity .15s}
+  .btn-decline:hover{opacity:.78}
+  .btn-decline:disabled{opacity:.4;cursor:not-allowed}
+
+  .decline-reason{margin-top:14px;display:none}
+  .decline-reason textarea{width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:72px}
+  .decline-reason textarea::placeholder{color:var(--muted)}
+  .decline-reason label{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px;display:block;margin-bottom:5px}
+  .btn-send-decline{margin-top:8px;width:100%;padding:10px;background:var(--red);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+
+  /* ── RESPONSE STATE ── */
+  .response-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 20px;text-align:center;margin-bottom:20px}
+  .response-icon{font-size:42px;margin-bottom:10px}
+  .response-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;margin-bottom:6px}
+  .response-sub{font-size:13px;color:var(--muted);line-height:1.6}
+
+  /* ── CALENDAR SECTION ── */
+  .calendar-section{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px}
+  .cal-heading{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;color:var(--gold);margin-bottom:14px}
+  .cal-btns{display:flex;flex-direction:column;gap:8px}
+  .cal-btn{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;transition:border-color .15s}
+  .cal-btn:hover{border-color:rgba(255,214,10,.4)}
+  .cal-btn-icon{font-size:20px;width:24px;flex-shrink:0;text-align:center}
+
+  /* ── LOADING / ERROR ── */
+  #loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:14px;text-align:center}
+  .spinner{width:36px;height:36px;border:3px solid rgba(255,214,10,.15);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading-text{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--muted)}
+  .error-card{background:rgba(255,69,58,.06);border:1px solid rgba(255,69,58,.2);border-radius:14px;padding:28px 20px;text-align:center}
+  .error-icon{font-size:40px;margin-bottom:10px}
+  .error-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;margin-bottom:6px}
+  .error-sub{font-size:13px;color:var(--muted);line-height:1.6}
+
+  /* ── ALREADY RESPONDED ── */
+  .responded-card{padding:24px 20px;text-align:center}
+</style>
+</head>
+<body>
+
+<!-- League brand color bar (populated by JS) -->
+<div class="league-brand-bar" id="brand-bar"></div>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div>
+    <div class="topbar-logo">REFIQ</div>
+    <div class="topbar-sub">GAME ASSIGNMENT</div>
+  </div>
+</div>
+
+<!-- Main page content -->
+<div class="page" id="main-page" style="display:none">
+
+  <!-- League header -->
+  <div class="league-header" id="league-header">
+    <div class="league-logo-placeholder" id="league-logo-wrap">⚽</div>
+    <div>
+      <div class="league-name" id="league-name">Loading…</div>
+      <div class="league-tagline" id="league-tagline">Game Assignment</div>
+    </div>
+  </div>
+
+  <!-- Game card -->
+  <div class="game-card">
+    <div class="game-card-header">
+      <div class="game-date-badge" id="game-date-badge"></div>
+      <div class="game-matchup" id="game-matchup"></div>
+      <div class="game-meta" id="game-meta"></div>
+    </div>
+    <div class="game-card-body">
+      <div class="role-badge">
+        <div class="role-badge-label" id="ref-role-label"></div>
+        <div class="role-desc" id="ref-role-desc"></div>
+      </div>
+      <div class="officials-heading">CREW</div>
+      <div id="officials-list"></div>
+    </div>
+  </div>
+
+  <!-- Action section (confirm / decline) -->
+  <div class="action-section" id="action-section">
+    <div class="action-heading" id="action-heading">CONFIRM YOUR ASSIGNMENT</div>
+    <div class="action-sub" id="action-sub">Review the details above and let your assignor know you're available.</div>
+    <div class="action-btns">
+      <button class="btn-confirm" id="btn-confirm" onclick="doConfirm()">✓ Confirm</button>
+      <button class="btn-decline" id="btn-decline" onclick="toggleDecline()">✕ Decline</button>
+    </div>
+    <div class="decline-reason" id="decline-reason">
+      <label>REASON (OPTIONAL)</label>
+      <textarea id="decline-reason-text" placeholder="Let the assignor know why you can't make it…"></textarea>
+      <button class="btn-send-decline" onclick="doDecline()">Send Decline</button>
+    </div>
+  </div>
+
+  <!-- Response confirmation (shown after confirm/decline) -->
+  <div class="response-card" id="response-card" style="display:none">
+    <div class="response-icon" id="response-icon"></div>
+    <div class="response-title" id="response-title"></div>
+    <div class="response-sub" id="response-sub"></div>
+  </div>
+
+  <!-- Calendar options (shown after confirm) -->
+  <div class="calendar-section" id="calendar-section" style="display:none">
+    <div class="cal-heading">📅 ADD TO CALENDAR</div>
+    <div class="cal-btns" id="cal-btns"></div>
+  </div>
+
+</div>
+
+<!-- Loading state -->
+<div id="loading-state">
+  <div class="spinner"></div>
+  <div class="loading-text">LOADING ASSIGNMENT</div>
+</div>
+
+<!-- Error state (hidden initially) -->
+<div class="page" id="error-state" style="display:none">
+  <div class="error-card">
+    <div class="error-icon">⚠️</div>
+    <div class="error-title" id="error-title">Assignment Not Found</div>
+    <div class="error-sub" id="error-sub">This assignment link may be invalid or expired. Contact your assignor for help.</div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, doc, getDoc, updateDoc, addDoc, collection, query, where,
+         getDocs, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey:            'AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM',
+  authDomain:        'www.myrefiq.com',
+  projectId:         'refiq-b8142',
+  storageBucket:     'refiq-b8142.firebasestorage.app',
+  messagingSenderId: '62305657245',
+  appId:             '1:62305657245:web:d6e35a80859ee8fdd08f74',
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db    = getFirestore(fbApp);
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let linkDoc = null;   // assignmentLinks document
+let linkId  = null;   // document ID
+let gameDoc = null;   // gameAssignments document
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+
+function fmtDate(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate?.() || new Date(ts);
+  return d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+}
+function fmtTime(t) { return t || ''; }
+function fmtDateShort(ts) {
+  if (!ts) return '';
+  const d = ts.toDate?.() || new Date(ts);
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+}
+
+function showError(title, sub) {
+  document.getElementById('loading-state').style.display = 'none';
+  document.getElementById('main-page').style.display     = 'none';
+  document.getElementById('error-title').textContent = title;
+  document.getElementById('error-sub').textContent   = sub;
+  document.getElementById('error-state').style.display = 'block';
+}
+
+// ── Role descriptions ─────────────────────────────────────────────────────────
+const roleDesc = {
+  CR:  'Center Referee — primary official, calls fouls and manages the game.',
+  AR1: 'Assistant Referee 1 — runs the line, monitors offside and ball-in/out.',
+  AR2: 'Assistant Referee 2 — runs the line, monitors offside and ball-in/out.',
+};
+
+// ── Load ──────────────────────────────────────────────────────────────────────
+async function init() {
+  // Extract slug from URL path: /r/[slug]
+  const pathParts = window.location.pathname.split('/').filter(Boolean);
+  // pathParts: ['r', 'slug'] or just ['slug'] depending on rewrite
+  const slug = pathParts[pathParts.length - 1];
+
+  if (!slug) { showError('Invalid Link', 'No assignment ID found in this URL.'); return; }
+
+  // 1. Find assignment link by slug
+  let linkSnap;
+  try {
+    linkSnap = await getDocs(query(collection(db,'assignmentLinks'), where('slug','==',slug)));
+  } catch(e) {
+    showError('Load Failed', 'Could not load the assignment. Please try again later.');
+    return;
+  }
+
+  if (linkSnap.empty) { showError('Assignment Not Found', 'This assignment link is not valid or has been removed.'); return; }
+
+  const linkDocSnap = linkSnap.docs[0];
+  linkDoc = linkDocSnap.data();
+  linkId  = linkDocSnap.id;
+
+  // 2. Load game
+  try {
+    const gameSnap = await getDoc(doc(db,'gameAssignments', linkDoc.gameId));
+    if (!gameSnap.exists()) { showError('Game Not Found', 'The game for this assignment no longer exists.'); return; }
+    gameDoc = { id: gameSnap.id, ...gameSnap.data() };
+  } catch(e) {
+    showError('Load Failed', 'Could not load game details. Please try again.');
+    return;
+  }
+
+  // 3. Load league branding
+  let leagueName = 'Your League';
+  let leagueLogo = '';
+  let brandColor = '';
+  try {
+    const leagueSnap = await getDoc(doc(db,'leagues', linkDoc.leagueId));
+    if (leagueSnap.exists()) {
+      const ld = leagueSnap.data();
+      leagueName  = ld.leagueName || ld.name || 'Your League';
+      leagueLogo  = ld.logoUrl || '';
+      brandColor  = ld.primaryColor || ld.brandColor || '';
+    }
+  } catch(_) {}
+
+  // 4. Render page
+  renderPage(leagueName, leagueLogo, brandColor);
+}
+
+function renderPage(leagueName, leagueLogo, brandColor) {
+  // Brand bar
+  if (brandColor) document.getElementById('brand-bar').style.background = brandColor;
+
+  // League header
+  document.getElementById('league-name').textContent = leagueName;
+  const logoWrap = document.getElementById('league-logo-wrap');
+  if (leagueLogo) {
+    logoWrap.innerHTML = `<img src="${esc(leagueLogo)}" alt="${esc(leagueName)} logo" class="league-logo">`;
+  }
+
+  // Game info
+  document.getElementById('game-date-badge').textContent = fmtDate(gameDoc.date) + (gameDoc.time ? ' · ' + fmtTime(gameDoc.time) : '');
+  document.getElementById('game-matchup').textContent    = `${gameDoc.homeTeam||'TBD'} vs ${gameDoc.awayTeam||'TBD'}`;
+
+  const mapUrl = gameDoc.location ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(gameDoc.location)}` : null;
+  document.getElementById('game-meta').innerHTML = [
+    gameDoc.location ? `<span>📍 ${mapUrl ? `<a href="${mapUrl}" target="_blank" rel="noopener">${esc(gameDoc.location)}</a>` : esc(gameDoc.location)}</span>` : null,
+    gameDoc.division ? `<span>⚽ ${esc(gameDoc.division)}</span>` : null,
+  ].filter(Boolean).join('');
+
+  // Role badge
+  const role = linkDoc.refRole || 'CR';
+  document.getElementById('ref-role-label').textContent = `YOUR ROLE: ${role}`;
+  document.getElementById('ref-role-desc').textContent  = roleDesc[role] || '';
+
+  // Other officials
+  const allRefs = gameDoc.assignedRefs || [];
+  const others  = allRefs.filter(r => r.email !== linkDoc.refEmail);
+  const ol = document.getElementById('officials-list');
+  if (!others.length) {
+    ol.innerHTML = '<div style="font-size:13px;color:var(--muted);font-style:italic">No other officials assigned yet.</div>';
+  } else {
+    ol.innerHTML = others.map(r => {
+      const cls = r.status === 'confirmed' ? 'chip-confirmed' : r.status === 'declined' ? 'chip-declined' : 'chip-pending';
+      const lbl = (r.status || 'pending').charAt(0).toUpperCase() + (r.status||'pending').slice(1);
+      return `<div class="official-row">
+        <span class="official-role">${esc(r.role)}</span>
+        <span class="official-name">${esc(r.name)}</span>
+        <span class="official-chip ${cls}">${lbl}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Show already-responded state
+  const status = linkDoc.status || 'pending';
+  if (status === 'confirmed') {
+    showAlreadyResponded('confirmed');
+  } else if (status === 'declined') {
+    showAlreadyResponded('declined');
+  }
+
+  // Feature 6: 24-hour game reminder
+  const gameDate = gameDoc.date?.toDate?.() || (gameDoc.date ? new Date(gameDoc.date) : null);
+  if (gameDate && gameDoc.time) {
+    const [h, m] = (gameDoc.time||'00:00').split(':').map(Number);
+    const gameDateTime = new Date(gameDate); gameDateTime.setHours(h||0, m||0, 0, 0);
+    const hoursUntil = (gameDateTime - Date.now()) / (1000*60*60);
+    if (hoursUntil > 0 && hoursUntil <= 24) {
+      const reminderEl = document.createElement('div');
+      reminderEl.style.cssText = 'background:rgba(255,214,10,.1);border:1px solid rgba(255,214,10,.25);border-radius:12px;padding:12px 16px;margin-bottom:16px;text-align:center;font-family:\'DM Sans\',sans-serif;font-size:13px;color:#ffd60a';
+      reminderEl.textContent = '⏰ Your game is tomorrow! Arrive 15 minutes early.';
+      const page = document.getElementById('main-page');
+      page.insertBefore(reminderEl, page.firstChild);
+    }
+  }
+
+  // Show page
+  document.getElementById('loading-state').style.display = 'none';
+  document.getElementById('main-page').style.display     = 'block';
+}
+
+function showAlreadyResponded(status) {
+  const actionSec = document.getElementById('action-section');
+  if (status === 'confirmed') {
+    actionSec.innerHTML = `
+      <div style="text-align:center;padding:8px 0">
+        <div style="font-size:36px;margin-bottom:8px">✅</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;margin-bottom:4px">ASSIGNMENT CONFIRMED</div>
+        <div style="font-size:13px;color:var(--muted)">You've already confirmed this assignment. See you on the pitch!</div>
+      </div>`;
+    showCalendar();
+  } else if (status === 'declined') {
+    actionSec.innerHTML = `
+      <div style="text-align:center;padding:8px 0">
+        <div style="font-size:36px;margin-bottom:8px">❌</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;margin-bottom:4px">ASSIGNMENT DECLINED</div>
+        <div style="font-size:13px;color:var(--muted)">You've declined this assignment. Your assignor has been notified.</div>
+      </div>`;
+  }
+}
+
+// ── Confirm ───────────────────────────────────────────────────────────────────
+window.doConfirm = async function() {
+  const btn = document.getElementById('btn-confirm');
+  btn.disabled = true; btn.textContent = 'Confirming…';
+  document.getElementById('btn-decline').disabled = true;
+  try {
+    const now = serverTimestamp();
+    // Update assignmentLinks
+    await updateDoc(doc(db,'assignmentLinks', linkId), { status:'confirmed', respondedAt: now });
+    // Update ref's status in gameAssignments.assignedRefs
+    const refs = (gameDoc.assignedRefs || []).map(r =>
+      r.email === linkDoc.refEmail ? { ...r, status:'confirmed' } : r
+    );
+    await updateDoc(doc(db,'gameAssignments', gameDoc.id), { assignedRefs: refs });
+    // Show success state
+    document.getElementById('action-section').style.display = 'none';
+    document.getElementById('response-card').style.display  = 'block';
+    document.getElementById('response-icon').textContent    = '✅';
+    document.getElementById('response-title').textContent   = 'CONFIRMED!';
+    document.getElementById('response-sub').textContent     =
+      `You're set for ${gameDoc.homeTeam||'TBD'} vs ${gameDoc.awayTeam||'TBD'} as ${linkDoc.refRole||'CR'}. See you on the pitch!`;
+    showCalendar();
+  } catch(e) {
+    alert('Could not save your response. Please try again.\n\n' + e.message);
+    btn.disabled = false; btn.textContent = '✓ Confirm';
+    document.getElementById('btn-decline').disabled = false;
+  }
+};
+
+// ── Decline ───────────────────────────────────────────────────────────────────
+window.toggleDecline = function() {
+  const box = document.getElementById('decline-reason');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+};
+
+window.doDecline = async function() {
+  const reason = document.getElementById('decline-reason-text').value.trim();
+  const btn    = document.querySelector('.btn-send-decline');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  document.getElementById('btn-confirm').disabled = true;
+  document.getElementById('btn-decline').disabled = true;
+  try {
+    const now = serverTimestamp();
+    await updateDoc(doc(db,'assignmentLinks', linkId), { status:'declined', respondedAt: now, declineReason: reason });
+    const refs = (gameDoc.assignedRefs || []).map(r =>
+      r.email === linkDoc.refEmail ? { ...r, status:'declined' } : r
+    );
+    await updateDoc(doc(db,'gameAssignments', gameDoc.id), { assignedRefs: refs });
+    // Feature 9: create waitlist request
+    try {
+      await addDoc(collection(db,'waitlistRequests'), {
+        gameId: gameDoc.id,
+        role: linkDoc.refRole || 'CR',
+        declinedBy: linkDoc.refEmail || '',
+        declinedByName: linkDoc.refName || '',
+        leagueId: linkDoc.leagueId || '',
+        declineReason: reason,
+        createdAt: serverTimestamp(),
+        status: 'open'
+      });
+    } catch(_) {}
+    document.getElementById('action-section').style.display = 'none';
+    document.getElementById('response-card').style.display  = 'block';
+    document.getElementById('response-icon').textContent    = '❌';
+    document.getElementById('response-title').textContent   = 'DECLINE SENT';
+    document.getElementById('response-sub').textContent     =
+      'Your assignor has been notified. Thanks for letting them know — they\'ll find a replacement.';
+  } catch(e) {
+    alert('Could not save your response. Please try again.\n\n' + e.message);
+    btn.disabled = false; btn.textContent = 'Send Decline';
+    document.getElementById('btn-confirm').disabled = false;
+    document.getElementById('btn-decline').disabled = false;
+  }
+};
+
+// ── Calendar (Part 4) ─────────────────────────────────────────────────────────
+function showCalendar() {
+  const sec = document.getElementById('calendar-section');
+  sec.style.display = 'block';
+  const btns = document.getElementById('cal-btns');
+
+  const game   = gameDoc;
+  const role   = linkDoc.refRole || 'CR';
+  const title  = `${game.homeTeam||'TBD'} vs ${game.awayTeam||'TBD'} (${role})`;
+  const loc    = game.location || '';
+
+  // Parse date/time → Date objects
+  let startDate = game.date?.toDate?.() || (game.date ? new Date(game.date) : null);
+  if (startDate && game.time) {
+    const [h, m] = game.time.split(':').map(Number);
+    if (!isNaN(h)) { startDate = new Date(startDate); startDate.setHours(h, m||0, 0); }
+  }
+  const endDate = startDate ? new Date(startDate.getTime() + 2*60*60*1000) : null; // +2 hours
+
+  function icsDate(d) {
+    if (!d) return '';
+    const pad = n => String(n).padStart(2,'0');
+    return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+  }
+  function gcalDate(d) {
+    if (!d) return '';
+    const pad = n => String(n).padStart(2,'0');
+    return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+  }
+
+  // Google Calendar
+  let gcalUrl = '';
+  if (startDate) {
+    const params = new URLSearchParams({
+      action:   'TEMPLATE',
+      text:     title,
+      dates:    `${gcalDate(startDate)}/${gcalDate(endDate||startDate)}`,
+      details:  `Game Assignment via RefIQ\nRole: ${role}`,
+      location: loc,
+    });
+    gcalUrl = `https://calendar.google.com/calendar/render?${params}`;
+  }
+
+  // Outlook Web
+  let outlookUrl = '';
+  if (startDate) {
+    const params = new URLSearchParams({
+      path:      '/calendar/action/compose',
+      rru:       'addevent',
+      startdt:   startDate.toISOString(),
+      enddt:     (endDate||startDate).toISOString(),
+      subject:   title,
+      location:  loc,
+      body:      `Game Assignment via RefIQ. Role: ${role}`,
+    });
+    outlookUrl = `https://outlook.live.com/calendar/0/deeplink/compose?${params}`;
+  }
+
+  // .ics download
+  function downloadICS() {
+    if (!startDate) { alert('No date available for this game.'); return; }
+    const uid  = `refiq-${linkId}@myrefiq.com`;
+    const now  = icsDate(new Date()).replace(/[:-]/g,'') + 'Z';
+    const ics  = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//RefIQ//Assignment//EN',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      `UID:${uid}`,
+      `DTSTAMP:${now}`,
+      `DTSTART:${icsDate(startDate)}`,
+      `DTEND:${icsDate(endDate||startDate)}`,
+      `SUMMARY:${title}`,
+      loc ? `LOCATION:${loc}` : '',
+      `DESCRIPTION:Game Assignment via RefIQ\\nRole: ${role}`,
+      'STATUS:CONFIRMED',
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ].filter(Boolean).join('\r\n');
+    const blob = new Blob([ics], { type:'text/calendar;charset=utf-8' });
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = `refiq-assignment.ics`;
+    a.click();
+  }
+
+  btns.innerHTML = '';
+
+  // Apple Calendar (.ics)
+  const icsBtn = document.createElement('button');
+  icsBtn.className = 'cal-btn';
+  icsBtn.innerHTML = '<span class="cal-btn-icon">🍎</span> Add to Apple Calendar (.ics)';
+  icsBtn.onclick   = downloadICS;
+  btns.appendChild(icsBtn);
+
+  // Google Calendar
+  if (gcalUrl) {
+    const gcBtn  = document.createElement('a');
+    gcBtn.href   = gcalUrl;
+    gcBtn.target = '_blank';
+    gcBtn.rel    = 'noopener noreferrer';
+    gcBtn.className = 'cal-btn';
+    gcBtn.innerHTML = '<span class="cal-btn-icon">📅</span> Add to Google Calendar';
+    btns.appendChild(gcBtn);
+  }
+
+  // Outlook
+  if (outlookUrl) {
+    const olBtn  = document.createElement('a');
+    olBtn.href   = outlookUrl;
+    olBtn.target = '_blank';
+    olBtn.rel    = 'noopener noreferrer';
+    olBtn.className = 'cal-btn';
+    olBtn.innerHTML = '<span class="cal-btn-icon">📧</span> Add to Outlook Calendar';
+    btns.appendChild(olBtn);
+  }
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

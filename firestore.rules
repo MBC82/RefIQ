@@ -4,14 +4,13 @@ service cloud.firestore {
 
     // ── LEAGUES ─────────────────────────────────────────────────────────────
     // Publicly readable so any visitor can fetch branding (logo, colors).
-    // Writable only by the league's designated admin (stored as adminUid on the doc).
+    // Writable only by the owner — league doc ID is always the owner's UID,
+    // so we compare against the path variable directly (no field lookup needed,
+    // which avoids the ownerUid vs adminUid field-name mismatch on old docs).
     match /leagues/{leagueId} {
       allow read: if true;
-      allow write: if request.auth != null
-                   && request.auth.uid == resource.data.adminUid;
-      // Allow create only if the caller sets themselves as adminUid
-      allow create: if request.auth != null
-                    && request.auth.uid == request.resource.data.adminUid;
+      allow create, update, delete: if request.auth != null
+                                    && request.auth.uid == leagueId;
     }
 
     // ── QUIZ LINKS ───────────────────────────────────────────────────────────
@@ -31,11 +30,9 @@ service cloud.firestore {
       allow read: if request.auth != null
                   && (
                     resource.data.userId == request.auth.uid
-                    || (
-                      resource.data.leagueId != null
-                      && exists(/databases/$(database)/documents/leagues/$(resource.data.leagueId))
-                      && get(/databases/$(database)/documents/leagues/$(resource.data.leagueId)).data.adminUid == request.auth.uid
-                    )
+                    // leagueId on results is always the league owner's UID,
+                    // so a direct UID match is correct (no adminUid field lookup needed).
+                    || resource.data.leagueId == request.auth.uid
                   );
       allow update, delete: if false;
     }
@@ -63,8 +60,7 @@ service cloud.firestore {
       allow create: if request.auth != null
                     && request.resource.data.uid == request.auth.uid;
       allow read: if request.auth != null
-                  && exists(/databases/$(database)/documents/leagues/$(resource.data.leagueId))
-                  && get(/databases/$(database)/documents/leagues/$(resource.data.leagueId)).data.adminUid == request.auth.uid;
+                  && resource.data.leagueId == request.auth.uid;
       allow update, delete: if false;
     }
 
@@ -73,6 +69,80 @@ service cloud.firestore {
     match /users/{userId} {
       allow read, write: if request.auth != null
                          && request.auth.uid == userId;
+    }
+
+    // ── GAME ASSIGNMENTS ─────────────────────────────────────────────────────
+    // Authenticated users who own the league (leagueId == uid) can do anything.
+    // Unauthenticated reads are allowed for assignment link pages.
+    match /gameAssignments/{gameId} {
+      allow read:   if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null
+                            && (resource.data.leagueId == request.auth.uid
+                                || resource.data.createdBy == request.auth.uid);
+    }
+
+    // ── ASSIGNMENT LINKS ─────────────────────────────────────────────────────
+    // Publicly readable so ref-assignment.html works without login.
+    // Refs can update their own link (confirm/decline).
+    // Admins can create/delete.
+    match /assignmentLinks/{linkId} {
+      allow read:   if true;
+      allow create: if request.auth != null;
+      allow update: if true;  // Referee updates status without login
+      allow delete: if request.auth != null;
+    }
+
+    // ── REFEREE POOL ─────────────────────────────────────────────────────────
+    match /refereePool/{refId} {
+      allow read:   if request.auth != null;
+      allow create, update: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+
+    // ── AVAILABILITY ─────────────────────────────────────────────────────────
+    match /availabilityWindows/{windowId} {
+      allow read:   if true;
+      allow write:  if request.auth != null;
+    }
+
+    match /refereeAvailability/{docId} {
+      allow read:   if request.auth != null;
+      allow create: if true;  // Refs submit without admin login
+      allow update, delete: if request.auth != null;
+    }
+
+    // ── REFEREE APPLICATIONS ─────────────────────────────────────────────────
+    match /refereeApplications/{appId} {
+      allow read:   if request.auth != null;
+      allow create: if true;  // Public signup page, no login required
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+
+    // ── WAITLIST REQUESTS ────────────────────────────────────────────────────
+    match /waitlistRequests/{reqId} {
+      allow read:   if request.auth != null;
+      allow create: if true;  // Created when ref declines (no admin login)
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+
+    // ── INCIDENT REPORTS ─────────────────────────────────────────────────────
+    match /incidentReports/{reportId} {
+      allow read:   if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if false;
+    }
+
+    // ── REF RATINGS ──────────────────────────────────────────────────────────
+    // Refs can read their own ratings (for portal). Admins read/write all.
+    match /refRatings/{ratingId} {
+      allow read:   if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if false;
     }
   }
 }

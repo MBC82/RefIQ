@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Referee Application — RefIQ</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#ffd60a;--gold-dark:#b8940a;
+  --red:#ff453a;--green:#34c759;
+  --bg:#080c09;--s1:#111711;--s2:#1a221b;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);
+  --text:#f0f4f0;--muted:#7a9080
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,214,10,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,214,10,.018) 1px,transparent 1px);
+  background-size:60px 60px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fadeUp .4s ease both}
+
+/* Topbar */
+.topbar{width:100%;padding:14px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);background:var(--s1);position:relative;z-index:1}
+.topbar-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--gold)}
+.topbar-sub{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px}
+.brand-bar{height:4px;width:100%;position:relative;z-index:1}
+
+/* Layout */
+.page{max-width:560px;margin:0 auto;padding:32px 16px 60px;position:relative;z-index:1}
+
+/* League header */
+.league-header{display:flex;align-items:center;gap:14px;padding:16px;background:var(--s1);border:1px solid var(--border);border-radius:14px;margin-bottom:24px}
+.league-logo-ph{width:52px;height:52px;background:var(--s2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.league-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px}
+.league-tagline{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace}
+
+/* Card */
+.card{background:var(--s1);border:1px solid var(--border2);border-radius:18px;padding:28px 24px;margin-bottom:20px}
+.card-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;margin-bottom:4px}
+.card-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6}
+
+/* Form */
+.field{width:100%;background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:10px;transition:border-color .2s;-webkit-appearance:none}
+.field:focus{border-color:var(--gold)}
+.label{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px;display:block;margin-bottom:4px;margin-top:4px}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.submit-btn{width:100%;padding:15px;background:var(--gold-dark);border:none;border-radius:12px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;margin-top:6px;transition:all .2s}
+.submit-btn:hover{background:var(--gold);color:#080c09}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed}
+.err{font-size:12px;color:var(--red);padding:10px 13px;background:rgba(255,69,58,.08);border:1px solid rgba(255,69,58,.2);border-radius:10px;margin-bottom:10px;display:none;font-family:'DM Mono',monospace}
+
+/* Success */
+.success-card{background:var(--s1);border:1px solid rgba(52,199,89,.25);border-radius:18px;padding:40px 24px;text-align:center;display:none}
+.success-icon{font-size:52px;margin-bottom:12px}
+.success-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;margin-bottom:8px}
+.success-sub{font-size:13px;color:var(--muted);line-height:1.7;max-width:320px;margin:0 auto}
+
+/* Loading */
+#page-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:14px;text-align:center;position:relative;z-index:1}
+.spinner{width:34px;height:34px;border:3px solid rgba(255,214,10,.15);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+</style>
+</head>
+<body>
+
+<div class="brand-bar" id="brand-bar"></div>
+<div class="topbar">
+  <div>
+    <div class="topbar-logo">REFIQ</div>
+    <div class="topbar-sub">REFEREE APPLICATION</div>
+  </div>
+</div>
+
+<div id="page-loading">
+  <div class="spinner"></div>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--muted)">LOADING</div>
+</div>
+
+<div class="page" id="main-page" style="display:none">
+
+  <!-- League header -->
+  <div class="league-header">
+    <div class="league-logo-ph" id="league-logo-ph">⚽</div>
+    <div>
+      <div class="league-name" id="league-name">Your League</div>
+      <div class="league-tagline">Referee Application</div>
+    </div>
+  </div>
+
+  <!-- Application form -->
+  <div class="card fu" id="form-card">
+    <div class="card-title">JOIN THE TEAM</div>
+    <div class="card-sub">Fill out the form below to apply to referee for this league. Your application will be reviewed by the league administrator.</div>
+    <div class="err" id="form-err"></div>
+    <label class="label">FULL NAME *</label>
+    <input type="text" class="field" id="app-name" placeholder="First Last" autocomplete="name">
+    <label class="label">EMAIL ADDRESS *</label>
+    <input type="email" class="field" id="app-email" placeholder="you@email.com" autocomplete="email">
+    <label class="label">PHONE NUMBER</label>
+    <input type="tel" class="field" id="app-phone" placeholder="(555) 555-5555" autocomplete="tel">
+    <div class="field-grid">
+      <div>
+        <label class="label">CERTIFICATION LEVEL *</label>
+        <select class="field" id="app-cert">
+          <option value="">Select…</option>
+          <option value="Grade 9">Grade 9 (Entry Level)</option>
+          <option value="Grade 8">Grade 8</option>
+          <option value="Grade 7">Grade 7</option>
+          <option value="Grade 6">Grade 6</option>
+          <option value="Grade 5">Grade 5</option>
+          <option value="National">National</option>
+          <option value="Uncertified">Not Yet Certified</option>
+        </select>
+      </div>
+      <div>
+        <label class="label">CERT EXPIRY DATE</label>
+        <input type="date" class="field" id="app-cert-expiry">
+      </div>
+    </div>
+    <label class="label">YEARS OF EXPERIENCE</label>
+    <input type="number" class="field" id="app-years" min="0" max="50" placeholder="e.g. 3">
+    <label class="label">NOTES / ADDITIONAL INFO</label>
+    <textarea class="field" id="app-notes" rows="3" placeholder="Tell us about your experience, availability, or anything else relevant…" style="resize:vertical"></textarea>
+    <button class="submit-btn" id="submit-btn" onclick="submitApplication()">APPLY NOW →</button>
+  </div>
+
+  <!-- Success state -->
+  <div class="success-card fu" id="success-card">
+    <div class="success-icon">✅</div>
+    <div class="success-title">APPLICATION SUBMITTED</div>
+    <div class="success-sub">Thanks for applying! The league administrator will review your application and be in touch. We'll let you know when you've been approved.</div>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, addDoc, query, where, getDocs, doc, getDoc,
+         serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM',
+  authDomain: 'www.myrefiq.com',
+  projectId: 'refiq-b8142',
+  storageBucket: 'refiq-b8142.firebasestorage.app',
+  messagingSenderId: '62305657245',
+  appId: '1:62305657245:web:d6e35a80859ee8fdd08f74'
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+let leagueId   = null;
+let leagueName = 'Your League';
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+function showErr(m){ const e=document.getElementById('form-err'); e.textContent=m; e.style.display=m?'block':'none'; }
+
+// Extract league slug from URL: /join/[slug]
+async function init() {
+  const parts = window.location.pathname.split('/').filter(Boolean);
+  const slug  = parts[parts.length - 1]; // last segment after /join/
+
+  if (slug && slug !== 'join') {
+    // Try to find league by slug field
+    try {
+      const snap = await getDocs(query(collection(db,'leagues'), where('slug','==',slug)));
+      if (!snap.empty) {
+        const d = snap.docs[0];
+        leagueId   = d.id;
+        const data = d.data();
+        leagueName = data.name || data.leagueName || 'Your League';
+        document.getElementById('league-name').textContent = leagueName;
+        if (data.brandColor) document.getElementById('brand-bar').style.background = data.brandColor;
+        if (data.logoDataUrl) {
+          document.getElementById('league-logo-ph').innerHTML = `<img src="${data.logoDataUrl}" style="width:52px;height:52px;object-fit:contain;border-radius:10px">`;
+        }
+      } else {
+        // Try leagueId directly (slug might be a Firestore document ID)
+        try {
+          const dSnap = await getDoc(doc(db,'leagues', slug));
+          if (dSnap.exists()) {
+            leagueId   = slug;
+            const data = dSnap.data();
+            leagueName = data.name || data.leagueName || 'Your League';
+            document.getElementById('league-name').textContent = leagueName;
+            if (data.brandColor) document.getElementById('brand-bar').style.background = data.brandColor;
+            if (data.logoDataUrl) {
+              document.getElementById('league-logo-ph').innerHTML = `<img src="${data.logoDataUrl}" style="width:52px;height:52px;object-fit:contain;border-radius:10px">`;
+            }
+          }
+        } catch(_) {}
+      }
+    } catch(_) {}
+  }
+
+  document.getElementById('page-loading').style.display = 'none';
+  document.getElementById('main-page').style.display    = 'block';
+}
+
+window.submitApplication = async function() {
+  showErr('');
+  const name  = document.getElementById('app-name').value.trim();
+  const email = document.getElementById('app-email').value.trim().toLowerCase();
+  const cert  = document.getElementById('app-cert').value;
+  if (!name)  { showErr('Full name is required.'); return; }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('A valid email address is required.'); return; }
+  if (!cert)  { showErr('Please select a certification level.'); return; }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.textContent = 'SUBMITTING…';
+
+  try {
+    await addDoc(collection(db,'refereeApplications'), {
+      leagueId:              leagueId || 'unknown',
+      leagueName:            leagueName,
+      name,
+      email,
+      phone:                 document.getElementById('app-phone').value.trim(),
+      certificationLevel:    cert,
+      certificationExpiry:   document.getElementById('app-cert-expiry').value || '',
+      yearsExperience:       parseInt(document.getElementById('app-years').value)||0,
+      notes:                 document.getElementById('app-notes').value.trim(),
+      status:                'pending',
+      appliedAt:             serverTimestamp()
+    });
+    document.getElementById('form-card').style.display    = 'none';
+    document.getElementById('success-card').style.display = 'block';
+  } catch(e) {
+    showErr('Submission failed: ' + e.message);
+    btn.disabled = false; btn.textContent = 'APPLY NOW →';
+  }
+};
+
+init();
+</script>
+</body>
+</html>

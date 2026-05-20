@@ -21,6 +21,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Rajdhani:wght@600;700&family=Oswald:wght@500;600&family=Barlow+Condensed:wght@600;700&family=Exo+2:wght@600;700&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<!-- SheetJS for spreadsheet parsing (import feature) -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -672,6 +674,26 @@ select.asgn-field option{background:var(--s2)}
 .asgn-table tr:hover td{background:rgba(255,255,255,.02)}
 .asgn-inline-edit{background:transparent;border:none;border-bottom:1px dashed rgba(255,255,255,.15);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;width:100%;padding:2px 0;transition:border-color .2s}
 .asgn-inline-edit:focus{border-bottom-color:rgba(255,214,10,.5)}
+/* ── SCHEDULE IMPORT ─────────────────────────────────────────────────────── */
+.import-zone{border:2px dashed rgba(255,214,10,.3);border-radius:12px;padding:28px 20px;text-align:center;margin-bottom:20px;transition:border-color .2s,background .2s;cursor:pointer;background:rgba(255,214,10,.03)}
+.import-zone:hover,.import-zone.drag-over{border-color:var(--gold);background:rgba(255,214,10,.07)}
+.import-icon{font-size:30px;display:block;margin-bottom:8px}
+.import-title{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--gold);margin:0 0 4px}
+.import-subtitle{font-size:12px;color:rgba(255,255,255,.38);margin:0 0 14px}
+.import-browse-btn{background:transparent;border:1px solid rgba(255,214,10,.4);color:var(--gold);padding:7px 18px;border-radius:6px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;transition:background .15s}
+.import-browse-btn:hover{background:rgba(255,214,10,.1)}
+.import-status{margin-top:10px;min-height:28px}
+.import-loading{display:flex;align-items:center;gap:10px;justify-content:center;color:var(--muted);font-size:13px;padding:4px 0}
+.import-success{color:#34c759;font-size:13px;font-weight:600;padding:4px 0}
+.import-error{color:var(--red);font-size:13px;font-weight:600;padding:4px 0}
+.template-link{font-size:12px;color:var(--muted);margin-top:9px}
+.template-link a{color:rgba(255,214,10,.7);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.import-preview-scroll{max-height:300px;overflow-y:auto;border-radius:10px;border:1px solid var(--border)}
+.import-preview-table{width:100%;border-collapse:collapse;font-size:12px}
+.import-preview-table th{text-align:left;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:7px 10px;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--s2);position:sticky;top:0}
+.import-preview-table td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;color:var(--text)}
+.import-preview-table tr:last-child td{border-bottom:none}
+.import-preview-table tr.row-warn td{background:rgba(255,69,58,.06);color:rgba(255,100,90,.9)}
 @media(max-width:768px){
   .asgn-game-card{grid-template-columns:1fr;gap:10px}
   .asgn-game-actions{flex-direction:row}
@@ -682,6 +704,57 @@ select.asgn-field option{background:var(--s2)}
   .asgn-form-grid{grid-template-columns:1fr}
   .asgn-form-group.full{grid-column:1}
 }
+
+/* ── FEATURE CSS: conflict warning, AI suggest, cert badges, alerts, payments, analytics, waitlist ── */
+.asgn-conflict-warning{background:rgba(255,69,58,.08);border:1px solid rgba(255,69,58,.25);border-radius:9px;padding:10px 13px;margin:8px 0;font-size:12px;color:#ff453a;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.asgn-conflict-warning button{padding:4px 11px;background:rgba(255,69,58,.15);color:#ff453a;border:1px solid rgba(255,69,58,.3);border-radius:7px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700;white-space:nowrap;flex-shrink:0}
+.asgn-alert-banner{background:rgba(255,69,58,.08);border:1px solid rgba(255,69,58,.22);border-radius:10px;padding:10px 16px;margin:0 24px 12px;font-size:12px;color:#ff453a;display:flex;align-items:center;gap:10px}
+.asgn-alert-banner button{margin-left:auto;background:none;border:none;color:rgba(255,255,255,.4);font-size:16px;cursor:pointer;padding:0 4px}
+.asgn-gold-banner{background:rgba(255,214,10,.08);border:1px solid rgba(255,214,10,.22);border-radius:10px;padding:10px 16px;margin:0 24px 12px;font-size:12px;color:var(--gold);display:flex;align-items:center;gap:10px}
+.asgn-gold-banner button{margin-left:auto;background:none;border:none;color:rgba(255,255,255,.4);font-size:16px;cursor:pointer;padding:0 4px}
+.asgn-gold-banner a{color:var(--gold);cursor:pointer;text-decoration:underline}
+.cert-exp-red{color:#ff453a;font-weight:700}
+.cert-exp-gold{color:var(--gold);font-weight:600}
+.cert-exp-green{color:#34c759}
+.cert-warn{font-size:10px;color:#ff9f0a;font-family:'DM Mono',monospace;margin-left:6px}
+.ai-suggest-btn{padding:7px 14px;background:rgba(255,214,10,.12);color:var(--gold);border:1px solid rgba(255,214,10,.25);border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .18s}
+.ai-suggest-btn:hover{background:rgba(255,214,10,.22)}
+.ai-suggest-btn:disabled{opacity:.5;cursor:not-allowed}
+.asgn-ref-result-item.ai-pick{background:rgba(255,214,10,.07);border:1px solid rgba(255,214,10,.18);border-radius:9px;margin-bottom:4px}
+.ai-pick-badge{font-size:10px;color:var(--gold);font-family:'DM Mono',monospace;letter-spacing:.5px}
+/* Payments tab */
+.payment-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.payment-row:last-child{border-bottom:none}
+.pay-status-select{padding:3px 8px;background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:7px;font-size:11px;font-family:'DM Sans',sans-serif;cursor:pointer}
+.pay-fee-input{width:70px;padding:3px 8px;background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:7px;font-size:12px;font-family:'DM Mono',monospace}
+.pay-expand-btn{padding:5px 12px;background:rgba(255,255,255,.04);color:var(--muted);border:1px solid var(--border);border-radius:7px;font-size:11px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s}
+.pay-expand-btn:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
+.pay-section{background:rgba(255,255,255,.02);border-top:1px solid var(--border);padding:10px 14px;display:none}
+.pay-section.open{display:block}
+/* Analytics tab */
+.analytics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:22px}
+.analytics-metric{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+.analytics-metric-val{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;color:var(--gold);line-height:1}
+.analytics-metric-lbl{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px;letter-spacing:.5px}
+.analytics-bar-wrap{margin-bottom:6px}
+.analytics-bar-label{font-size:11px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:3px}
+.analytics-bar-track{background:rgba(255,255,255,.05);border-radius:4px;height:10px;overflow:hidden}
+.analytics-bar-fill{height:10px;background:var(--gold);border-radius:4px;transition:width .4s}
+/* Incident + Rating modals */
+.star-btn{background:none;border:none;font-size:22px;cursor:pointer;color:rgba(255,255,255,.2);transition:color .1s;padding:0 2px}
+.star-btn.active{color:var(--gold)}
+.incident-row{margin-bottom:12px}
+.incident-label{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px;margin-bottom:4px;display:block}
+.incident-field{width:100%;padding:8px 11px;background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
+.incident-field:focus{border-color:var(--gold)}
+/* Applications section */
+.asgn-application-card{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.asgn-application-card .app-info{flex:1;min-width:160px}
+.asgn-application-card .app-actions{display:flex;gap:7px}
+/* Ref Portal tab styles used in ref-portal.html */
+.portal-tab-nav{display:flex;gap:4px;padding:0 0 16px;flex-wrap:wrap}
+.portal-tab-btn{padding:8px 16px;background:var(--s2);border:1px solid var(--border);color:var(--muted);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s}
+.portal-tab-btn.active{background:var(--gold);color:#080c09;border-color:var(--gold)}
 </style>
 <!-- PDF.js for rulebook text extraction -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -1447,6 +1520,26 @@ select.asgn-field option{background:var(--s2)}
     <!-- ASSIGNMENTS VIEW -->
     <div id="view-assignments">
 
+      <!-- Feature 6: Game Day Banner -->
+      <div id="game-day-banner" style="display:none" class="asgn-gold-banner">
+        <span id="game-day-banner-text">⚽ Games tomorrow.</span>
+        <a onclick="switchAsgnTab('games',document.querySelector('.asgn-tab-btn'))">View Games →</a>
+        <button onclick="this.parentElement.style.display='none'" title="Dismiss">✕</button>
+      </div>
+
+      <!-- Feature 4: Cert Expiry Alert Banner -->
+      <div id="asgn-cert-alert" style="display:none" class="asgn-alert-banner">
+        <span id="asgn-cert-alert-text">⚠️ Some referee certifications are expiring soon.</span>
+        <button onclick="this.parentElement.style.display='none'" title="Dismiss">✕</button>
+      </div>
+
+      <!-- Feature 9: Waitlist Banner -->
+      <div id="asgn-waitlist-banner" style="display:none" class="asgn-alert-banner" style="background:rgba(255,159,10,.08);border-color:rgba(255,159,10,.25);color:#ff9f0a">
+        <span id="asgn-waitlist-text">A referee declined a game. Find replacement →</span>
+        <button id="asgn-waitlist-action-btn" style="padding:4px 11px;background:rgba(255,159,10,.15);color:#ff9f0a;border:1px solid rgba(255,159,10,.3);border-radius:7px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700;white-space:nowrap">Find Replacement</button>
+        <button onclick="this.parentElement.style.display='none'" title="Dismiss">✕</button>
+      </div>
+
       <div class="asgn-header">
         <div class="asgn-title">GAME ASSIGNMENTS</div>
         <div class="asgn-sub" id="asgn-sub">Manage game scheduling and referee assignments</div>
@@ -1457,6 +1550,8 @@ select.asgn-field option{background:var(--s2)}
         <button class="asgn-tab-btn active" onclick="switchAsgnTab('games',this)">📅 Games</button>
         <button class="asgn-tab-btn" onclick="switchAsgnTab('availability',this)">📆 Availability</button>
         <button class="asgn-tab-btn" onclick="switchAsgnTab('pool',this)">👥 Referee Pool</button>
+        <button class="asgn-tab-btn" onclick="switchAsgnTab('payments',this)">💰 Payments</button>
+        <button class="asgn-tab-btn" onclick="switchAsgnTab('analytics',this);asgnLoadAnalytics()">📊 Analytics</button>
       </div>
 
       <!-- ── GAMES TAB ── -->
@@ -1481,6 +1576,19 @@ select.asgn-field option{background:var(--s2)}
             <option value="complete">Complete</option>
           </select>
         </div>
+        <!-- ── SCHEDULE IMPORT DROP ZONE ── -->
+        <div id="import-drop-zone" class="import-zone" onclick="document.getElementById('import-file-input').click()">
+          <div class="import-zone-inner">
+            <span class="import-icon">📊</span>
+            <p class="import-title">Drop your season schedule here</p>
+            <p class="import-subtitle">Supports .xlsx, .xls, and .csv files</p>
+            <button class="import-browse-btn" onclick="event.stopPropagation();document.getElementById('import-file-input').click()">Browse Files</button>
+            <input type="file" id="import-file-input" accept=".xlsx,.xls,.csv" style="display:none">
+          </div>
+        </div>
+        <p class="template-link">Not sure of the format? <a onclick="importDownloadTemplate()">Download sample template</a></p>
+        <div id="import-status" class="import-status"></div>
+
         <div id="asgn-games-container">
           <div id="asgn-games-empty" style="display:flex;flex-direction:column;align-items:center;padding:72px 24px;text-align:center">
             <div style="font-size:44px;margin-bottom:14px;opacity:.4">📅</div>
@@ -1531,14 +1639,49 @@ select.asgn-field option{background:var(--s2)}
 
       <!-- ── REFEREE POOL TAB ── -->
       <div class="asgn-tab-panel" id="asgn-tab-pool">
-        <div class="asgn-toolbar" style="margin-bottom:14px">
+        <div class="asgn-toolbar" style="margin-bottom:14px;flex-wrap:wrap;gap:8px">
           <input type="text" class="asgn-filter-input" id="asgn-pool-search" placeholder="🔍  Search by name or email…" oninput="asgnFilterPool()" style="min-width:240px">
+          <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);cursor:pointer">
+            <input type="checkbox" id="asgn-pool-expiring" onchange="asgnFilterPool()" style="accent-color:var(--gold)">
+            Show Expiring Soon (60 days)
+          </label>
+          <a id="asgn-pool-signup-link" href="/join/" target="_blank" style="font-size:12px;color:var(--gold);text-decoration:none;font-family:'DM Mono',monospace" title="Share this link with refs to apply">🔗 Signup Link</a>
         </div>
         <div id="asgn-pool-container">
           <div id="asgn-pool-empty" style="display:flex;flex-direction:column;align-items:center;padding:72px 24px;text-align:center">
             <div style="font-size:44px;margin-bottom:14px;opacity:.4">👥</div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:rgba(255,255,255,.3);margin-bottom:8px">NO REFEREES YET</div>
             <div style="font-size:13px;color:var(--muted);max-width:280px;line-height:1.65">Referees who take your quiz links will appear here automatically.</div>
+          </div>
+        </div>
+        <!-- Feature 10: Applications Section -->
+        <div id="asgn-applications-section" style="margin-top:24px;display:none">
+          <div class="asgn-section-heading" style="margin-bottom:10px">APPLICATIONS</div>
+          <div id="asgn-applications-list"></div>
+        </div>
+      </div>
+
+      <!-- ── PAYMENTS TAB (Feature 5) ── -->
+      <div class="asgn-tab-panel" id="asgn-tab-payments">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--muted)">SEASON PAYMENT SUMMARY</div>
+          <button onclick="asgnExportPaymentsCSV()" style="padding:7px 16px;background:rgba(255,214,10,.12);color:var(--gold);border:1px solid rgba(255,214,10,.2);border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:700;cursor:pointer">Export CSV</button>
+        </div>
+        <div id="asgn-payments-container">
+          <div style="display:flex;flex-direction:column;align-items:center;padding:56px 24px;text-align:center">
+            <div style="font-size:40px;margin-bottom:12px;opacity:.4">💰</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:rgba(255,255,255,.3);margin-bottom:6px">NO PAYMENT DATA</div>
+            <div style="font-size:13px;color:var(--muted);max-width:280px;line-height:1.6">Assign referees to games and set fees in each game card to track payments here.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ANALYTICS TAB (Feature 8) ── -->
+      <div class="asgn-tab-panel" id="asgn-tab-analytics">
+        <div id="asgn-analytics-container">
+          <div style="display:flex;flex-direction:column;align-items:center;padding:56px 24px;text-align:center">
+            <div style="font-size:40px;margin-bottom:12px;opacity:.4">📊</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:rgba(255,255,255,.3);margin-bottom:6px">LOADING ANALYTICS</div>
           </div>
         </div>
       </div>
@@ -1660,8 +1803,50 @@ select.asgn-field option{background:var(--s2)}
       <div id="asgn-assign-meta" style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace"></div>
     </div>
     <div class="asgn-section-heading" style="margin-bottom:10px">SEARCH REFEREE POOL</div>
-    <input type="text" class="asgn-field" id="asgn-ref-search-input" placeholder="Search by name or email…" oninput="asgnSearchRefs()" style="margin-bottom:6px">
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+      <input type="text" class="asgn-field" id="asgn-ref-search-input" placeholder="Search by name or email…" oninput="asgnSearchRefs()" style="margin-bottom:0;flex:1">
+      <button class="ai-suggest-btn" id="asgn-ai-suggest-btn" onclick="asgnAISuggest()">✨ AI Suggest</button>
+    </div>
+    <!-- Feature 1: Conflict Warning -->
+    <div id="asgn-conflict-warning" style="display:none" class="asgn-conflict-warning"></div>
     <div class="asgn-ref-results" id="asgn-ref-results" style="display:none"></div>
+    <!-- Add New Referee Manually (Part 1) -->
+    <div style="margin-top:10px">
+      <button onclick="asgnToggleNewRef()" id="asgn-new-ref-toggle" style="display:flex;align-items:center;gap:7px;width:100%;background:transparent;border:1px dashed rgba(255,214,10,.3);color:var(--gold);padding:8px 14px;border-radius:9px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:700;cursor:pointer;justify-content:center">
+        <span>＋</span> Add New Referee Manually
+      </button>
+      <div id="asgn-new-ref-form" style="display:none;margin-top:10px;padding:14px;background:rgba(255,214,10,.04);border:1px solid rgba(255,214,10,.14);border-radius:10px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;color:var(--gold);margin-bottom:10px">NEW REFEREE</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div>
+            <label style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px;display:block;margin-bottom:4px">FIRST NAME *</label>
+            <input class="asgn-field" id="anr-first" placeholder="First">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px;display:block;margin-bottom:4px">LAST NAME *</label>
+            <input class="asgn-field" id="anr-last" placeholder="Last">
+          </div>
+        </div>
+        <div style="margin-bottom:10px">
+          <label style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px;display:block;margin-bottom:4px">EMAIL *</label>
+          <input class="asgn-field" id="anr-email" type="email" placeholder="referee@email.com">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:13px">
+          <div>
+            <label style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px;display:block;margin-bottom:4px">PHONE</label>
+            <input class="asgn-field" id="anr-phone" placeholder="Optional">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px;display:block;margin-bottom:4px">CERTIFICATION</label>
+            <input class="asgn-field" id="anr-cert" placeholder="e.g. Grade 8">
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button onclick="asgnToggleNewRef()" style="flex:1;padding:8px;background:var(--s2);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:700;cursor:pointer">Cancel</button>
+          <button id="anr-save-btn" onclick="asgnSaveNewRef()" style="flex:2;padding:8px;background:var(--gold);color:#080c09;border:none;border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:700;cursor:pointer">Save &amp; Add to Assignment →</button>
+        </div>
+      </div>
+    </div>
     <div class="asgn-section-heading" style="margin-top:18px;margin-bottom:10px">ASSIGNED OFFICIALS</div>
     <div id="asgn-assigned-list">
       <div style="font-size:13px;color:var(--muted);font-style:italic;padding:6px 0">No officials assigned yet.</div>
@@ -1672,7 +1857,72 @@ select.asgn-field option{background:var(--s2)}
     </div>
     <div class="asgn-form-actions">
       <button onclick="asgnCloseAssignModal()" style="padding:9px 18px;background:var(--s2);color:var(--text);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Cancel</button>
-      <button onclick="asgnSaveAssignments()" style="padding:9px 18px;background:var(--gold);color:#080c09;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Save Assignments →</button>
+      <button id="asgn-save-assign-btn" onclick="asgnSaveAssignments()" style="padding:9px 18px;background:var(--gold);color:#080c09;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Save Assignments →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import Preview Modal -->
+<div class="asgn-modal-overlay" id="import-preview-modal" onclick="if(event.target===this)importClosePreview()">
+  <div class="asgn-modal asgn-modal-lg" style="max-width:760px">
+    <button class="asgn-modal-close" onclick="importClosePreview()">✕</button>
+    <div class="asgn-modal-title">IMPORT PREVIEW</div>
+    <div id="import-preview-summary" style="font-size:13px;color:var(--muted);margin-bottom:14px"></div>
+    <div class="import-preview-scroll">
+      <table class="import-preview-table">
+        <thead>
+          <tr>
+            <th>Date</th><th>Time</th><th>Home Team</th><th>Away Team</th><th>Division</th><th>Location</th><th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="import-preview-tbody"></tbody>
+      </table>
+    </div>
+    <div class="asgn-form-actions" style="margin-top:18px">
+      <button onclick="importClosePreview()" style="padding:9px 18px;background:var(--s2);color:var(--text);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Cancel</button>
+      <button id="import-confirm-btn" onclick="importConfirm()" style="padding:9px 22px;background:var(--gold);color:#080c09;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Import Games →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Feature 11: Incident Report Modal -->
+<div class="asgn-modal-overlay" id="incident-report-modal" onclick="if(event.target===this)document.getElementById('incident-report-modal').classList.remove('show')">
+  <div class="asgn-modal asgn-modal-lg">
+    <button class="asgn-modal-close" onclick="document.getElementById('incident-report-modal').classList.remove('show')">✕</button>
+    <div class="asgn-modal-title">📋 INCIDENT REPORT</div>
+    <input type="hidden" id="ir-game-id">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div class="incident-row"><label class="incident-label">YELLOW CARDS</label><input type="number" min="0" class="incident-field" id="ir-yellow" value="0"></div>
+      <div class="incident-row"><label class="incident-label">RED CARDS</label><input type="number" min="0" class="incident-field" id="ir-red" value="0"></div>
+    </div>
+    <div class="incident-row"><label class="incident-label">RED CARD REASON (if any)</label><input type="text" class="incident-field" id="ir-red-reason" placeholder="e.g. Violent conduct"></div>
+    <div class="incident-row"><label class="incident-label">INJURIES</label><select class="incident-field" id="ir-injuries"><option value="none">None</option><option value="minor">Minor</option><option value="serious">Serious (medical attention required)</option></select></div>
+    <div class="incident-row"><label class="incident-label">INJURY DESCRIPTION</label><textarea class="incident-field" id="ir-injury-desc" rows="2" placeholder="Describe any injuries…" style="resize:vertical"></textarea></div>
+    <div class="incident-row"><label class="incident-label">INCIDENTS / NOTABLE EVENTS</label><textarea class="incident-field" id="ir-incidents" rows="3" placeholder="Describe any notable incidents…" style="resize:vertical"></textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div class="incident-row"><label class="incident-label">FIELD CONDITION</label><select class="incident-field" id="ir-field"><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option></select></div>
+      <div class="incident-row"><label class="incident-label">GAME COMPLETED?</label><select class="incident-field" id="ir-completed"><option value="yes">Yes — Completed</option><option value="abandoned">No — Abandoned</option></select></div>
+    </div>
+    <div class="incident-row"><label class="incident-label">ABANDON REASON (if abandoned)</label><input type="text" class="incident-field" id="ir-abandon-reason" placeholder="e.g. Lightning, field conditions…"></div>
+    <div class="incident-row"><label class="incident-label">ADDITIONAL NOTES</label><textarea class="incident-field" id="ir-notes" rows="2" placeholder="Any other notes for the record…" style="resize:vertical"></textarea></div>
+    <div class="asgn-form-actions">
+      <button onclick="document.getElementById('incident-report-modal').classList.remove('show')" style="padding:9px 18px;background:var(--s2);color:var(--text);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Cancel</button>
+      <button onclick="asgnSaveIncidentReport()" style="padding:9px 18px;background:var(--gold);color:#080c09;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Save Report →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Feature 12: Rate Refs Modal -->
+<div class="asgn-modal-overlay" id="rate-refs-modal" onclick="if(event.target===this)document.getElementById('rate-refs-modal').classList.remove('show')">
+  <div class="asgn-modal">
+    <button class="asgn-modal-close" onclick="document.getElementById('rate-refs-modal').classList.remove('show')">✕</button>
+    <div class="asgn-modal-title">⭐ RATE REFEREES</div>
+    <div id="rate-refs-game-info" style="font-size:12px;color:var(--muted);margin-bottom:14px;font-family:'DM Mono',monospace"></div>
+    <input type="hidden" id="rr-game-id">
+    <div id="rate-refs-list"></div>
+    <div class="asgn-form-actions">
+      <button onclick="document.getElementById('rate-refs-modal').classList.remove('show')" style="padding:9px 18px;background:var(--s2);color:var(--text);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Cancel</button>
+      <button onclick="asgnSaveRatings()" style="padding:9px 18px;background:var(--gold);color:#080c09;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Save Ratings →</button>
     </div>
   </div>
 </div>
@@ -1732,7 +1982,7 @@ import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
   sendPasswordResetEmail }
   from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc,
-  collection, query, where, getDocs, orderBy, serverTimestamp }
+  collection, query, where, getDocs, orderBy, serverTimestamp, onSnapshot }
   from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL }
   from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
@@ -3802,20 +4052,92 @@ window.switchAdminView = function(view) {
   document.getElementById('view-assignments').style.display = isAssign ? 'block' : 'none';
   document.getElementById('atoggle-training').classList.toggle('active',   !isAssign);
   document.getElementById('atoggle-assignments').classList.toggle('active', isAssign);
-  if (isAssign && !_asgnLoaded) { _asgnLoaded = true; asgnInit(); }
+  if (isAssign) {
+    // Clear notification badge (Part 5)
+    const badge = document.querySelector('#atoggle-assignments .asgn-badge');
+    if (badge) badge.remove();
+    if (!_asgnLoaded) { _asgnLoaded = true; asgnInit(); }
+  }
 };
 
 // ── ASSIGNMENTS — STATE ───────────────────────────────────────────────────────
-let asgnGames       = [];
-let asgnRefPool     = [];
-let asgnPendingDel  = null;
-let asgnEditingId   = null;
-let asgnAssigning   = null;
-let asgnTempRefs    = [];
+let asgnGames           = [];
+let asgnRefPool         = [];
+let asgnPendingDel      = null;
+let asgnEditingId       = null;
+let asgnAssigning       = null;
+let asgnTempRefs        = [];
+let _asgnUnsubGames     = null;   // Part 5: onSnapshot unsubscribe
+let _asgnUnsubLinks     = null;   // Part 5: assignmentLinks listener
+let _asgnSeenResponses  = new Set(); // Part 5: slugs already acknowledged
 
 // ── ASSIGNMENTS — INIT ────────────────────────────────────────────────────────
 async function asgnInit() {
-  await Promise.all([asgnLoadGames(), asgnLoadRefPool(), asgnLoadAvailability()]);
+  _asgnSeenResponses.clear();
+  // Wire the dynamic referee signup link with the current league ID
+  const signupLink = document.getElementById('asgn-pool-signup-link');
+  if (signupLink && leagueId) signupLink.href = `/join/${leagueId}`;
+  importInitDropZone();        // attach drag-and-drop handlers once
+  await Promise.all([asgnLoadRefPool(), asgnLoadAvailability()]);
+  asgnStartGamesListener();    // Part 5: real-time games
+  asgnStartLinksListener();    // Part 5: real-time response tracking
+}
+
+// Part 5: real-time games listener (replaces one-shot asgnLoadGames)
+function asgnStartGamesListener() {
+  if (_asgnUnsubGames) { _asgnUnsubGames(); _asgnUnsubGames = null; }
+  let q;
+  try {
+    q = query(collection(db,'gameAssignments'), where('leagueId','==',leagueId), orderBy('date','asc'));
+  } catch(_) {
+    q = query(collection(db,'gameAssignments'), where('leagueId','==',leagueId));
+  }
+  _asgnUnsubGames = onSnapshot(q, snap => {
+    asgnGames = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    asgnGames.sort((a,b) => {
+      const ta = a.date?.toDate?.()?.getTime() || 0;
+      const tb = b.date?.toDate?.()?.getTime() || 0;
+      return ta - tb;
+    });
+    asgnRenderGames();
+  }, () => { asgnGames = []; asgnRenderGames(); });
+}
+
+// Part 5: watch assignmentLinks for ref responses → badge
+function asgnStartLinksListener() {
+  if (_asgnUnsubLinks) { _asgnUnsubLinks(); _asgnUnsubLinks = null; }
+  let firstFire = true;
+  const q = query(collection(db,'assignmentLinks'), where('leagueId','==',leagueId));
+  _asgnUnsubLinks = onSnapshot(q, snap => {
+    if (firstFire) {
+      // Seed seen set with all already-responded links — don't badge these
+      snap.docs.forEach(d => {
+        const s = d.data().status;
+        if (s === 'confirmed' || s === 'declined') _asgnSeenResponses.add(d.id);
+      });
+      firstFire = false;
+      return;
+    }
+    let hasNew = false;
+    snap.docs.forEach(d => {
+      const s = d.data().status;
+      if ((s === 'confirmed' || s === 'declined') && !_asgnSeenResponses.has(d.id)) {
+        _asgnSeenResponses.add(d.id);
+        hasNew = true;
+      }
+    });
+    // Only show badge if user is currently on Training tab (not looking at Assignments)
+    if (hasNew) {
+      const assignBtn = document.getElementById('atoggle-assignments');
+      if (assignBtn && !assignBtn.classList.contains('active')) asgnShowBadge();
+    }
+  }, () => {});
+}
+
+// Kept for backward compat (called after game save/delete where we want an immediate re-render)
+async function asgnLoadGames() {
+  // The onSnapshot listener already handles real-time updates.
+  // This is a no-op stub — the listener fires automatically after Firestore writes.
 }
 
 // ── TAB SWITCHING ─────────────────────────────────────────────────────────────
@@ -3898,6 +4220,35 @@ function asgnRenderGameCard(g) {
   }).join('');
   const statusMap = { open:'asgn-status-open', assigned:'asgn-status-assigned', confirmed:'asgn-status-confirmed', complete:'asgn-status-complete' };
   const statusCls = statusMap[g.status] || 'asgn-status-open';
+
+  // Feature 11 & 12: determine if game is in the past
+  const gameDate = g.date?.toDate?.() || (g.date ? new Date(g.date) : null);
+  const isPast = gameDate && gameDate < new Date();
+
+  // Feature 5: payment toggle section
+  const payments = g.payments || [];
+  const paySection = refs.length ? `
+    <div class="pay-section" id="pay-section-${g.id}">
+      ${payments.length ? payments.map(p => `
+        <div class="payment-row">
+          <span style="flex:1;font-size:12px;font-weight:600">${asgnEsc(p.refName||'—')}</span>
+          <span style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace">${asgnEsc(p.role||'')}</span>
+          <span style="font-size:11px;color:var(--muted)">$</span><input type="number" class="pay-fee-input" value="${p.amount||0}" min="0" onchange="asgnUpdatePayment('${asgnEscAttr(g.id)}','${asgnEscAttr(p.refEmail)}','amount',this.value)">
+          <select class="pay-status-select" onchange="asgnMarkPaid('${asgnEscAttr(g.id)}','${asgnEscAttr(p.refEmail)}',this.value)">
+            <option value="unpaid" ${p.status==='unpaid'||!p.status?'selected':''}>Unpaid</option>
+            <option value="paid" ${p.status==='paid'?'selected':''}>Paid</option>
+            <option value="waived" ${p.status==='waived'?'selected':''}>Waived</option>
+          </select>
+          <select class="pay-status-select" onchange="asgnUpdatePayment('${asgnEscAttr(g.id)}','${asgnEscAttr(p.refEmail)}','paymentMethod',this.value)">
+            <option value="" ${!p.paymentMethod?'selected':''}>Method</option>
+            <option value="Cash" ${p.paymentMethod==='Cash'?'selected':''}>Cash</option>
+            <option value="Venmo" ${p.paymentMethod==='Venmo'?'selected':''}>Venmo</option>
+            <option value="Check" ${p.paymentMethod==='Check'?'selected':''}>Check</option>
+            <option value="Other" ${p.paymentMethod==='Other'?'selected':''}>Other</option>
+          </select>
+        </div>`).join('') : `<div style="font-size:12px;color:var(--muted);font-style:italic;padding:4px 0">No refs assigned yet. Assign refs to track payments.</div>`}
+    </div>` : '';
+
   return `
   <div class="asgn-game-card">
     <div>
@@ -3917,8 +4268,15 @@ function asgnRenderGameCard(g) {
       <span class="asgn-status-badge ${statusCls}">${(g.status||'open').toUpperCase()}</span>
       <button class="btn btn-secondary btn-sm" onclick="asgnOpenAssign('${g.id}')" style="padding:6px 13px;font-size:12px;border-radius:8px;background:var(--s2);color:var(--text);border:1px solid rgba(255,255,255,.12);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700">Assign Refs</button>
       <button class="btn btn-secondary btn-sm" onclick="asgnOpenEdit('${g.id}')" style="padding:6px 13px;font-size:12px;border-radius:8px;background:var(--s2);color:var(--text);border:1px solid rgba(255,255,255,.12);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700">Edit</button>
+      <button class="pay-expand-btn" onclick="asgnTogglePayment('${g.id}')">💰 Payments</button>
+      ${isPast ? (g.hasIncidentReport
+        ? `<span style="font-size:11px;color:#34c759;font-family:'DM Mono',monospace">✅ Report Filed</span>`
+        : `<button onclick="asgnOpenIncidentReport('${g.id}')" style="padding:6px 13px;font-size:12px;border-radius:8px;background:rgba(255,214,10,.08);color:var(--gold);border:1px solid rgba(255,214,10,.2);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700">📋 Report</button>`)
+        : ''}
+      ${isPast && refs.length ? `<button onclick="asgnOpenRateRefs('${g.id}')" style="padding:6px 13px;font-size:12px;border-radius:8px;background:rgba(255,214,10,.08);color:var(--gold);border:1px solid rgba(255,214,10,.2);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700">⭐ Rate Refs</button>` : ''}
       <button onclick="asgnOpenDelete('${g.id}')" style="padding:6px 13px;font-size:12px;border-radius:8px;background:rgba(255,69,58,.1);color:var(--red);border:1px solid rgba(255,69,58,.22);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700">Delete</button>
     </div>
+    ${paySection}
   </div>`;
 }
 
@@ -3981,7 +4339,7 @@ window.asgnSaveGame = async function() {
       await addDoc(collection(db,'gameAssignments'), data);
     }
     asgnCloseGameModal();
-    await asgnLoadGames();
+    // onSnapshot listener auto-refreshes the list
   } catch(e) { alert('Save failed: ' + e.message); }
   finally { btn.disabled = false; btn.textContent = 'Save Game →'; }
 };
@@ -3995,7 +4353,7 @@ window.asgnConfirmDelete = async function() {
   btn.disabled = true; btn.textContent = 'Deleting…';
   try {
     await deleteDoc(doc(db,'gameAssignments', asgnPendingDel));
-    asgnCloseDeleteModal(); await asgnLoadGames();
+    asgnCloseDeleteModal(); // onSnapshot auto-refreshes
   } catch(e) { alert('Delete failed: ' + e.message); btn.disabled = false; btn.textContent = 'Delete Game'; }
 };
 
@@ -4020,36 +4378,72 @@ window.asgnSearchRefs = function() {
   const matches = asgnRefPool.filter(r => r.name.toLowerCase().includes(q) || r.email.toLowerCase().includes(q)).slice(0,8);
   if (!matches.length) { box.style.display = 'none'; return; }
   box.style.display = 'block';
-  box.innerHTML = matches.map(r =>
-    `<div class="asgn-ref-result-item" onclick="asgnAddRef('${asgnEscAttr(r.name)}','${asgnEscAttr(r.email)}','${asgnEscAttr(r.uid||'')}')">
-      <div><div style="font-weight:600;font-size:13px">${asgnEsc(r.name)}</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">${asgnEsc(r.email)}</div></div>
+  const gameDivision = asgnAssigning?.division || '';
+  box.innerHTML = matches.map(r => {
+    const warn = checkCertificationMatch(r.cert, gameDivision);
+    return `<div class="asgn-ref-result-item" onclick="asgnAddRef('${asgnEscAttr(r.name)}','${asgnEscAttr(r.email)}','${asgnEscAttr(r.uid||'')}')">
+      <div><div style="font-weight:600;font-size:13px">${asgnEsc(r.name)}${warn?`<span class="cert-warn">⚠️ ${asgnEsc(warn)}</span>`:''}</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">${asgnEsc(r.email)}</div></div>
       <span style="font-size:11px;color:var(--gold);font-family:'DM Mono',monospace">+ Add</span>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 };
 
-window.asgnAddRef = function(name, email, uid) {
+window.asgnAddRef = async function(name, email, uid, force) {
   const needed = parseInt(asgnAssigning?.officialsNeeded || 3);
   const roles  = ['CR','AR1','AR2'].slice(0, needed);
   const taken  = asgnTempRefs.map(r => r.role);
   const free   = roles.find(r => !taken.includes(r));
   if (!free) { alert('All positions are filled.'); return; }
   if (asgnTempRefs.find(r => r.email === email)) { alert('Already assigned.'); return; }
+
+  // Feature 1: Conflict Detection
+  if (!force) {
+    const conflict = asgnCheckConflict(name, email);
+    if (conflict) {
+      const warnEl = document.getElementById('asgn-conflict-warning');
+      warnEl.style.display = 'flex';
+      warnEl.innerHTML = `<span>⚠️ <strong>${asgnEsc(name)}</strong> is already assigned to <strong>${asgnEsc(conflict)}</strong> at this time.</span>
+        <button onclick="asgnAddRefForce('${asgnEscAttr(name)}','${asgnEscAttr(email)}','${asgnEscAttr(uid||'')}')">Assign Anyway</button>`;
+      return;
+    }
+  }
+  document.getElementById('asgn-conflict-warning').style.display = 'none';
+
   asgnTempRefs.push({ name, email, uid, role: free, status: 'pending' });
   document.getElementById('asgn-ref-search-input').value = '';
   document.getElementById('asgn-ref-results').style.display = 'none';
   asgnRenderAssigned(); asgnUpdateNotify();
 };
 
+window.asgnAddRefForce = function(name, email, uid) {
+  document.getElementById('asgn-conflict-warning').style.display = 'none';
+  asgnAddRef(name, email, uid, true);
+};
+
 function asgnRenderAssigned() {
   const el = document.getElementById('asgn-assigned-list');
   if (!asgnTempRefs.length) { el.innerHTML = '<div style="font-size:13px;color:var(--muted);font-style:italic;padding:6px 0">No officials assigned yet.</div>'; return; }
-  el.innerHTML = asgnTempRefs.map((r, i) => `
-    <div class="asgn-assigned-ref-row">
-      <div style="flex:1"><div style="font-weight:600;font-size:13px">${asgnEsc(r.name)}</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">${asgnEsc(r.email)}</div></div>
+  const gameDivision = asgnAssigning?.division || '';
+  el.innerHTML = asgnTempRefs.map((r, i) => {
+    const poolRef = asgnRefPool.find(p => p.email === r.email);
+    const cert = poolRef?.cert || r.cert || '';
+    const warn = checkCertificationMatch(cert, gameDivision);
+    const avgRating = _poolRatings[r.email] ? (_poolRatings[r.email].total / _poolRatings[r.email].count).toFixed(1) : null;
+    return `
+    <div class="asgn-assigned-ref-row" style="flex-wrap:wrap;gap:6px">
+      <div style="flex:1;min-width:120px">
+        <div style="font-weight:600;font-size:13px">${asgnEsc(r.name)}${avgRating?`<span style="font-size:10px;color:var(--gold);margin-left:6px">★ ${avgRating}</span>`:''}${warn?`<span class="cert-warn">⚠️ ${asgnEsc(warn)}</span>`:''}</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">${asgnEsc(r.email)}</div>
+      </div>
       <select class="asgn-role-select" onchange="asgnUpdateRole(${i},this.value)"><option value="CR" ${r.role==='CR'?'selected':''}>CR</option><option value="AR1" ${r.role==='AR1'?'selected':''}>AR1</option><option value="AR2" ${r.role==='AR2'?'selected':''}>AR2</option></select>
       <select class="asgn-role-select" onchange="asgnUpdateStatus(${i},this.value)"><option value="pending" ${r.status==='pending'?'selected':''}>Pending</option><option value="confirmed" ${r.status==='confirmed'?'selected':''}>Confirmed</option><option value="declined" ${r.status==='declined'?'selected':''}>Declined</option></select>
       <button onclick="asgnRemoveRef(${i})" style="padding:4px 10px;background:rgba(255,69,58,.1);color:var(--red);border:1px solid rgba(255,69,58,.2);border-radius:7px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700">Remove</button>
-    </div>`).join('');
+      ${r.slug ? `<div style="width:100%;display:flex;align-items:center;gap:8px;padding:5px 8px;background:rgba(255,255,255,.04);border-radius:7px;margin-top:-2px">
+        <span style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">myrefiq.com/r/${asgnEsc(r.slug)}</span>
+        <button onclick="asgnCopyLink('${asgnEscAttr(r.slug)}',this)" style="padding:3px 10px;background:rgba(255,214,10,.12);color:var(--gold);border:1px solid rgba(255,214,10,.2);border-radius:6px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700;white-space:nowrap">Copy Link</button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
 }
 
 window.asgnUpdateRole   = (i,v) => { asgnTempRefs[i].role   = v; asgnUpdateNotify(); };
@@ -4069,13 +4463,46 @@ function asgnUpdateNotify() {
 
 window.asgnSaveAssignments = async function() {
   if (!asgnAssigning) return;
+  const btn = document.getElementById('asgn-save-assign-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
   try {
-    await updateDoc(doc(db,'gameAssignments',asgnAssigning.id), {
+    const gameId = asgnAssigning.id;
+    // Part 2: generate assignment link slugs for new refs (those without a slug yet)
+    for (const r of asgnTempRefs) {
+      if (!r.slug) {
+        const slug = gameId.slice(-4) + '-' + Math.random().toString(36).substr(2,6);
+        try {
+          await addDoc(collection(db,'assignmentLinks'), {
+            slug,
+            gameId,
+            refEmail:    r.email,
+            refName:     r.name,
+            refRole:     r.role,
+            status:      'pending',
+            leagueId,
+            createdAt:   serverTimestamp(),
+            respondedAt: null,
+          });
+        } catch(_) {}
+        r.slug = slug;
+      }
+    }
+    // Feature 5: initialize payment entries for new refs
+    const existingPayments = asgnAssigning.payments || [];
+    const newPayments = asgnTempRefs.map(r => {
+      const existing = existingPayments.find(p => p.refEmail === r.email && p.role === r.role);
+      return existing || { refEmail: r.email, refName: r.name, role: r.role, amount: 0, status: 'unpaid', paidAt: null, paymentMethod: '' };
+    });
+
+    await updateDoc(doc(db,'gameAssignments', gameId), {
       assignedRefs: asgnTempRefs,
+      payments: newPayments,
       status: asgnTempRefs.length > 0 && asgnAssigning.status === 'open' ? 'assigned' : asgnAssigning.status,
     });
-    asgnCloseAssignModal(); await asgnLoadGames();
+    asgnCloseAssignModal();
+    // onSnapshot listener auto-refreshes the games list
   } catch(e) { alert('Save failed: ' + e.message); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = 'Save Assignments →'; } }
 };
 
 // ── LOAD AVAILABILITY ─────────────────────────────────────────────────────────
@@ -4124,26 +4551,101 @@ window.asgnCopyAvailLink = function() {
 // ── LOAD REF POOL ─────────────────────────────────────────────────────────────
 async function asgnLoadRefPool() {
   try {
-    const snap = await getDocs(query(collection(db,'quiz_results'), where('leagueId','==',leagueId)));
-    const map  = {};
-    snap.docs.forEach(d => {
-      const r   = d.data();
-      const key = r.userId || r.email || r.refereeName;
-      if (!key) return;
-      if (!map[key]) map[key] = { uid: r.userId||'', name: r.refereeName||'Unknown', email: r.email||'—', scores: [], lastAt: null, cert: '', notes: '' };
-      if (r.score != null && r.total) map[key].scores.push(Math.round((r.score/r.total)*100));
-      const ts = r.createdAt?.toDate?.() || (r.createdAt ? new Date(r.createdAt) : null);
-      if (ts && (!map[key].lastAt || ts > map[key].lastAt)) map[key].lastAt = ts;
-    });
+    const map = {};
+
+    // 1. quiz_results — refs who've taken quizzes for this league
+    try {
+      const snap = await getDocs(query(collection(db,'quiz_results'), where('leagueId','==',leagueId)));
+      snap.docs.forEach(d => {
+        const r   = d.data();
+        const key = r.email || r.userId || r.refereeName;
+        if (!key) return;
+        if (!map[key]) map[key] = { uid: r.userId||'', name: r.refereeName||'Unknown', email: r.email||'—', scores: [], lastAt: null, cert: '', notes: '', phone: '', source: 'quiz' };
+        if (r.score != null && r.total) map[key].scores.push(Math.round((r.score/r.total)*100));
+        const ts = r.createdAt?.toDate?.() || (r.createdAt ? new Date(r.createdAt) : null);
+        if (ts && (!map[key].lastAt || ts > map[key].lastAt)) map[key].lastAt = ts;
+      });
+    } catch(_) {}
+
+    // 2. refereePool — manually added refs (Part 1)
+    try {
+      const snap2 = await getDocs(query(collection(db,'refereePool'), where('leagueId','==',leagueId)));
+      snap2.docs.forEach(d => {
+        const r   = d.data();
+        const key = r.email || r.name;
+        if (!key) return;
+        if (!map[key]) {
+          map[key] = { uid: '', name: r.name||'Unknown', email: r.email||'—', scores: [], lastAt: null, cert: r.certificationLevel||'', certExpiry: r.certExpiry||'', certState: r.certificationState||'', badgeNumber: r.badgeNumber||'', notes: r.notes||'', phone: r.phone||'', source: 'pool', poolId: d.id };
+        } else {
+          // Merge — pool data wins for cert/notes/phone/certExpiry
+          if (r.certificationLevel) map[key].cert       = r.certificationLevel;
+          if (r.certExpiry)         map[key].certExpiry = r.certExpiry;
+          if (r.certificationState) map[key].certState  = r.certificationState;
+          if (r.badgeNumber)        map[key].badgeNumber = r.badgeNumber;
+          if (r.notes)              map[key].notes = r.notes;
+          if (r.phone)              map[key].phone = r.phone;
+          map[key].poolId = d.id;
+        }
+      });
+    } catch(_) {}
+
     asgnRefPool = Object.values(map).sort((a,b) => a.name.localeCompare(b.name));
+
+    // Feature 4: check cert expiry alerts
+    const now = new Date();
+    const alertCutoff = new Date(); alertCutoff.setDate(now.getDate() + 30);
+    const expiring = asgnRefPool.filter(r => {
+      if (!r.certExpiry) return false;
+      const exp = new Date(r.certExpiry + 'T00:00:00');
+      return exp <= alertCutoff;
+    });
+    const certAlertEl = document.getElementById('asgn-cert-alert');
+    if (expiring.length && certAlertEl) {
+      document.getElementById('asgn-cert-alert-text').textContent = `⚠️ ${expiring.length} referee certification${expiring.length>1?'s':''} expiring within 30 days.`;
+      certAlertEl.style.display = 'flex';
+    }
+
+    // Feature 12: load ratings
+    await asgnLoadPoolRatings();
     asgnRenderPool(asgnRefPool);
+
+    // Feature 9: check waitlist
+    await asgnCheckWaitlist();
+
+    // Feature 6: check game day reminders
+    await checkGameDayReminders();
+
+    // Feature 10: load applications
+    await asgnLoadApplications();
   } catch(_) {}
 }
 
 window.asgnFilterPool = function() {
   const q = document.getElementById('asgn-pool-search').value.toLowerCase();
-  asgnRenderPool(q ? asgnRefPool.filter(r => r.name.toLowerCase().includes(q) || r.email.toLowerCase().includes(q)) : asgnRefPool);
+  const expiring = document.getElementById('asgn-pool-expiring')?.checked;
+  let rows = asgnRefPool;
+  if (q) rows = rows.filter(r => r.name.toLowerCase().includes(q) || r.email.toLowerCase().includes(q));
+  if (expiring) {
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() + 60);
+    rows = rows.filter(r => {
+      if (!r.certExpiry) return false;
+      const exp = new Date(r.certExpiry + 'T00:00:00');
+      return exp <= cutoff;
+    });
+  }
+  asgnRenderPool(rows);
 };
+
+function asgnCertExpiryClass(expStr) {
+  if (!expStr) return '';
+  const exp = new Date(expStr + 'T00:00:00');
+  const now = new Date();
+  const diff = (exp - now) / (1000*60*60*24);
+  if (diff < 0) return 'cert-exp-red';
+  if (diff < 30) return 'cert-exp-red';
+  if (diff < 180) return 'cert-exp-gold';
+  return 'cert-exp-green';
+}
 
 function asgnRenderPool(rows) {
   const container = document.getElementById('asgn-pool-container');
@@ -4158,22 +4660,819 @@ function asgnRenderPool(rows) {
   container.innerHTML = `
     <div class="asgn-table-wrap">
       <table class="asgn-table">
-        <thead><tr><th>Name</th><th>Email</th><th>Avg Score</th><th>Quizzes</th><th>Last Active</th><th>Certification</th><th>Notes</th></tr></thead>
+        <thead><tr><th>Name</th><th>Email</th><th>Avg Score</th><th>Quizzes</th><th>Rating</th><th>Last Active</th><th>Certification</th><th>Cert Expiry</th><th>Notes</th></tr></thead>
         <tbody>${rows.map((r,i) => {
           const a = avg(r);
+          const expCls = asgnCertExpiryClass(r.certExpiry || '');
+          const ratingData = _poolRatings[r.email];
+          const avgRating = ratingData ? (ratingData.total / ratingData.count).toFixed(1) : null;
           return `<tr>
             <td style="font-weight:600">${asgnEsc(r.name)}</td>
             <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">${asgnEsc(r.email)}</td>
             <td style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold)">${a!=null?a+'%':'—'}</td>
             <td style="color:var(--muted)">${r.scores.length}</td>
+            <td style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold)">${avgRating ? '★ ' + avgRating : '—'}</td>
             <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">${r.lastAt?r.lastAt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'}):'—'}</td>
             <td><input class="asgn-inline-edit" value="${asgnEscAttr(r.cert||'')}" placeholder="e.g. Grade 8" style="min-width:80px"></td>
+            <td><input type="date" class="asgn-inline-edit ${expCls}" value="${asgnEscAttr(r.certExpiry||'')}" style="min-width:110px;font-family:'DM Mono',monospace;font-size:11px" title="Cert Expiry Date" onchange="asgnUpdateCertExpiry('${asgnEscAttr(r.email)}',this.value)"></td>
             <td><input class="asgn-inline-edit" value="${asgnEscAttr(r.notes||'')}" placeholder="Notes…" style="min-width:110px"></td>
           </tr>`;
         }).join('')}</tbody>
       </table>
     </div>`;
 }
+
+// ── SCHEDULE IMPORT ───────────────────────────────────────────────────────────
+// State: games parsed and ready to import
+let _importPendingGames = [];
+
+function importInitDropZone() {
+  const zone  = document.getElementById('import-drop-zone');
+  const input = document.getElementById('import-file-input');
+  if (!zone || zone._importBound) return;
+  zone._importBound = true;
+
+  zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', ()  => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) importHandleFile(file);
+  });
+  input.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) { importHandleFile(file); input.value = ''; }
+  });
+}
+
+async function importHandleFile(file) {
+  const XLSX = window.XLSX;
+  if (!XLSX) { importShowError('SheetJS not loaded — please refresh and try again.'); return; }
+
+  importShowLoading('Reading file…');
+  try {
+    const buf      = await file.arrayBuffer();
+    const workbook = XLSX.read(buf, { type:'array', cellDates:true });
+    const sheet    = workbook.Sheets[workbook.SheetNames[0]];
+    const rows     = XLSX.utils.sheet_to_json(sheet, { header:1, defval:'' });
+
+    if (rows.length < 2) { importShowError('File appears to be empty or has no data rows.'); return; }
+
+    const headers  = rows[0].map(h => String(h).trim()).filter(Boolean);
+    const dataRows = rows.slice(1).filter(row => row.some(c => c !== null && c !== ''));
+
+    if (!headers.length) { importShowError('No column headers found in first row.'); return; }
+
+    await importMapColumns(headers, dataRows);
+  } catch(e) {
+    importShowError('Could not read file: ' + e.message);
+  }
+}
+
+async function importMapColumns(headers, dataRows) {
+  importShowLoading('Analyzing column headers with AI…');
+  let mapping;
+  try {
+    const res = await fetch('/api/import-map', {
+      method:  'POST',
+      headers: { 'Content-Type':'application/json' },
+      body:    JSON.stringify({ headers }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'API error');
+    mapping = data.mapping;
+  } catch(e) {
+    // Fallback: simple keyword heuristic
+    mapping = importHeuristicMap(headers);
+  }
+  importPreviewGames(headers, dataRows, mapping);
+}
+
+// Heuristic fallback if AI is unavailable
+function importHeuristicMap(headers) {
+  const m = {};
+  const RULES = [
+    [/date/i,                  'date'],
+    [/time/i,                  'time'],
+    [/home/i,                  'homeTeam'],
+    [/away|visit|guest/i,      'awayTeam'],
+    [/div|age|grade|group/i,   'division'],
+    [/loc|field|venue|site/i,  'location'],
+    [/note|comment|misc/i,     'notes'],
+  ];
+  headers.forEach(h => {
+    const match = RULES.find(([re]) => re.test(h));
+    m[h] = match ? match[1] : null;
+  });
+  return m;
+}
+
+function importPreviewGames(headers, dataRows, mapping) {
+  const games = dataRows.map(row => {
+    const g = {};
+    headers.forEach((h, i) => {
+      const field = mapping[h];
+      if (field && field !== 'null') g[field] = row[i] !== undefined ? row[i] : '';
+    });
+    return g;
+  }).filter(g => g.date || g.homeTeam || g.awayTeam);
+
+  if (!games.length) { importShowError('No valid game rows found after mapping.'); return; }
+
+  _importPendingGames = games;
+  importShowPreviewModal(games);
+  document.getElementById('import-status').innerHTML = '';
+}
+
+function importShowPreviewModal(games) {
+  const valid   = games.filter(g => importParseDate(g.date) && (g.homeTeam || g.awayTeam));
+  const invalid = games.length - valid.length;
+
+  document.getElementById('import-preview-summary').innerHTML =
+    `Found <strong style="color:var(--text)">${games.length}</strong> game${games.length!==1?'s':''} ready to import` +
+    (invalid ? ` <span style="color:var(--red)">· ${invalid} row${invalid!==1?'s':''} missing required data (highlighted in red)</span>` : '');
+
+  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  document.getElementById('import-preview-tbody').innerHTML = games.map(g => {
+    const missing = !importParseDate(g.date) || (!g.homeTeam && !g.awayTeam);
+    const fmtDate = v => {
+      if (!v) return '—';
+      if (v instanceof Date) return v.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      return String(v);
+    };
+    return `<tr class="${missing?'row-warn':''}">
+      <td>${fmtDate(g.date)}</td>
+      <td>${esc(g.time)}</td>
+      <td>${esc(g.homeTeam)}</td>
+      <td>${esc(g.awayTeam)}</td>
+      <td>${esc(g.division)}</td>
+      <td>${esc(g.location)}</td>
+      <td>${esc(g.notes)}</td>
+    </tr>`;
+  }).join('');
+
+  const importBtn = document.getElementById('import-confirm-btn');
+  const validCount = valid.length;
+  importBtn.textContent = `Import ${validCount} Game${validCount!==1?'s':''} →`;
+  document.getElementById('import-preview-modal').classList.add('show');
+}
+
+window.importClosePreview = function() {
+  document.getElementById('import-preview-modal').classList.remove('show');
+  _importPendingGames = [];
+};
+
+window.importConfirm = async function() {
+  const games = _importPendingGames.filter(g => importParseDate(g.date) && (g.homeTeam || g.awayTeam));
+  if (!games.length) { alert('No valid games to import.'); return; }
+
+  const btn = document.getElementById('import-confirm-btn');
+  btn.disabled = true; btn.textContent = `Importing ${games.length} games…`;
+
+  let ok = 0, err = 0;
+  try {
+    await Promise.all(games.map(async g => {
+      try {
+        await addDoc(collection(db,'gameAssignments'), {
+          leagueId,
+          createdBy:              currentUser.uid,
+          date:                   importParseDate(g.date),
+          time:                   String(g.time||'').trim(),
+          homeTeam:               String(g.homeTeam||'').trim(),
+          awayTeam:               String(g.awayTeam||'').trim(),
+          division:               String(g.division||'').trim(),
+          location:               String(g.location||'').trim(),
+          notes:                  String(g.notes||'').trim(),
+          assignedRefs:           [],
+          status:                 'open',
+          createdAt:              serverTimestamp(),
+          importedFromSpreadsheet: true,
+        });
+        ok++;
+      } catch(_) { err++; }
+    }));
+  } catch(e) { /* handled per-game */ }
+
+  importClosePreview();
+  importShowSuccess(ok, err);
+  // onSnapshot listener auto-refreshes the game list
+  btn.disabled = false;
+};
+
+function importParseDate(v) {
+  if (!v) return null;
+  if (v instanceof Date && !isNaN(v)) return v;
+  const d = new Date(v);
+  if (!isNaN(d.getTime())) return d;
+  return null;
+}
+
+function importShowLoading(msg) {
+  document.getElementById('import-status').innerHTML =
+    `<div class="import-loading"><div class="spinner" style="width:16px;height:16px;border-width:2px"></div><span>${msg}</span></div>`;
+}
+function importShowSuccess(count, errors) {
+  document.getElementById('import-status').innerHTML =
+    `<div class="import-success">✅ Imported ${count} game${count!==1?'s':''}${errors?` · ${errors} skipped`:''}</div>`;
+  setTimeout(() => { const el = document.getElementById('import-status'); if(el) el.innerHTML = ''; }, 5000);
+}
+function importShowError(msg) {
+  document.getElementById('import-status').innerHTML = `<div class="import-error">❌ ${msg}</div>`;
+}
+
+window.importDownloadTemplate = function() {
+  const XLSX = window.XLSX;
+  if (!XLSX) { alert('SheetJS not loaded — please refresh and try again.'); return; }
+  const rows = [
+    ['Date','Time','Home Team','Away Team','Division','Location','Notes'],
+    ['3/15/2026','9:00 AM','KC United','Blue Springs FC','U12','Legacy Park Field 3',''],
+    ['3/15/2026','11:00 AM','Sporting LSS',"Lee's Summit SC",'U10','Legacy Park Field 1',''],
+    ['3/22/2026','1:00 PM','River City SC','FC United','U14','Swope Soccer Village','Bring 3 officials'],
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [12,10,18,18,12,22,20].map(w=>({wch:w}));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Schedule');
+  XLSX.writeFile(wb, 'RefIQ-Schedule-Template.xlsx');
+};
+
+// ── PART 1: MANUAL REFEREE ADD ───────────────────────────────────────────────
+window.asgnToggleNewRef = function() {
+  const form = document.getElementById('asgn-new-ref-form');
+  const isHidden = form.style.display === 'none';
+  form.style.display = isHidden ? 'block' : 'none';
+  if (isHidden) {
+    ['anr-first','anr-last','anr-email','anr-phone','anr-cert'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    document.getElementById('anr-first')?.focus();
+  }
+};
+
+window.asgnSaveNewRef = async function() {
+  const first = document.getElementById('anr-first').value.trim();
+  const last  = document.getElementById('anr-last').value.trim();
+  const email = document.getElementById('anr-email').value.trim().toLowerCase();
+  const phone = document.getElementById('anr-phone').value.trim();
+  const cert  = document.getElementById('anr-cert').value.trim();
+  if (!first || !last)  { alert('First and last name are required.'); return; }
+  if (!email)           { alert('Email is required.'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email address.'); return; }
+  const name = `${first} ${last}`;
+  const btn  = document.getElementById('anr-save-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    await addDoc(collection(db,'refereePool'), {
+      name, email, phone,
+      certificationLevel: cert,
+      notes:   '',
+      leagueId,
+      createdBy:  currentUser.uid,
+      createdAt:  serverTimestamp(),
+    });
+    // Add to in-memory pool if not already there
+    if (!asgnRefPool.find(r => r.email === email)) {
+      asgnRefPool.push({ uid:'', name, email, phone, cert, notes:'', scores:[], lastAt:null, source:'pool' });
+      asgnRefPool.sort((a,b) => a.name.localeCompare(b.name));
+    }
+    asgnToggleNewRef();
+    // Immediately add to this assignment
+    asgnAddRef(name, email, '');
+  } catch(e) {
+    alert('Save failed: ' + e.message);
+    btn.disabled = false; btn.textContent = 'Save & Add to Assignment →';
+  }
+};
+
+// ── PART 6: COPY LINK ────────────────────────────────────────────────────────
+window.asgnCopyLink = function(slug, btnEl) {
+  const url = `https://www.myrefiq.com/r/${slug}`;
+  navigator.clipboard.writeText(url).then(() => {
+    if (btnEl) { const orig = btnEl.textContent; btnEl.textContent = 'Copied!'; btnEl.style.color = '#34c759'; setTimeout(() => { btnEl.textContent = orig; btnEl.style.color = ''; }, 1800); }
+  }).catch(() => prompt('Copy this assignment link:', url));
+};
+
+// ── PART 5: NOTIFICATION BADGE ───────────────────────────────────────────────
+function asgnShowBadge() {
+  const btn = document.getElementById('atoggle-assignments');
+  if (!btn || btn.querySelector('.asgn-badge')) return;
+  const dot = document.createElement('span');
+  dot.className = 'asgn-badge';
+  dot.style.cssText = 'display:inline-flex;width:8px;height:8px;background:#ff453a;border-radius:50%;margin-left:5px;flex-shrink:0;vertical-align:middle';
+  btn.appendChild(dot);
+}
+
+// ── FEATURE 1: CONFLICT DETECTION ────────────────────────────────────────────
+function asgnCheckConflict(name, email) {
+  if (!asgnAssigning) return null;
+  const gameDate = asgnAssigning.date?.toDate?.() || (asgnAssigning.date ? new Date(asgnAssigning.date) : null);
+  if (!gameDate) return null;
+  const gameTime = asgnAssigning.time || '';
+  for (const g of asgnGames) {
+    if (g.id === asgnAssigning.id) continue;
+    const gd = g.date?.toDate?.() || (g.date ? new Date(g.date) : null);
+    if (!gd) continue;
+    if (gd.toDateString() !== gameDate.toDateString()) continue;
+    if (gameTime && g.time && g.time !== gameTime) continue;
+    const assignedRefs = g.assignedRefs || [];
+    const conflict = assignedRefs.find(r => r.email === email && r.status !== 'declined');
+    if (conflict) return `${g.homeTeam||'TBD'} vs ${g.awayTeam||'TBD'}`;
+  }
+  return null;
+}
+
+// ── FEATURE 2: AI SUGGESTIONS ────────────────────────────────────────────────
+window.asgnAISuggest = async function() {
+  const btn = document.getElementById('asgn-ai-suggest-btn');
+  const box = document.getElementById('asgn-ref-results');
+  if (!asgnAssigning || !asgnRefPool.length) {
+    box.style.display = 'block';
+    box.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:8px">No refs in pool yet.</div>';
+    return;
+  }
+  btn.disabled = true; btn.textContent = '✨ Thinking…';
+  try {
+    const payload = {
+      game: {
+        homeTeam: asgnAssigning.homeTeam, awayTeam: asgnAssigning.awayTeam,
+        division: asgnAssigning.division, date: asgnFmtDate(asgnAssigning.date),
+        time: asgnAssigning.time || ''
+      },
+      refs: asgnRefPool.slice(0, 20).map(r => ({
+        name: r.name, cert: r.cert || '', scores: r.scores || [],
+        lastAt: r.lastAt ? r.lastAt.toISOString().split('T')[0] : null
+      }))
+    };
+    const resp = await fetch('/api/ai-suggest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!resp.ok) throw new Error('AI suggest failed');
+    const { suggestions } = await resp.json();
+    box.style.display = 'block';
+    box.innerHTML = suggestions.map(s => {
+      const ref = asgnRefPool.find(r => r.name === s.name);
+      if (!ref) return '';
+      return `<div class="asgn-ref-result-item ai-pick" onclick="asgnAddRef('${asgnEscAttr(ref.name)}','${asgnEscAttr(ref.email)}','${asgnEscAttr(ref.uid||'')}')">
+        <div>
+          <div style="font-weight:600;font-size:13px">${asgnEsc(ref.name)} <span class="ai-pick-badge">⭐ AI PICK</span></div>
+          <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">${asgnEsc(s.reason||ref.email)}</div>
+        </div>
+        <span style="font-size:11px;color:var(--gold);font-family:'DM Mono',monospace">+ Add</span>
+      </div>`;
+    }).filter(Boolean).join('') || '<div style="font-size:12px;color:var(--muted);padding:8px">No suggestions available.</div>';
+  } catch(e) {
+    box.style.display = 'block';
+    box.innerHTML = `<div style="font-size:12px;color:var(--red);padding:8px">AI suggest failed: ${asgnEsc(e.message)}</div>`;
+  } finally { btn.disabled = false; btn.textContent = '✨ AI Suggest'; }
+};
+
+// ── FEATURE 3: CERTIFICATION MATCHING ────────────────────────────────────────
+const CERT_REQS = {
+  'rec-prek':'Grade 9','rec-k':'Grade 9','rec-k1':'Grade 9','rec-1st2nd':'Grade 9','rec-2nd':'Grade 9',
+  'rec-3rd4th':'Grade 9','comp-u8u9':'Grade 9',
+  'comp-u10u11':'Grade 8','rec-5th6th':'Grade 8','rec-7th8th':'Grade 8','comp-u9u10':'Grade 8','comp-u11u12':'Grade 8','comp-u13u14':'Grade 8',
+  'comp-u14u15':'Grade 7','comp-u15u16':'Grade 7','comp-u16u17':'Grade 7','comp-u17u18':'Grade 7',
+  'comp-u18u19':'Grade 7','comp-u19u23':'Grade 7','hs-middle':'Grade 7','hs-jv':'Grade 7','hs-varsity':'Grade 7',
+  'adult-rec':'Grade 7','adult-comp':'Grade 7','adult-over30':'Grade 7','adult-over40':'Grade 7','adult-coed':'Grade 7',
+  'college-club':'Grade 6','college-varsity':'Grade 5','pdl':'Grade 5'
+};
+const GRADE_ORDER = { 'Grade 9': 1, 'Grade 8': 2, 'Grade 7': 3, 'Grade 6': 4, 'Grade 5': 5 };
+
+function checkCertificationMatch(refCert, gameDivision) {
+  if (!refCert || !gameDivision) return null;
+  const req = CERT_REQS[gameDivision];
+  if (!req) return null;
+  // Normalize cert string: "Grade 8" → match
+  const certMatch = refCert.match(/Grade\s*(\d)/i);
+  if (!certMatch) return null;
+  const refGrade = 'Grade ' + certMatch[1];
+  const refLevel  = GRADE_ORDER[refGrade];
+  const reqLevel  = GRADE_ORDER[req];
+  if (!refLevel || !reqLevel) return null;
+  // Higher number = higher cert level. If ref is lower than required → warning
+  if (refLevel < reqLevel) {
+    return `Requires ${req}, ref holds ${refGrade}`;
+  }
+  return null;
+}
+
+// ── FEATURE 4: CERT EXPIRY UPDATE ────────────────────────────────────────────
+window.asgnUpdateCertExpiry = async function(email, dateStr) {
+  const ref = asgnRefPool.find(r => r.email === email);
+  if (ref) ref.certExpiry = dateStr;
+  if (ref?.poolId) {
+    try { await updateDoc(doc(db,'refereePool', ref.poolId), { certExpiry: dateStr }); } catch(_) {}
+  }
+};
+
+// ── FEATURE 5: PAYMENTS ───────────────────────────────────────────────────────
+window.asgnTogglePayment = function(gameId) {
+  const sec = document.getElementById('pay-section-' + gameId);
+  if (sec) sec.classList.toggle('open');
+};
+
+window.asgnMarkPaid = async function(gameId, refEmail, status) {
+  const g = asgnGames.find(x => x.id === gameId); if (!g) return;
+  const payments = (g.payments || []).map(p =>
+    p.refEmail === refEmail ? { ...p, status, paidAt: status === 'paid' ? new Date().toISOString() : null } : p
+  );
+  try {
+    await updateDoc(doc(db,'gameAssignments', gameId), { payments });
+    // Update local
+    g.payments = payments;
+  } catch(e) { console.warn('Payment update failed', e); }
+};
+
+window.asgnUpdatePayment = async function(gameId, refEmail, field, value) {
+  const g = asgnGames.find(x => x.id === gameId); if (!g) return;
+  const payments = (g.payments || []).map(p =>
+    p.refEmail === refEmail ? { ...p, [field]: field === 'amount' ? parseFloat(value)||0 : value } : p
+  );
+  try {
+    await updateDoc(doc(db,'gameAssignments', gameId), { payments });
+    g.payments = payments;
+  } catch(e) {}
+};
+
+async function asgnLoadPayments() {
+  // Aggregate from asgnGames array
+  const refMap = {};
+  for (const g of asgnGames) {
+    for (const p of (g.payments || [])) {
+      const key = p.refEmail || p.refName;
+      if (!key) continue;
+      if (!refMap[key]) refMap[key] = { name: p.refName||key, email: p.refEmail||'', games: 0, owed: 0, paid: 0 };
+      refMap[key].games++;
+      refMap[key].owed += parseFloat(p.amount)||0;
+      if (p.status === 'paid') refMap[key].paid += parseFloat(p.amount)||0;
+    }
+  }
+  return Object.values(refMap);
+}
+
+function asgnRenderPayments(rows) {
+  const container = document.getElementById('asgn-payments-container');
+  if (!rows.length) {
+    container.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;padding:56px 24px;text-align:center">
+      <div style="font-size:40px;margin-bottom:12px;opacity:.4">💰</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:rgba(255,255,255,.3);margin-bottom:6px">NO PAYMENT DATA</div>
+      <div style="font-size:13px;color:var(--muted);max-width:280px;line-height:1.6">Assign referees to games and set fees to track payments here.</div>
+    </div>`; return;
+  }
+  container.innerHTML = `
+    <div class="asgn-table-wrap">
+      <table class="asgn-table">
+        <thead><tr><th>Referee</th><th>Games</th><th>Total Owed</th><th>Total Paid</th><th>Balance</th></tr></thead>
+        <tbody>${rows.map(r => {
+          const balance = r.owed - r.paid;
+          return `<tr>
+            <td style="font-weight:600">${asgnEsc(r.name)}</td>
+            <td style="color:var(--muted)">${r.games}</td>
+            <td style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold)">$${r.owed.toFixed(2)}</td>
+            <td style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:#34c759">$${r.paid.toFixed(2)}</td>
+            <td style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:${balance>0?'#ff453a':'#34c759'}">$${balance.toFixed(2)}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>
+    </div>`;
+}
+
+window.asgnExportPaymentsCSV = async function() {
+  const rows = await asgnLoadPayments();
+  if (!rows.length) { alert('No payment data to export.'); return; }
+  const aoa = [['Referee','Email','Games','Owed','Paid','Balance']];
+  rows.forEach(r => aoa.push([r.name, r.email, r.games, r.owed.toFixed(2), r.paid.toFixed(2), (r.owed-r.paid).toFixed(2)]));
+  const ws = window.XLSX.utils.aoa_to_sheet(aoa);
+  const wb = window.XLSX.utils.book_new();
+  window.XLSX.utils.book_append_sheet(wb, ws, 'Payments');
+  window.XLSX.writeFile(wb, 'RefIQ-Payments.csv');
+};
+
+// Auto-load payments when payments tab opened
+const _origSwitchAsgnTab = window.switchAsgnTab;
+window.switchAsgnTab = async function(name, btn) {
+  _origSwitchAsgnTab(name, btn);
+  if (name === 'payments') {
+    const rows = await asgnLoadPayments();
+    asgnRenderPayments(rows);
+  }
+};
+
+// ── FEATURE 6: GAME DAY REMINDERS ────────────────────────────────────────────
+async function checkGameDayReminders() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const tomorrow = new Date(today); tomorrow.setDate(today.getDate()+1);
+  const dayAfter = new Date(tomorrow); dayAfter.setDate(tomorrow.getDate()+1);
+  const tmGames = asgnGames.filter(g => {
+    const gd = g.date?.toDate?.() || (g.date ? new Date(g.date) : null);
+    if (!gd) return false;
+    return gd >= tomorrow && gd < dayAfter;
+  });
+  const banner = document.getElementById('game-day-banner');
+  if (tmGames.length && banner) {
+    document.getElementById('game-day-banner-text').textContent = `⚽ ${tmGames.length} game${tmGames.length>1?'s':''} tomorrow.`;
+    banner.style.display = 'flex';
+  }
+}
+
+// ── FEATURE 8: ANALYTICS ──────────────────────────────────────────────────────
+window.asgnLoadAnalytics = async function() {
+  const container = document.getElementById('asgn-analytics-container');
+  if (!container) return;
+
+  const totalGames = asgnGames.length;
+  const totalRefs  = asgnRefPool.length;
+
+  // Confirmation rate across all assignments
+  let totalAssigned = 0, totalConfirmed = 0;
+  const refUtilMap = {};
+  const divisionMap = {};
+
+  for (const g of asgnGames) {
+    const division = g.division || 'Unknown';
+    divisionMap[division] = (divisionMap[division]||0) + 1;
+    for (const r of (g.assignedRefs||[])) {
+      totalAssigned++;
+      if (r.status === 'confirmed') totalConfirmed++;
+      const key = r.email||r.name;
+      if (!refUtilMap[key]) refUtilMap[key] = { name: r.name, email: r.email, assigned: 0, confirmed: 0, declined: 0 };
+      refUtilMap[key].assigned++;
+      if (r.status === 'confirmed') refUtilMap[key].confirmed++;
+      if (r.status === 'declined')  refUtilMap[key].declined++;
+    }
+  }
+
+  // Merge quiz scores into refUtilMap
+  for (const r of asgnRefPool) {
+    const key = r.email || r.name;
+    if (refUtilMap[key]) {
+      const avg = r.scores.length ? Math.round(r.scores.reduce((s,v)=>s+v,0)/r.scores.length) : null;
+      refUtilMap[key].avgScore = avg;
+    }
+  }
+
+  const confirmRate = totalAssigned ? Math.round((totalConfirmed/totalAssigned)*100) : 0;
+  const refRows = Object.values(refUtilMap).sort((a,b)=>b.assigned-a.assigned);
+
+  // Top 3 performers: best combo of quiz score + confirmation rate
+  const top3 = refRows
+    .filter(r => r.avgScore != null)
+    .map(r => ({ ...r, perfScore: (r.avgScore||0)*0.6 + (r.assigned?r.confirmed/r.assigned:0)*100*0.4 }))
+    .sort((a,b)=>b.perfScore-a.perfScore)
+    .slice(0,3);
+
+  const maxDivCount = Math.max(...Object.values(divisionMap), 1);
+
+  container.innerHTML = `
+    <div class="analytics-grid">
+      <div class="analytics-metric"><div class="analytics-metric-val">${totalGames}</div><div class="analytics-metric-lbl">TOTAL GAMES</div></div>
+      <div class="analytics-metric"><div class="analytics-metric-val">${totalRefs}</div><div class="analytics-metric-lbl">REFS IN POOL</div></div>
+      <div class="analytics-metric"><div class="analytics-metric-val">${confirmRate}%</div><div class="analytics-metric-lbl">CONFIRM RATE</div></div>
+      <div class="analytics-metric"><div class="analytics-metric-val">${totalAssigned}</div><div class="analytics-metric-lbl">TOTAL ASSIGNMENTS</div></div>
+    </div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--muted);margin-bottom:12px">GAMES BY DIVISION</div>
+    ${Object.entries(divisionMap).sort((a,b)=>b[1]-a[1]).map(([div,cnt]) => `
+      <div class="analytics-bar-wrap">
+        <div class="analytics-bar-label"><span>${asgnEsc(div)}</span><span style="color:var(--gold)">${cnt}</span></div>
+        <div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:${Math.round((cnt/maxDivCount)*100)}%"></div></div>
+      </div>`).join('')}
+    ${top3.length ? `
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--muted);margin:18px 0 10px">TOP 3 PERFORMERS</div>
+    ${top3.map((r,i) => `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);width:24px">${i+1}</span>
+      <div style="flex:1"><div style="font-weight:600;font-size:13px">${asgnEsc(r.name)}</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Quiz: ${r.avgScore}% · Confirmed: ${r.assigned?Math.round(r.confirmed/r.assigned*100):0}%</div></div>
+    </div>`).join('')}` : ''}
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--muted);margin:18px 0 10px">REF UTILIZATION</div>
+    <div class="asgn-table-wrap">
+      <table class="asgn-table">
+        <thead><tr><th>Referee</th><th>Assigned</th><th>Confirmed</th><th>Declined</th><th>Avg Score</th></tr></thead>
+        <tbody>${refRows.slice(0,20).map(r => `<tr>
+          <td style="font-weight:600">${asgnEsc(r.name)}</td>
+          <td style="color:var(--muted)">${r.assigned}</td>
+          <td style="color:#34c759">${r.confirmed}</td>
+          <td style="color:#ff453a">${r.declined}</td>
+          <td style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold)">${r.avgScore!=null?r.avgScore+'%':'—'}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>`;
+};
+
+// ── FEATURE 9: WAITLIST SYSTEM ───────────────────────────────────────────────
+async function asgnCheckWaitlist() {
+  try {
+    const snap = await getDocs(query(collection(db,'waitlistRequests'), where('leagueId','==',leagueId), where('status','==','open')));
+    if (snap.empty) return;
+    const req   = snap.docs[0].data();
+    const reqId = snap.docs[0].id;
+    const g = asgnGames.find(x => x.id === req.gameId);
+    const gameName = g ? `${g.homeTeam||'TBD'} vs ${g.awayTeam||'TBD'}` : req.gameId;
+    const banner = document.getElementById('asgn-waitlist-banner');
+    if (banner) {
+      document.getElementById('asgn-waitlist-text').textContent = `${req.declinedByName||'A referee'} declined ${gameName} (${req.role||''}). Find replacement →`;
+      banner.style.display = 'flex';
+      document.getElementById('asgn-waitlist-action-btn').onclick = async () => {
+        banner.style.display = 'none';
+        await updateDoc(doc(db,'waitlistRequests',reqId), { status: 'acknowledged' }).catch(()=>{});
+        if (g) asgnOpenAssign(g.id);
+      };
+    }
+  } catch(_) {}
+}
+
+// ── FEATURE 10: REF SIGNUP APPLICATIONS ──────────────────────────────────────
+async function asgnLoadApplications() {
+  try {
+    const snap = await getDocs(query(collection(db,'refereeApplications'), where('leagueId','==',leagueId), where('status','==','pending')));
+    const apps = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const sec = document.getElementById('asgn-applications-section');
+    const list = document.getElementById('asgn-applications-list');
+    if (!sec || !list) return;
+    if (!apps.length) { sec.style.display = 'none'; return; }
+    sec.style.display = 'block';
+    list.innerHTML = apps.map(a => `
+      <div class="asgn-application-card">
+        <div class="app-info">
+          <div style="font-weight:600;font-size:13px">${asgnEsc(a.name||'—')}</div>
+          <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">${asgnEsc(a.email||'—')} · ${asgnEsc(a.certificationLevel||'—')} · ${asgnEsc(a.yearsExperience?a.yearsExperience+' yrs':'')} exp</div>
+          ${a.notes ? `<div style="font-size:11px;color:var(--muted);margin-top:3px;font-style:italic">${asgnEsc(a.notes)}</div>` : ''}
+        </div>
+        <div class="app-actions">
+          <button onclick="asgnApproveApplication('${asgnEscAttr(a.id)}','${asgnEscAttr(a.name||'')}','${asgnEscAttr(a.email||'')}','${asgnEscAttr(a.certificationLevel||'')}','${asgnEscAttr(a.phone||'')}','${asgnEscAttr(a.notes||'')}','${asgnEscAttr(a.yearsExperience||'')}')" style="padding:6px 12px;background:rgba(52,199,89,.12);color:#34c759;border:1px solid rgba(52,199,89,.25);border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:700;cursor:pointer">Approve</button>
+          <button onclick="asgnDeclineApplication('${asgnEscAttr(a.id)}')" style="padding:6px 12px;background:rgba(255,69,58,.1);color:var(--red);border:1px solid rgba(255,69,58,.2);border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:700;cursor:pointer">Decline</button>
+        </div>
+      </div>`).join('');
+  } catch(_) {}
+}
+
+window.asgnApproveApplication = async function(appId, name, email, cert, phone, notes, yearsExp) {
+  try {
+    await addDoc(collection(db,'refereePool'), {
+      name, email, phone, certificationLevel: cert, notes, yearsExperience: yearsExp||'', leagueId, createdBy: currentUser.uid, createdAt: serverTimestamp()
+    });
+    await updateDoc(doc(db,'refereeApplications', appId), { status: 'approved' });
+    // refresh pool and applications
+    await asgnLoadRefPool();
+  } catch(e) { alert('Approve failed: ' + e.message); }
+};
+
+window.asgnDeclineApplication = async function(appId) {
+  try {
+    await updateDoc(doc(db,'refereeApplications', appId), { status: 'declined' });
+    await asgnLoadApplications();
+  } catch(e) { alert('Decline failed: ' + e.message); }
+};
+
+// ── FEATURE 11: INCIDENT REPORTS ─────────────────────────────────────────────
+window.asgnOpenIncidentReport = async function(gameId) {
+  document.getElementById('ir-game-id').value = gameId;
+  // Pre-fill if report exists
+  try {
+    const snap = await getDocs(query(collection(db,'incidentReports'), where('gameId','==',gameId)));
+    if (!snap.empty) {
+      const r = snap.docs[0].data();
+      document.getElementById('ir-yellow').value       = r.yellowCards||0;
+      document.getElementById('ir-red').value          = r.redCards||0;
+      document.getElementById('ir-red-reason').value   = r.redCardReason||'';
+      document.getElementById('ir-injuries').value     = r.injuries||'none';
+      document.getElementById('ir-injury-desc').value  = r.injuryDescription||'';
+      document.getElementById('ir-incidents').value    = r.incidents||'';
+      document.getElementById('ir-field').value        = r.fieldCondition||'good';
+      document.getElementById('ir-completed').value    = r.gameCompleted||'yes';
+      document.getElementById('ir-abandon-reason').value = r.abandonReason||'';
+      document.getElementById('ir-notes').value        = r.notes||'';
+    } else {
+      ['ir-yellow','ir-red'].forEach(id => document.getElementById(id).value = 0);
+      ['ir-red-reason','ir-injury-desc','ir-incidents','ir-abandon-reason','ir-notes'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('ir-injuries').value = 'none';
+      document.getElementById('ir-field').value    = 'good';
+      document.getElementById('ir-completed').value = 'yes';
+    }
+  } catch(_) {}
+  document.getElementById('incident-report-modal').classList.add('show');
+};
+
+window.asgnSaveIncidentReport = async function() {
+  const gameId = document.getElementById('ir-game-id').value;
+  if (!gameId) return;
+  const data = {
+    gameId, leagueId, createdBy: currentUser.uid, createdAt: serverTimestamp(),
+    yellowCards: parseInt(document.getElementById('ir-yellow').value)||0,
+    redCards: parseInt(document.getElementById('ir-red').value)||0,
+    redCardReason: document.getElementById('ir-red-reason').value.trim(),
+    injuries: document.getElementById('ir-injuries').value,
+    injuryDescription: document.getElementById('ir-injury-desc').value.trim(),
+    incidents: document.getElementById('ir-incidents').value.trim(),
+    fieldCondition: document.getElementById('ir-field').value,
+    gameCompleted: document.getElementById('ir-completed').value,
+    abandonReason: document.getElementById('ir-abandon-reason').value.trim(),
+    notes: document.getElementById('ir-notes').value.trim()
+  };
+  try {
+    // Check if report exists
+    const snap = await getDocs(query(collection(db,'incidentReports'), where('gameId','==',gameId)));
+    if (!snap.empty) {
+      await updateDoc(doc(db,'incidentReports', snap.docs[0].id), data);
+    } else {
+      await addDoc(collection(db,'incidentReports'), data);
+    }
+    await updateDoc(doc(db,'gameAssignments', gameId), { hasIncidentReport: true });
+    // Update local
+    const g = asgnGames.find(x => x.id === gameId);
+    if (g) g.hasIncidentReport = true;
+    document.getElementById('incident-report-modal').classList.remove('show');
+    asgnRenderGames();
+  } catch(e) { alert('Save failed: ' + e.message); }
+};
+
+// ── FEATURE 12: REF RATINGS ───────────────────────────────────────────────────
+let _poolRatings = {}; // email → { total, count }
+let _currentGameRatings = {}; // email → { stars, note }
+
+async function asgnLoadPoolRatings() {
+  _poolRatings = {};
+  try {
+    const snap = await getDocs(query(collection(db,'refRatings'), where('leagueId','==',leagueId)));
+    snap.docs.forEach(d => {
+      const r = d.data();
+      for (const rating of (r.ratings||[])) {
+        const key = rating.refEmail||rating.refName;
+        if (!key) continue;
+        if (!_poolRatings[key]) _poolRatings[key] = { total: 0, count: 0 };
+        _poolRatings[key].total += rating.stars||0;
+        _poolRatings[key].count++;
+      }
+    });
+  } catch(_) {}
+}
+
+window.asgnOpenRateRefs = async function(gameId) {
+  const g = asgnGames.find(x => x.id === gameId); if (!g) return;
+  document.getElementById('rr-game-id').value = gameId;
+  document.getElementById('rate-refs-game-info').textContent = `${g.homeTeam||'TBD'} vs ${g.awayTeam||'TBD'} · ${asgnFmtDate(g.date)}`;
+  _currentGameRatings = {};
+  // Pre-fill existing ratings
+  try {
+    const snap = await getDocs(query(collection(db,'refRatings'), where('gameId','==',gameId)));
+    if (!snap.empty) {
+      for (const rating of (snap.docs[0].data().ratings||[])) {
+        _currentGameRatings[rating.refEmail||rating.refName] = { stars: rating.stars||0, note: rating.note||'' };
+      }
+    }
+  } catch(_) {}
+  const list = document.getElementById('rate-refs-list');
+  const refs = g.assignedRefs || [];
+  list.innerHTML = refs.map(r => {
+    const key = r.email||r.name;
+    const existing = _currentGameRatings[key] || { stars: 0, note: '' };
+    const stars = [1,2,3,4,5].map(n =>
+      `<button class="star-btn ${existing.stars>=n?'active':''}" data-star="${n}" data-ref="${asgnEscAttr(key)}" onclick="asgnSetStar('${asgnEscAttr(key)}',${n},this)">★</button>`
+    ).join('');
+    return `<div style="padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="font-weight:600;font-size:13px;margin-bottom:6px">${asgnEsc(r.name)} <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">${asgnEsc(r.role||'')}</span></div>
+      <div style="display:flex;gap:4px;margin-bottom:8px">${stars}</div>
+      <textarea class="incident-field" id="rr-note-${asgnEscAttr(key)}" rows="2" placeholder="Optional note…" style="resize:vertical;font-size:12px">${asgnEsc(existing.note)}</textarea>
+    </div>`;
+  }).join('');
+  document.getElementById('rate-refs-modal').classList.add('show');
+};
+
+window.asgnSetStar = function(refKey, stars, btnEl) {
+  if (!_currentGameRatings[refKey]) _currentGameRatings[refKey] = { stars: 0, note: '' };
+  _currentGameRatings[refKey].stars = stars;
+  // Update star buttons
+  const container = btnEl.parentElement;
+  container.querySelectorAll('.star-btn[data-ref]').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.star) <= stars);
+  });
+};
+
+window.asgnSaveRatings = async function() {
+  const gameId = document.getElementById('rr-game-id').value;
+  if (!gameId) return;
+  const g = asgnGames.find(x => x.id === gameId); if (!g) return;
+  const ratings = (g.assignedRefs||[]).map(r => {
+    const key = r.email||r.name;
+    const noteEl = document.getElementById('rr-note-' + key);
+    const stars = _currentGameRatings[key]?.stars || 0;
+    const note  = noteEl?.value?.trim() || '';
+    return { refEmail: r.email||'', refName: r.name||'', role: r.role||'', stars, note };
+  });
+  try {
+    const snap = await getDocs(query(collection(db,'refRatings'), where('gameId','==',gameId)));
+    if (!snap.empty) {
+      await updateDoc(doc(db,'refRatings', snap.docs[0].id), { ratings, updatedAt: serverTimestamp() });
+    } else {
+      await addDoc(collection(db,'refRatings'), { gameId, leagueId, ratings, createdAt: serverTimestamp() });
+    }
+    document.getElementById('rate-refs-modal').classList.remove('show');
+    // Refresh pool ratings
+    await asgnLoadPoolRatings();
+    asgnRenderPool(asgnRefPool);
+  } catch(e) { alert('Save failed: ' + e.message); }
+};
 
 // ── UTILITIES ─────────────────────────────────────────────────────────────────
 function asgnEsc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
