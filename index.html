@@ -103,27 +103,6 @@ nav{
 .hero-sub{
   font-size:clamp(14px,1.8vw,17px);color:var(--muted);letter-spacing:.2px;margin-bottom:24px;
 }
-/* Dual hero CTA buttons */
-.hero-ctas{
-  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
-  animation:fadeUp .5s .05s ease both;margin-bottom:0;
-}
-.hero-cta-primary{
-  display:inline-block;padding:14px 28px;
-  background:var(--gold);color:#000;
-  border-radius:12px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;
-  text-decoration:none;transition:all .2s;box-shadow:0 6px 24px rgba(255,214,10,.22);
-}
-.hero-cta-primary:hover{background:#ffe44d;transform:translateY(-1px)}
-.hero-cta-secondary{
-  display:inline-block;padding:13px 28px;
-  background:transparent;color:var(--gold);
-  border:1.5px solid var(--gold);border-radius:12px;
-  font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;
-  text-decoration:none;transition:all .2s;
-}
-.hero-cta-secondary:hover{background:rgba(255,214,10,.08);transform:translateY(-1px)}
-
 /* ── HERO TOGGLE ── */
 .hero-toggle-wrap{
   display:flex;justify-content:center;
@@ -245,8 +224,7 @@ button.demo-opt{width:100%;text-align:left;font-family:inherit}
   text-transform:uppercase;color:var(--gold);margin-bottom:6px;display:block;
 }
 .demo-expl-text{font-size:13px;color:rgba(240,244,240,.72);line-height:1.65}
-.demo-cta-wrap{display:none;padding:0 24px 24px}
-.demo-cta-wrap.show{display:block;animation:fadeUp .35s ease both}
+.demo-cta-wrap{display:block;padding:0 24px 24px;animation:fadeUp .35s ease both}
 .demo-cta-btn{
   display:block;width:100%;padding:16px;background:var(--gold);color:#000;
   border:none;border-radius:14px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;
@@ -503,8 +481,6 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
   .nav-cta{padding:7px 13px;font-size:12px;border-radius:8px}
   .nav-login{padding:6px 12px;font-size:12px;border-radius:8px}
   .nav-logo-text{font-size:26px}
-  .hero-ctas{flex-direction:column;align-items:center}
-  .hero-cta-primary,.hero-cta-secondary{width:100%;max-width:280px;text-align:center}
 }
 @media(max-width:540px){
   .demo-hero{padding:74px 12px 40px}
@@ -543,12 +519,6 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
   <div class="hero-text">
     <h1 class="hero-headline">TRAIN YOUR MATCH IQ</h1>
     <p class="hero-sub">AI-powered quiz training + game assignment tools for soccer referees and assignors.</p>
-  </div>
-
-  <!-- Dual hero CTAs -->
-  <div class="hero-ctas">
-    <a href="/app" class="hero-cta-primary">Start Training →</a>
-    <a href="/assign.html" class="hero-cta-secondary">Manage Assignments →</a>
   </div>
 
   <!-- Toggle switch -->
@@ -606,7 +576,7 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
           </div>
         </div>
         <div class="demo-cta-wrap" id="demo-cta">
-          <a href="/admin" class="demo-cta-btn" id="demo-cta-btn">Unlock Full Training →</a>
+          <a href="/admin" class="demo-cta-btn" id="demo-cta-btn">Start Training →</a>
           <a href="/admin" class="member-link">Already a member? Log in →</a>
         </div>
       </div>
