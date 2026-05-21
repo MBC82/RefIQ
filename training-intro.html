@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Quiz Training — RefIQ</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#ffd60a;--gold-dark:#b8940a;
+  --red:#ff453a;--green:#34c759;
+  --bg:#080c09;--s1:#111711;--s2:#1a221b;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);
+  --text:#f0f4f0;--muted:#7a9080
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,214,10,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,214,10,.018) 1px,transparent 1px);
+  background-size:60px 60px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fadeUp .4s ease both}
+
+/* Auth screen */
+#auth-screen{position:fixed;inset:0;z-index:100;display:none;background:var(--bg);
+  background-image:linear-gradient(rgba(255,214,10,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,214,10,.018) 1px,transparent 1px);
+  background-size:60px 60px;overflow-y:auto}
+#auth-screen.show{display:flex}
+.auth-wrap{width:100%;min-height:100vh;display:flex;align-items:stretch;position:relative;z-index:1}
+.auth-left{display:none}
+.auth-right{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.auth-brand{display:none}
+.auth-card{background:var(--s1);border:1px solid var(--border2);border-radius:28px;padding:clamp(32px,5vw,44px) clamp(28px,4vw,40px);width:100%;max-width:460px}
+.auth-icon{text-align:center;margin-bottom:12px}
+.auth-icon img{height:80px;width:80px;object-fit:contain;mix-blend-mode:screen}
+.auth-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;text-align:center;margin-bottom:4px}
+.auth-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px;line-height:1.5}
+.auth-tabs{display:flex;background:#0d120e;border-radius:12px;padding:3px;gap:3px;margin-bottom:20px}
+.auth-tab{flex:1;padding:10px;background:transparent;border:none;border-radius:9px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.auth-tab.active{background:var(--s2);color:var(--text)}
+.auth-err{font-size:12px;color:var(--red);padding:10px 13px;background:rgba(255,69,58,.08);border:1px solid rgba(255,69,58,.2);border-radius:10px;margin-bottom:10px;display:none;font-family:'DM Mono',monospace}
+.auth-msg{font-size:12px;color:var(--green);padding:10px 13px;background:rgba(52,199,89,.08);border:1px solid rgba(52,199,89,.2);border-radius:10px;margin-bottom:10px;display:none;font-family:'DM Mono',monospace}
+.field{width:100%;background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:12px;padding:13px 15px;font-family:'DM Sans',sans-serif;font-size:15px;outline:none;margin-bottom:10px;transition:border-color .2s;-webkit-appearance:none}
+.field:focus{border-color:var(--gold)}
+.auth-btn{width:100%;padding:15px;background:var(--gold-dark);border:none;border-radius:14px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;margin-bottom:12px;transition:all .2s}
+.auth-btn:hover{background:var(--gold);color:#080c09}
+.auth-btn:disabled{opacity:.5;cursor:not-allowed}
+.divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;margin:4px 0 12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.google-btn{width:100%;padding:13px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .2s}
+.google-btn:hover{background:rgba(255,255,255,.08)}
+.google-btn:disabled{opacity:.5;cursor:not-allowed}
+.back-home{display:block;text-align:center;margin-top:14px;font-size:13px;color:var(--muted);text-decoration:none}
+.back-home:hover{color:var(--text)}
+@media(min-width:768px){
+  .auth-brand{display:flex;flex-direction:column;align-items:center;margin-bottom:24px}
+  .auth-brand img{height:40px;width:auto;max-width:160px;object-fit:contain;mix-blend-mode:screen}
+  .auth-icon{display:none}
+  .auth-card{max-width:440px;padding:40px}
+}
+
+/* Marketing page */
+#main-page{position:relative;z-index:1}
+.topbar{width:100%;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--s1)}
+.topbar-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--gold);text-decoration:none}
+.topbar-back{font-size:13px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:6px}
+.topbar-back:hover{color:var(--text)}
+.page{max-width:720px;margin:0 auto;padding:48px 20px 80px}
+.hero-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
+.hero-headline{font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,8vw,64px);letter-spacing:3px;line-height:1.05;margin-bottom:16px}
+.hero-sub{font-size:16px;color:var(--muted);line-height:1.7;max-width:540px;margin-bottom:36px}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:56px}
+.cta-primary{display:inline-block;padding:15px 32px;background:var(--gold-dark);border:none;border-radius:14px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;text-decoration:none;transition:all .2s}
+.cta-primary:hover{background:var(--gold);color:#080c09;transform:translateY(-1px)}
+.cta-secondary{display:inline-block;padding:14px 28px;background:transparent;border:1.5px solid rgba(255,255,255,.15);border-radius:14px;color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;text-decoration:none;transition:all .2s}
+.cta-secondary:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-1px)}
+.section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:20px}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.feat-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px 20px}
+.feat-icon{font-size:26px;display:block;margin-bottom:10px}
+.feat-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;margin-bottom:6px}
+.feat-body{font-size:13px;color:var(--muted);line-height:1.6}
+.divider-line{height:1px;background:var(--border);margin:48px 0}
+</style>
+</head>
+<body>
+
+<div id="auth-screen">
+  <div class="auth-wrap">
+    <div class="auth-right">
+      <div class="auth-brand">
+        <img src="HeroLogo.png" alt="RefIQ">
+      </div>
+      <div class="auth-card fu">
+        <div class="auth-icon"><img src="HeroLogo.png" alt="RefIQ"></div>
+        <div class="auth-title">START TRAINING</div>
+        <div class="auth-sub">Sign in or create an account to begin</div>
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tab-in">Sign In</button>
+          <button class="auth-tab" id="tab-up">Create Account</button>
+        </div>
+        <div class="auth-err" id="auth-err"></div>
+        <div class="auth-msg" id="auth-msg"></div>
+        <div id="form-in">
+          <input type="email" class="field" id="li-email" placeholder="Email address" autocomplete="email">
+          <input type="password" class="field" id="li-pass" placeholder="Password" autocomplete="current-password">
+          <button class="auth-btn" id="li-btn">SIGN IN</button>
+          <button id="forgot-btn" type="button" style="display:block;width:100%;text-align:right;font-size:12px;color:var(--muted);cursor:pointer;background:none;border:none;padding:0 0 10px;font-family:'DM Sans',sans-serif;text-decoration:underline">Forgot password?</button>
+        </div>
+        <div id="form-up" style="display:none">
+          <input type="text" class="field" id="reg-name" placeholder="Your name" autocomplete="name">
+          <input type="email" class="field" id="reg-email" placeholder="Email address" autocomplete="email">
+          <input type="password" class="field" id="reg-pass" placeholder="Password (6+ characters)" autocomplete="new-password">
+          <button class="auth-btn" id="reg-btn">CREATE ACCOUNT</button>
+        </div>
+        <div class="divider">or</div>
+        <button class="google-btn" id="google-btn">
+          <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.706c-.18-.54-.282-1.117-.282-1.706s.102-1.166.282-1.706V4.962H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.038l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.962L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+          Continue with Google
+        </button>
+        <a href="/" class="back-home">← Back to home</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="main-page">
+  <div class="topbar">
+    <a href="/" class="topbar-logo">REFIQ</a>
+    <a href="/" class="topbar-back">← Back to home</a>
+  </div>
+
+  <div class="page">
+
+    <div class="fu">
+      <div class="hero-label">🧠 Quiz Training</div>
+      <h1 class="hero-headline">TRAIN SHARPER REFS.<br>EVERY SEASON.</h1>
+      <p class="hero-sub">AI-powered quizzes built from IFAB Laws and your own league rulebook. Every referee gets instant feedback, law citations, and scenario-based questions — before they ever step on a field.</p>
+      <div class="cta-row">
+        <button class="cta-primary" id="get-started-btn">Get Started Free →</button>
+        <button class="cta-secondary" id="login-btn">Log In</button>
+      </div>
+    </div>
+
+    <span class="section-label">What's included</span>
+    <div class="features-grid fu">
+      <div class="feat-card">
+        <span class="feat-icon">🤖</span>
+        <div class="feat-title">AI-GENERATED QUESTIONS</div>
+        <p class="feat-body">Questions built from your rulebook and IFAB Laws — tailored to division, age group, and training focus.</p>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">⚖️</span>
+        <div class="feat-title">IFAB LAWS 2025/26</div>
+        <p class="feat-body">Every answer includes the exact Law reference, so referees learn the rule — not just the answer.</p>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">🎯</span>
+        <div class="feat-title">SCENARIO TRAINING</div>
+        <p class="feat-body">Real game situations, not just rulebook recitation. GK restrictions, offside, fouls, misconduct — all covered.</p>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">🔗</span>
+        <div class="feat-title">SHAREABLE QUIZ LINKS</div>
+        <p class="feat-body">Send a single link to your whole pool. Referees take quizzes without creating accounts.</p>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">📊</span>
+        <div class="feat-title">REAL-TIME RESULTS</div>
+        <p class="feat-body">See every referee's score as results come in. Filter by quiz, division, or date range.</p>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">🏷️</span>
+        <div class="feat-title">CUSTOM BRANDING</div>
+        <p class="feat-body">Add your league logo and colors. Quizzes look like they come from your organization.</p>
+      </div>
+    </div>
+
+    <div class="divider-line"></div>
+
+    <div style="text-align:center">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;margin-bottom:10px">READY TO START?</div>
+      <p style="font-size:14px;color:var(--muted);margin-bottom:24px">7-day free trial · No credit card required · Cancel anytime</p>
+      <button class="cta-primary" id="get-started-btn-2">Get Started Free →</button>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
+  setPersistence, indexedDBLocalPersistence, onAuthStateChanged, updateProfile,
+  sendPasswordResetEmail }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey:            'AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM',
+  authDomain:        'refiq-b8142.firebaseapp.com',
+  projectId:         'refiq-b8142',
+  storageBucket:     'refiq-b8142.firebasestorage.app',
+  messagingSenderId: '62305657245',
+  appId:             '1:62305657245:web:d6e35a80859ee8fdd08f74'
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const auth  = getAuth(fbApp);
+const gp    = new GoogleAuthProvider();
+gp.setCustomParameters({ prompt: 'select_account' });
+setPersistence(auth, indexedDBLocalPersistence).catch(() => {});
+
+const DEST = '/train';
+
+// ── AUTH STATE ───────────────────────────────────────────────────────────────
+let _authResolved = false;
+let _pendingUser  = undefined;
+
+onAuthStateChanged(auth, u => {
+  if (!_authResolved) { _pendingUser = u; return; }
+  if (u) { window.location.href = DEST; return; }
+  showMarketing();
+});
+
+const _redirectFallback = new Promise(resolve => setTimeout(resolve, 5000));
+Promise.race([getRedirectResult(auth), _redirectFallback]).then(result => {
+  if (result && result.user) { _authResolved = true; window.location.href = DEST; return; }
+  _authResolved = true;
+  if (_pendingUser !== undefined) {
+    if (_pendingUser) { window.location.href = DEST; return; }
+    showMarketing();
+  } else {
+    showMarketing();
+  }
+}).catch(() => {
+  _authResolved = true;
+  if (_pendingUser) { window.location.href = DEST; return; }
+  showMarketing();
+});
+
+function showMarketing() {
+  document.getElementById('main-page').style.display = 'block';
+}
+function showAuthForm(tab) {
+  document.getElementById('main-page').style.display = 'none';
+  document.getElementById('auth-screen').classList.add('show');
+  if (tab === 'up') switchTab('up');
+}
+
+// ── MARKETING BUTTONS ────────────────────────────────────────────────────────
+document.getElementById('main-page').style.display = 'none'; // hidden until auth resolves
+['get-started-btn','get-started-btn-2'].forEach(id => {
+  document.getElementById(id)?.addEventListener('click', () => showAuthForm('up'));
+});
+document.getElementById('login-btn').addEventListener('click', () => showAuthForm('in'));
+
+// ── AUTH TABS ────────────────────────────────────────────────────────────────
+function switchTab(t) {
+  document.getElementById('tab-in').classList.toggle('active', t === 'in');
+  document.getElementById('tab-up').classList.toggle('active', t === 'up');
+  document.getElementById('form-in').style.display = t === 'in' ? 'block' : 'none';
+  document.getElementById('form-up').style.display = t === 'up' ? 'block' : 'none';
+}
+document.getElementById('tab-in').addEventListener('click', () => switchTab('in'));
+document.getElementById('tab-up').addEventListener('click', () => switchTab('up'));
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function authErr(m) {
+  const el = document.getElementById('auth-err');
+  el.textContent = m; el.style.display = m ? 'block' : 'none';
+}
+function authMsg(m) {
+  const el = document.getElementById('auth-msg');
+  el.textContent = m; el.style.display = m ? 'block' : 'none';
+}
+function setBtn(id, text, disabled) {
+  const b = document.getElementById(id);
+  b.textContent = text; b.disabled = disabled;
+}
+function friendlyErr(code) {
+  const map = {
+    'auth/user-not-found':    'No account found with that email.',
+    'auth/wrong-password':    'Incorrect password.',
+    'auth/invalid-credential':'Incorrect email or password.',
+    'auth/email-already-in-use':'An account already exists with that email.',
+    'auth/weak-password':     'Password must be 6+ characters.',
+    'auth/too-many-requests': 'Too many attempts. Try again later.',
+    'auth/popup-blocked':     'Popup was blocked. Please allow popups and try again.',
+  };
+  return map[code] || 'Something went wrong. Please try again.';
+}
+
+// ── SIGN IN ──────────────────────────────────────────────────────────────────
+document.getElementById('li-btn').addEventListener('click', async () => {
+  authErr(''); authMsg('');
+  const em = document.getElementById('li-email').value.trim();
+  const pw = document.getElementById('li-pass').value;
+  if (!em || !pw) { authErr('Please enter your email and password.'); return; }
+  setBtn('li-btn', 'SIGNING IN…', true);
+  try {
+    await signInWithEmailAndPassword(auth, em, pw);
+    window.location.href = DEST;
+  } catch(e) {
+    authErr(friendlyErr(e.code));
+    setBtn('li-btn', 'SIGN IN', false);
+  }
+});
+
+// ── CREATE ACCOUNT ───────────────────────────────────────────────────────────
+document.getElementById('reg-btn').addEventListener('click', async () => {
+  authErr(''); authMsg('');
+  const name = document.getElementById('reg-name').value.trim();
+  const em   = document.getElementById('reg-email').value.trim();
+  const pw   = document.getElementById('reg-pass').value;
+  if (!name || !em || !pw) { authErr('Please fill in all fields.'); return; }
+  if (pw.length < 6) { authErr('Password must be 6+ characters.'); return; }
+  setBtn('reg-btn', 'CREATING…', true);
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, em, pw);
+    await updateProfile(cred.user, { displayName: name });
+    window.location.href = DEST;
+  } catch(e) {
+    authErr(friendlyErr(e.code));
+    setBtn('reg-btn', 'CREATE ACCOUNT', false);
+  }
+});
+
+// ── GOOGLE ───────────────────────────────────────────────────────────────────
+document.getElementById('google-btn').addEventListener('click', function() {
+  authErr('');
+  const btn = this, orig = btn.innerHTML;
+  btn.disabled = true; btn.style.opacity = '0.6';
+  const reset = () => { btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = orig; };
+  btn.innerHTML = '<span style="opacity:.7">Signing in with Google…</span>';
+  signInWithPopup(auth, gp).then(result => {
+    if (result?.user) { window.location.href = DEST; }
+  }).catch(e => {
+    if (e.code === 'auth/popup-blocked') {
+      btn.innerHTML = '<span style="opacity:.7">Redirecting to Google…</span>';
+      signInWithRedirect(auth, gp).catch(() => { reset(); authErr(friendlyErr('auth/popup-blocked')); });
+    } else if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
+      reset();
+    } else {
+      reset(); authErr(friendlyErr(e.code));
+    }
+  });
+});
+
+// ── FORGOT PASSWORD ──────────────────────────────────────────────────────────
+document.getElementById('forgot-btn').addEventListener('click', async () => {
+  authErr(''); authMsg('');
+  const em = document.getElementById('li-email').value.trim();
+  if (!em) { authErr('Enter your email address first, then click Forgot password.'); return; }
+  try {
+    await sendPasswordResetEmail(auth, em);
+    authMsg('✓ Reset link sent to ' + em + '. Check your inbox.');
+  } catch(e) {
+    authErr(e.code === 'auth/user-not-found' ? 'No account found with that email.' : friendlyErr(e.code));
+  }
+});
+</script>
+</body>
+</html>

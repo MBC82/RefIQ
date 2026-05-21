@@ -10,7 +10,9 @@
     { "source": "/admin",              "destination": "/admin.html" },
     { "source": "/train",              "destination": "/train.html" },
     { "source": "/privacy",            "destination": "/privacy.html" },
-    { "source": "/terms",              "destination": "/terms.html" }
+    { "source": "/terms",              "destination": "/terms.html" },
+    { "source": "/training-intro",     "destination": "/training-intro.html" },
+    { "source": "/assignments-intro",  "destination": "/assignments-intro.html" }
   ],
   "headers": [
     {

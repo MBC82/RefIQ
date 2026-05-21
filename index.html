@@ -633,7 +633,7 @@ footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index
 
         <!-- Footer actions -->
         <div class="assign-footer">
-          <a href="/assign.html" class="assign-cta-btn">Manage Assignments →</a>
+          <a href="/assignments-intro" class="assign-cta-btn" id="assign-cta-btn">Manage Assignments →</a>
           <a href="/assign.html" class="assign-edit-link">Edit Game</a>
         </div>
 
@@ -884,6 +884,47 @@ function toggleFaq(btn) {
   document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
   if (!isOpen) item.classList.add('open');
 }
+</script>
+
+<!-- Auth-aware CTA routing — lightweight, no Firestore -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+const _auth = getAuth(initializeApp({
+  apiKey:            'AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM',
+  authDomain:        'refiq-b8142.firebaseapp.com',
+  projectId:         'refiq-b8142',
+  storageBucket:     'refiq-b8142.firebasestorage.app',
+  messagingSenderId: '62305657245',
+  appId:             '1:62305657245:web:d6e35a80859ee8fdd08f74'
+}, 'landing'));
+
+// _authed: null=resolving, false=logged out, object=logged in
+let _authed = null;
+onAuthStateChanged(_auth, u => { _authed = u || false; });
+
+// Wait for auth state (resolves in <200ms for cached sessions; 1s fallback)
+function awaitAuth() {
+  if (_authed !== null) return Promise.resolve(_authed);
+  return new Promise(resolve => {
+    const unsub = onAuthStateChanged(_auth, u => { unsub(); resolve(u || false); });
+    setTimeout(() => resolve(false), 1000);
+  });
+}
+
+function intercept(id, authedDest, unauthDest) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('click', async e => {
+    e.preventDefault();
+    const user = await awaitAuth();
+    window.location.href = user ? authedDest : unauthDest;
+  });
+}
+
+intercept('demo-cta-btn',  '/train',  '/training-intro');
+intercept('assign-cta-btn', '/admin', '/assignments-intro');
 </script>
 
 </body>
