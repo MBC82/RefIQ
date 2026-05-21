@@ -1991,7 +1991,7 @@ import { getStorage, ref as storageRef, uploadBytes, getDownloadURL }
 // instead of a silent blank page.
 const firebaseConfig = {
   apiKey: 'AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM',
-  authDomain: 'www.myrefiq.com',
+  authDomain: 'refiq-b8142.firebaseapp.com',
   projectId: 'refiq-b8142',
   storageBucket: 'refiq-b8142.firebasestorage.app',
   messagingSenderId: '62305657245',
@@ -2142,7 +2142,10 @@ onAuthStateChanged(auth, u => {
 
 // Then check for a pending redirect result. On completion (success or error),
 // mark auth resolved and process whatever user state we have.
-getRedirectResult(auth).then(result => {
+// 5-second safety net: if getRedirectResult hangs (can happen with custom authDomain
+// proxy issues), force-resolve so the loading spinner never shows forever.
+const _redirectFallback = new Promise(resolve => setTimeout(resolve, 5000));
+Promise.race([getRedirectResult(auth), _redirectFallback]).then(result => {
   if (result && result.user) {
     _authResolved = true;
     handleAdminAuth(result.user);
@@ -2150,6 +2153,7 @@ getRedirectResult(auth).then(result => {
   }
   _authResolved = true;
   if (_pendingUser !== undefined) handleAdminAuth(_pendingUser);
+  else handleAdminAuth(null);
 }).catch(err => {
   if (err.code && err.code !== 'auth/no-auth-event') window._redirectAuthError = friendlyErr(err.code);
   _authResolved = true;
