@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 2 Concept Check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAFCFA; --grid:#E1EEE4; --ink:#1C2B23; --muted:#56695E;
+  --pen:#1B7A45; --redpen:#C8322B; --ok:#1B7A45; --card:#FFFFFF; --line:#C5DACB;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#122019; --grid:#1A2C22; --ink:#E4F0E8; --muted:#A0B8A9;
+    --pen:#6FD39A; --redpen:#FF8A80; --ok:#6FD39A; --card:#182A20; --line:#2F4A3A;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#122019; --grid:#1A2C22; --ink:#E4F0E8; --muted:#A0B8A9;
+  --pen:#6FD39A; --redpen:#FF8A80; --ok:#6FD39A; --card:#182A20; --line:#2F4A3A;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; color:var(--ink); background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:1.0625rem; line-height:1.55;
+}
+.wrap{max-width:44rem; margin:0 auto; padding:1.5rem 1rem 6rem}
+header h1{font-family:"Caveat","Bradley Hand","Comic Sans MS",cursive; font-weight:700; color:var(--pen); font-size:clamp(2.6rem,9vw,3.6rem); line-height:1; margin:.5rem 0 .5rem}
+header p{margin:.25rem 0; max-width:36rem}
+.how{color:var(--muted); font-size:.95rem}
+nav{display:flex; flex-wrap:wrap; gap:.4rem; margin:1.25rem 0 .5rem}
+nav a{font-size:.9rem; color:var(--ink); text-decoration:none; border:1px solid var(--line); background:var(--card); padding:.35rem .7rem; border-radius:999px}
+nav a:hover{border-color:var(--pen)}
+.tally{position:sticky; top:0; z-index:5; background:var(--paper); border-bottom:2px solid var(--ink); padding:.6rem 0; margin-bottom:1rem; display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; font-size:.95rem}
+.bar{flex:1 1 8rem; height:.5rem; background:var(--grid); border-radius:4px; overflow:hidden; display:flex}
+.bar i{display:block; height:100%}
+.bar .g{background:var(--ok)} .bar .m{background:var(--redpen)}
+.tally button{font:inherit; font-size:.85rem; background:none; border:1px solid var(--line); color:var(--muted); border-radius:6px; padding:.3rem .6rem; cursor:pointer}
+section{margin:2.5rem 0}
+section h2{font-size:1.35rem; margin:0 0 .2rem; border-bottom:1px solid var(--ink); padding-bottom:.3rem}
+section .skill{color:var(--muted); font-size:.95rem; margin:.3rem 0 1rem}
+.q{background:var(--card); border:1px solid var(--line); border-left:4px solid var(--line); border-radius:4px; padding:1rem 1rem .9rem; margin:0 0 .9rem}
+.q.got{border-left-color:var(--ok)} .q.miss{border-left-color:var(--redpen)}
+.qhead{display:flex; gap:.6rem}
+.num{font-weight:700; min-width:1.8rem}
+.qtext{flex:1}
+.kind{display:block; font-size:.82rem; color:var(--muted); margin-bottom:.15rem}
+.reveal{margin-top:.75rem; font:inherit; font-size:.95rem; font-weight:700; color:var(--pen); background:none; border:1.5px solid var(--pen); border-radius:6px; padding:.45rem .9rem; cursor:pointer; min-height:44px}
+
+
+.q.open .reveal{display:none}
+.hand{font-family:"Caveat","Bradley Hand","Comic Sans MS",cursive; color:var(--pen); font-size:1.85rem; line-height:1.15; font-weight:700; margin:0 0 .35rem}
+.why{margin:.2rem 0}
+.watch{margin:.6rem 0 0; color:var(--redpen); font-size:.95rem}
+.watch b{font-weight:700}
+.self{display:flex; gap:.5rem; margin-top:.8rem; flex-wrap:wrap}
+.self button{font:inherit; font-size:.9rem; min-height:44px; padding:.4rem .9rem; border-radius:6px; cursor:pointer; background:var(--card); color:var(--ink); border:1.5px solid var(--line)}
+.self .yes[aria-pressed="true"]{background:var(--ok); border-color:var(--ok); color:var(--paper)}
+.self .no[aria-pressed="true"]{background:var(--redpen); border-color:var(--redpen); color:var(--paper)}
+button:focus-visible, a:focus-visible{outline:3px solid var(--pen); outline-offset:2px}
+.fr{display:inline-flex; flex-direction:column; vertical-align:middle; text-align:center; line-height:1.05; font-size:.85em; margin:0 .08em}
+.fr span:first-child{border-bottom:1.5px solid currentColor; padding:0 .15em}
+.hand .fr{font-size:.8em}
+table.data{border-collapse:collapse; margin:.5rem 0; font-size:.95rem}
+.tscroll{overflow-x:auto; max-width:100%}
+table.data td,table.data th{border:1px solid var(--line); padding:.3rem .55rem; text-align:center; white-space:nowrap}
+#review{border:2px solid var(--ink); background:var(--card); border-radius:4px; padding:1rem}
+#review h2{border:0; margin:0 0 .4rem; padding:0}
+#review ul{margin:.4rem 0 0; padding-left:1.2rem}
+#review li{margin:.2rem 0}
+@media (prefers-reduced-motion: no-preference){ .q.open .ans{animation:ink .25s ease-out} @keyframes ink{from{opacity:0}to{opacity:1}} }
+
+
+details.ans{display:block;margin-top:.75rem;padding:0;border:0}
+details.ans>summary{display:inline-block;list-style:none;font-weight:700;font-size:.95rem;color:var(--pen);border:1.5px solid var(--pen);border-radius:6px;padding:.55rem .9rem;cursor:pointer}
+details.ans>summary::-webkit-details-marker{display:none}
+details.ans[open]>summary{display:none}
+details.ans .inner{padding-top:.7rem;border-top:1px dashed var(--line)}
+.self,.tally,#review-wrap{display:none}
+.restart{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;font-weight:700;font-size:1.05rem;color:#fff;text-decoration:none;background:var(--pen);border:2px solid var(--pen);border-radius:8px;padding:.7rem 1.2rem;min-height:48px;box-shadow:0 2px 0 var(--ink)}
+.restart:active{transform:translateY(2px);box-shadow:none}
+.restart.armed{background:var(--redpen);border-color:var(--redpen)}
+:root:not([data-theme="light"]) .restart{color:var(--paper)}
+.topbar{position:sticky;top:0;z-index:6;background:var(--paper);border-bottom:2px solid var(--ink);padding:.6rem 0;margin:1rem 0;display:flex;align-items:center;justify-content:flex-end;gap:.75rem}
+.topbar .tally{position:static;border:0;padding:0;margin:0;flex:1 1 0;min-width:0;background:none;flex-direction:column;align-items:stretch;gap:.35rem;font-size:.9rem}
+.topbar .tally .bar{flex:none;width:100%}
+.topbar .restart{flex:none}
+.restart-bottom{margin:2rem 0 1rem}
+.restart-bottom .restart{width:100%;font-size:1.15rem;min-height:56px}
+[hidden]{display:none!important}
+.modes{display:none;margin:1rem 0 0}
+html.js .modes{display:flex}
+.modes button{flex:1 1 0;min-height:46px;font:inherit;font-size:.92rem;font-weight:700;border:1.5px solid var(--pen);background:var(--card);color:var(--pen);padding:.4rem .4rem;cursor:pointer}
+.modes button+button{border-left:0}
+.modes button:first-child{border-radius:8px 0 0 8px}.modes button:last-child{border-radius:0 8px 8px 0}
+.modes button[aria-pressed="true"]{background:var(--pen);color:var(--paper)}
+.modehint{color:var(--muted);font-size:.92rem;margin:.5rem 0 0}
+.retry{display:none;margin-top:.75rem;font:inherit;font-size:.95rem;font-weight:700;color:var(--redpen);background:none;border:1.5px solid var(--redpen);border-radius:6px;padding:.55rem .9rem;min-height:44px;cursor:pointer}
+html.js .q.miss .retry{display:inline-block}
+.q.practicing .retry{display:none!important}
+.pcard{margin-top:.9rem;padding:.9rem;border:1.5px dashed var(--pen);border-radius:6px;background:var(--paper)}
+.pcard>.kind{color:var(--pen);font-weight:700}
+.pself{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem}
+.pself button{font:inherit;font-size:.9rem;min-height:44px;padding:.4rem .9rem;border-radius:6px;cursor:pointer}
+.pgot{background:var(--ok);border:1.5px solid var(--ok);color:var(--paper)}
+.pnew{background:var(--card);border:1.5px solid var(--redpen);color:var(--redpen)}
+#nomissed{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:1rem}
+html.js .self{display:flex} html.js .tally{display:flex} html.js #review-wrap{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Chapter 2 concept check</h1>
+  <p>Same topics as the Chapter 2 test review, but these questions ask <em>why</em> and try to catch the mistakes that cost points. Try them without a calculator.</p>
+  <p class="how">Work each one on paper first. Then show the answer and check yourself honestly.</p>
+</header>
+<div class="modes" role="group" aria-label="How to practice"><button type="button" data-mode="topic">By topic</button><button type="button" data-mode="mixed">Mixed test</button><button type="button" data-mode="missed">Missed only</button></div>
+<p class="modehint" id="modehint" hidden></p>
+<nav id="nav" aria-label="Topics"><a href="#forms">Mixed numbers and improper fractions</a><a href="#signs">Sign rules for multiplying and dividing</a><a href="#intops">Multiplying and dividing integers</a><a href="#order">Order of operations</a><a href="#fracops">Multiplying and dividing fractions</a><a href="#dec">Fractions as decimals</a><a href="#word">Word problems</a></nav>
+<div class="topbar"><div class="tally" aria-live="polite"><span id="score"></span><div class="bar" aria-hidden="true"><i class="g" id="barG"></i><i class="m" id="barM"></i></div></div><a class="restart" href="">↺ Start over</a></div>
+<main id="main"><section id="mixed" hidden></section><p id="nomissed" hidden>Nothing marked missed yet. Mark questions as you go, then come back here to retest them.</p><section id="forms" data-topic="forms"><h2>Mixed numbers and improper fractions</h2><p class="skill">Builds on Review questions 1–3</p><div class="q" data-id="1" data-s="forms"><div class="qhead"><span class="num">1.</span><div class="qtext"><span class="kind">Explain</span>What's the difference between a mixed number and an improper fraction? Which is <span class="fr"><span>7</span><span>3</span></span>, and why isn't it called “wrong”?</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">Mixed number = whole + fraction. <span class="fr"><span>7</span><span>3</span></span> is an improper fraction.</p><p class="why">Improper just means the numerator is at least as big as the denominator, so the value is 1 or more. Nothing is wrong with it — it's often easier to compute with.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="2" data-s="forms"><div class="qhead"><span class="num">2.</span><div class="qtext"><span class="kind">Find the mistake</span>A student wrote: −7<span class="fr"><span>2</span><span>9</span></span> = −<span class="fr"><span>63</span><span>9</span></span> + <span class="fr"><span>2</span><span>9</span></span> = −<span class="fr"><span>61</span><span>9</span></span>. What's wrong, and what's the right answer?</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">−<span class="fr"><span>65</span><span>9</span></span></p><p class="why">The negative applies to the <b>whole</b> amount, not just the 7. −7<span class="fr"><span>2</span><span>9</span></span> means −(7 + <span class="fr"><span>2</span><span>9</span></span>) = −<span class="fr"><span>65</span><span>9</span></span>. Convert the positive part first, then put the negative sign back on.</p><p class="watch"><b>Watch out:</b> Any time a mixed number is negative, convert 7<span class="fr"><span>2</span><span>9</span></span> first and attach the minus sign at the end.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="3" data-s="forms"><div class="qhead"><span class="num">3.</span><div class="qtext"><span class="kind">Explain</span>Convert −<span class="fr"><span>36</span><span>16</span></span> to a mixed number in simplest form. Could you simplify <b>before</b> converting? Try both orders.</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">−2<span class="fr"><span>1</span><span>4</span></span></p><p class="why">Convert first: −2<span class="fr"><span>4</span><span>16</span></span>, then simplify <span class="fr"><span>4</span><span>16</span></span> to <span class="fr"><span>1</span><span>4</span></span>. Or simplify first: <span class="fr"><span>36</span><span>16</span></span> = <span class="fr"><span>9</span><span>4</span></span>, then convert to 2<span class="fr"><span>1</span><span>4</span></span>. Same answer either way.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="4" data-s="forms"><div class="qhead"><span class="num">4.</span><div class="qtext"><span class="kind">True or false</span>“Every improper fraction is greater than 1.”</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">False</p><p class="why"><span class="fr"><span>3</span><span>3</span></span> is improper but equals exactly 1, and −<span class="fr"><span>7</span><span>3</span></span> is improper but is less than 1 because it's negative. Improper describes the <em>form</em> (top ≥ bottom), not the size.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="5" data-s="forms"><div class="qhead"><span class="num">5.</span><div class="qtext"><span class="kind">Compare</span>Which is greater: −2<span class="fr"><span>1</span><span>4</span></span> or −2<span class="fr"><span>1</span><span>2</span></span>? Explain with a number line.</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">−2<span class="fr"><span>1</span><span>4</span></span> is greater</p><p class="why">Both are between −2 and −3. −2<span class="fr"><span>1</span><span>2</span></span> is farther left, so it's less. With negatives, the bigger fractional part means the smaller number.</p><p class="watch"><b>Watch out:</b> Don't just compare <span class="fr"><span>1</span><span>4</span></span> and <span class="fr"><span>1</span><span>2</span></span> and pick the bigger one — the negative flips it.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+</section><section id="signs" data-topic="signs"><h2>Sign rules for multiplying and dividing</h2><p class="skill">Builds on Review questions 5–8</p><div class="q" data-id="6" data-s="signs"><div class="qhead"><span class="num">6.</span><div class="qtext"><span class="kind">Explain</span>Why does a negative times a negative give a positive? Finish the pattern and see:<br>−3 × 2 = −6, &nbsp; −3 × 1 = −3, &nbsp; −3 × 0 = 0, &nbsp; −3 × (−1) = ___, &nbsp; −3 × (−2) = ___</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">3 and 6</p><p class="why">Each step to the left adds 3 to the answer. To keep the pattern going past zero, the products have to turn positive.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="7" data-s="signs"><div class="qhead"><span class="num">7.</span><div class="qtext"><span class="kind">Predict</span>Without multiplying, is −12(5)(−3) positive or negative? What rule are you using?</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">Positive — two negative factors</p><p class="why">Count the negative factors. An even number of negatives gives a positive product; an odd number gives a negative.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="8" data-s="signs"><div class="qhead"><span class="num">8.</span><div class="qtext"><span class="kind">Predict</span>Decide the sign of each without computing:<br>a. (−2)(−3)(−4) &nbsp;&nbsp; b. (−2)(−3)(−4)(−5)</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">a. Negative &nbsp;&nbsp; b. Positive</p><p class="why">Three negatives is odd → negative. Four negatives is even → positive. The numbers themselves don't matter for the sign.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="9" data-s="signs"><div class="qhead"><span class="num">9.</span><div class="qtext"><span class="kind">Compare</span>Find each and explain why two of them match:<br>a. {−80/20} &nbsp;&nbsp; b. {80/−20} &nbsp;&nbsp; c. {−80/−20}</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">a. −4 &nbsp; b. −4 &nbsp; c. 4</p><p class="why">One negative (wherever it sits) makes the quotient negative. Two negatives cancel out.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="10" data-s="signs"><div class="qhead"><span class="num">10.</span><div class="qtext"><span class="kind">True or false</span>“When you divide one integer by another, the answer is always an integer.”</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">False</p><p class="why">7 ÷ 2 = 3.5. Division doesn't always come out even, which is exactly why fractions exist. (Multiplying two integers <em>does</em> always give an integer.)</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+</section><section id="intops" data-topic="intops"><h2>Multiplying and dividing integers</h2><p class="skill">Builds on Review questions 5–8</p><div class="q" data-id="11" data-s="intops"><div class="qhead"><span class="num">11.</span><div class="qtext"><span class="kind">Missing number</span>Fill in the blanks.<br>a. −7 × ___ = 56 &nbsp;&nbsp; b. ___ ÷ (−5) = −9</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">a. −8 &nbsp;&nbsp; b. 45</p><p class="why">a: the product is positive, so the missing factor must be negative. b: the quotient is negative, so the dividend and divisor have opposite signs.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="12" data-s="intops"><div class="qhead"><span class="num">12.</span><div class="qtext"><span class="kind">Find the mistake</span>A student wrote −3 • (−40) = −120, saying “a negative sign carries through.” What's wrong?</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">−3 • (−40) = 120</p><p class="why">Two negative factors cancel. The sign rule for <em>multiplying</em> isn't the same as for adding, where −3 + (−40) really is −43.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="13" data-s="intops"><div class="qhead"><span class="num">13.</span><div class="qtext"><span class="kind">Compare</span>Are 100 ÷ (−5) and (−100) ÷ 5 the same? What about (−100) ÷ (−5)?</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">First two both −20. The third is 20.</p><p class="why">It doesn't matter which number carries the negative — one negative makes the quotient negative. Two negatives make it positive.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="14" data-s="intops"><div class="qhead"><span class="num">14.</span><div class="qtext"><span class="kind">Word problem</span>The temperature drops 4 degrees every hour for 6 hours. Write a multiplication expression with an integer, and find the total change.</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">−4 × 6 = −24 degrees</p><p class="why">A repeated drop is repeated addition of a negative, which is multiplication by a negative. The answer is a change of −24, not a temperature of −24.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+</section><section id="order" data-topic="order"><h2>Order of operations</h2><p class="skill">Builds on Review questions 9–10, 13</p><div class="q" data-id="15" data-s="order"><div class="qhead"><span class="num">15.</span><div class="qtext"><span class="kind">Explain</span>In 40 ÷ (−5) + (−19), which operation comes first and why? What answer do you get?</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">Divide first. −8 + (−19) = −27</p><p class="why">Multiplication and division come before addition and subtraction, no matter which is written first.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="16" data-s="order"><div class="qhead"><span class="num">16.</span><div class="qtext"><span class="kind">Find the mistake</span>A student evaluated −10 − 16 × (−2) by subtracting first: −26 × (−2) = 52. What's wrong, and what's the correct answer?</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">22</p><p class="why">Multiply first: 16 × (−2) = −32. Then −10 − (−32) = −10 + 32 = 22.</p><p class="watch"><b>Watch out:</b> Going left to right is only safe <em>within</em> the same level of operations.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="17" data-s="order"><div class="qhead"><span class="num">17.</span><div class="qtext"><span class="kind">Work backwards</span>Where would you put parentheses in −10 − 16 × (−2) to make the answer 52?</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">(−10 − 16) × (−2)</p><p class="why">Parentheses outrank everything, so they force the subtraction to happen first: −26 × (−2) = 52. That's why the student's wrong answer was 52.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="18" data-s="order"><div class="qhead"><span class="num">18.</span><div class="qtext"><span class="kind">Compare</span>Evaluate both and explain why they differ:<br>a. −24 ÷ (−2 − 4) &nbsp;&nbsp; b. −24 ÷ (−2) − 4</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">a. 4 &nbsp;&nbsp; b. 8</p><p class="why">In a, the parentheses make the divisor −6, so −24 ÷ (−6) = 4. In b, you divide first: 12, then subtract 4.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+</section><section id="fracops" data-topic="fracops"><h2>Multiplying and dividing fractions</h2><p class="skill">Builds on Review questions 4, 11–13</p><div class="q" data-id="19" data-s="fracops"><div class="qhead"><span class="num">19.</span><div class="qtext"><span class="kind">Explain</span>Why does dividing by a fraction mean multiplying by its reciprocal? Use 12 ÷ <span class="fr"><span>3</span><span>4</span></span> — what is that question really asking?</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">How many <span class="fr"><span>3</span><span>4</span></span>s fit in 12? &nbsp;16</p><p class="why">Each whole holds 4 thirds-of-a-quarter... more simply: each whole holds <span class="fr"><span>4</span><span>3</span></span> groups of <span class="fr"><span>3</span><span>4</span></span>, so 12 wholes hold 12 × <span class="fr"><span>4</span><span>3</span></span> = 16. Dividing asks how many groups fit.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="20" data-s="fracops"><div class="qhead"><span class="num">20.</span><div class="qtext"><span class="kind">Set it up</span>Write a multiplication expression for −<span class="fr"><span>8</span><span>9</span></span> ÷ <span class="fr"><span>4</span><span>5</span></span>. Don't solve it.</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">−<span class="fr"><span>8</span><span>9</span></span> × <span class="fr"><span>5</span><span>4</span></span></p><p class="why">Keep the first fraction, change ÷ to ×, and flip the second one. Only the second fraction flips.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="21" data-s="fracops"><div class="qhead"><span class="num">21.</span><div class="qtext"><span class="kind">Reciprocals</span>Give the reciprocal of each, and explain what makes two numbers reciprocals:<br>a. −<span class="fr"><span>5</span><span>6</span></span> &nbsp;&nbsp; b. 7 &nbsp;&nbsp; c. 1<span class="fr"><span>1</span><span>2</span></span></div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">a. −<span class="fr"><span>6</span><span>5</span></span> &nbsp; b. <span class="fr"><span>1</span><span>7</span></span> &nbsp; c. <span class="fr"><span>2</span><span>3</span></span></p><p class="why">Two numbers are reciprocals when their product is 1. The sign doesn't flip — only the numerator and denominator swap. Convert mixed numbers first: 1<span class="fr"><span>1</span><span>2</span></span> = <span class="fr"><span>3</span><span>2</span></span>.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="22" data-s="fracops"><div class="qhead"><span class="num">22.</span><div class="qtext"><span class="kind">Predict</span>Without computing: is <span class="fr"><span>2</span><span>3</span></span> × <span class="fr"><span>1</span><span>2</span></span> bigger or smaller than <span class="fr"><span>2</span><span>3</span></span>? Why?</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">Smaller: <span class="fr"><span>1</span><span>3</span></span></p><p class="why">Multiplying by a number less than 1 takes a <em>part</em> of it, so the result shrinks. Multiplying by more than 1 grows it.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="23" data-s="fracops"><div class="qhead"><span class="num">23.</span><div class="qtext"><span class="kind">Predict</span>Without computing: is 12 ÷ <span class="fr"><span>3</span><span>4</span></span> bigger or smaller than 12? Why?</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">Bigger: 16</p><p class="why">Dividing asks how many groups fit, and the groups are smaller than 1, so more of them fit. Dividing by a number less than 1 always makes the result bigger.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="24" data-s="fracops"><div class="qhead"><span class="num">24.</span><div class="qtext"><span class="kind">Two answers</span>Find −2<span class="fr"><span>1</span><span>3</span></span> • (−5<span class="fr"><span>1</span><span>4</span></span>). Give the answer as an improper fraction <b>in simplest form</b> and as a mixed number.</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand"><span class="fr"><span>49</span><span>4</span></span> = 12<span class="fr"><span>1</span><span>4</span></span></p><p class="why">−<span class="fr"><span>7</span><span>3</span></span> • −<span class="fr"><span>21</span><span>4</span></span> = <span class="fr"><span>147</span><span>12</span></span>. Two negatives make a positive. <span class="fr"><span>147</span><span>12</span></span> simplifies to <span class="fr"><span>49</span><span>4</span></span>, which is 12<span class="fr"><span>1</span><span>4</span></span>.</p><p class="watch"><b>Watch out:</b> <span class="fr"><span>147</span><span>12</span></span> is correct but not simplified. If the directions say simplest form, keep reducing.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="25" data-s="fracops"><div class="qhead"><span class="num">25.</span><div class="qtext"><span class="kind">Find the mistake</span>To compute −3<span class="fr"><span>4</span><span>5</span></span> ÷ <span class="fr"><span>2</span><span>5</span></span>, a student flipped the <b>first</b> fraction: <span class="fr"><span>5</span><span>19</span></span> × <span class="fr"><span>2</span><span>5</span></span>. What's wrong, and what's the right answer?</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">−<span class="fr"><span>19</span><span>5</span></span> × <span class="fr"><span>5</span><span>2</span></span> = −<span class="fr"><span>19</span><span>2</span></span> = −9<span class="fr"><span>1</span><span>2</span></span></p><p class="why">Only the divisor (the second number) flips. The first number stays exactly as it is, negative sign and all.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="26" data-s="fracops"><div class="qhead"><span class="num">26.</span><div class="qtext"><span class="kind">Explain</span>In 3 + 9<span class="fr"><span>1</span><span>6</span></span> ÷ (−<span class="fr"><span>5</span><span>6</span></span>), which operation comes first, and what's the answer?</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">Division first. 3 + (−11) = −8</p><p class="why"><span class="fr"><span>55</span><span>6</span></span> ÷ (−<span class="fr"><span>5</span><span>6</span></span>) = <span class="fr"><span>55</span><span>6</span></span> × (−<span class="fr"><span>6</span><span>5</span></span>) = −11. Then add 3.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+</section><section id="dec" data-topic="dec"><h2>Fractions as decimals</h2><p class="skill">Builds on Review question 16</p><div class="q" data-id="27" data-s="dec"><div class="qhead"><span class="num">27.</span><div class="qtext"><span class="kind">Explain</span>How do you turn <span class="fr"><span>5</span><span>8</span></span> into a decimal? What does the fraction bar actually mean?</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">5 ÷ 8 = 0.625</p><p class="why">The fraction bar is a division sign. Top divided by bottom, always in that order.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="28" data-s="dec"><div class="qhead"><span class="num">28.</span><div class="qtext"><span class="kind">Predict</span>One of these is greater than 1: <span class="fr"><span>5</span><span>8</span></span>, <span class="fr"><span>9</span><span>6</span></span>, <span class="fr"><span>9</span><span>45</span></span>, <span class="fr"><span>7</span><span>16</span></span>. Which, and how can you tell without dividing?</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand"><span class="fr"><span>9</span><span>6</span></span></p><p class="why">Its numerator is bigger than its denominator, so it's more than one whole. Its decimal is 1.5, the only one above 1.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="29" data-s="dec"><div class="qhead"><span class="num">29.</span><div class="qtext"><span class="kind">Match</span>Match each fraction to its decimal:<br><span class="fr"><span>5</span><span>8</span></span>, &nbsp;<span class="fr"><span>9</span><span>6</span></span>, &nbsp;<span class="fr"><span>9</span><span>45</span></span>, &nbsp;<span class="fr"><span>7</span><span>16</span></span><br>0.2, &nbsp;0.625, &nbsp;0.4375, &nbsp;1.5</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand"><span class="fr"><span>5</span><span>8</span></span>=0.625, <span class="fr"><span>9</span><span>6</span></span>=1.5, <span class="fr"><span>9</span><span>45</span></span>=0.2, <span class="fr"><span>7</span><span>16</span></span>=0.4375</p><p class="why">Divide top by bottom for each. Shortcuts: <span class="fr"><span>9</span><span>45</span></span> simplifies to <span class="fr"><span>1</span><span>5</span></span> = 0.2, and <span class="fr"><span>9</span><span>6</span></span> is more than 1, so it has to be 1.5.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="30" data-s="dec"><div class="qhead"><span class="num">30.</span><div class="qtext"><span class="kind">Reason it out</span>Without dividing, which is closer to <span class="fr"><span>1</span><span>2</span></span>: <span class="fr"><span>7</span><span>16</span></span> or <span class="fr"><span>9</span><span>16</span></span>? How do you know?</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">They're the same distance (<span class="fr"><span>1</span><span>16</span></span> each)</p><p class="why"><span class="fr"><span>1</span><span>2</span></span> = <span class="fr"><span>8</span><span>16</span></span>. One is <span class="fr"><span>1</span><span>16</span></span> below it, the other is <span class="fr"><span>1</span><span>16</span></span> above it.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+</section><section id="word" data-topic="word"><h2>Word problems</h2><p class="skill">Builds on Review questions 14–15</p><div class="q" data-id="31" data-s="word"><div class="qhead"><span class="num">31.</span><div class="qtext"><span class="kind">Word problem</span>How many three-fourth ounce packages can be made from 12 ounces of peanuts? Explain why the answer is <b>bigger</b> than 12.</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">12 ÷ <span class="fr"><span>3</span><span>4</span></span> = 16 packages</p><p class="why">Each package is smaller than an ounce, so you get more packages than ounces. Total ÷ size of each part = number of parts.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="32" data-s="word"><div class="qhead"><span class="num">32.</span><div class="qtext"><span class="kind">Word problem</span>You burn 10 calories each minute you jog. What integer represents the change in your calories after jogging 20 minutes?</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">−10 × 20 = −200 calories</p><p class="why">Burning is a loss, so the rate is −10 per minute. The answer is a <em>change</em> of −200, not 200 calories gained.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="33" data-s="word"><div class="qhead"><span class="num">33.</span><div class="qtext"><span class="kind">Word problem</span>A diver descends <span class="fr"><span>3</span><span>4</span></span> of a foot each second for 12 seconds. Write an expression with a negative number and find her depth change.</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">−<span class="fr"><span>3</span><span>4</span></span> × 12 = −9 feet</p><p class="why">Descending repeatedly is multiplying a negative rate by the time. She's 9 feet lower than where she started.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+<div class="q" data-id="34" data-s="word"><div class="qhead"><span class="num">34.</span><div class="qtext"><span class="kind">Create your own</span>Write your own word problem that requires dividing by a fraction, and show that the answer is bigger than the number you started with.</div></div>
+<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">Example: how many <span class="fr"><span>1</span><span>3</span></span>-cup scoops are in 5 cups? 5 ÷ <span class="fr"><span>1</span><span>3</span></span> = 15</p><p class="why">Any “how many small pieces fit in a bigger amount” question works. If you can write one of these yourself, you understand what dividing by a fraction means.</p>
+<div class="self"><button class="yes" type="button" aria-pressed="false">I got it</button><button class="no" type="button" aria-pressed="false">I missed it</button></div></div></details><button class="retry" type="button">Try a new one like this</button><div class="practice"></div></div>
+</section></main>
+<section id="review-wrap"><div id="review"></div></section>
+<div class="restart-bottom"><a class="restart" href="">↺ Start over</a></div>
+</div>
+<script>
+document.documentElement.classList.add("js");
+const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+const I=n=>n<0?'−'+(-n):''+n;
+const F=(n,d)=>d===1?`${n}`:`{${n}/${d}}`;
+function simp(n,d){const g=gcd(Math.abs(n),d)||1;return [n/g,d/g]}
+function mixed(n,d){[n,d]=simp(n,d);const s=n<0?'−':'';n=Math.abs(n);const w=Math.floor(n/d),r=n%d;if(r===0)return s+w;return s+(w?w:'')+F(r,d)}
+function mix(maxw){const d=pick([2,3,4,5,6,8,9,10]);let n;do{n=R(1,d-1)}while(gcd(n,d)!==1);const w=R(1,maxw||7);return {w,n,d,T:w*d+n}}
+function prop(){const d=pick([3,4,5,6,8,9,10,12]);let n;do{n=R(1,d-1)}while(gcd(n,d)!==1);return {n,d}}
+const distinct=(lo,hi)=>{const a=R(lo,hi);let b;do{b=R(lo,hi)}while(b===a);return [a,b]};
+function dec(){let n,d,s;do{d=pick([2,4,5,8,10,16,20,25,40,50]);n=R(1,2*d);s=String(n/d)}while(gcd(n,d)!==1||s.length>7);return {n,d,s}}
+
+const GEN=[
+// 1
+()=>{const m=mix(),f=mix();
+ return {q:`Which of these is a mixed number and which is an improper fraction?<br>a. ${m.w}${F(m.n,m.d)} &nbsp;&nbsp; b. ${F(f.T,f.d)}<br>Then: is ${F(f.d,f.d)} improper?`,
+ a:`a. Mixed number &nbsp; b. Improper fraction. ${F(f.d,f.d)} is improper (it equals 1).`,
+ e:`Improper means the numerator is at least as big as the denominator. ${F(f.d,f.d)} = 1, so it counts as improper even though it isn't bigger than 1.`}},
+// 2
+()=>{const {w,n,d,T}=mix();
+ return {q:`A student wrote: −${w}${F(n,d)} = −${F(w*d,d)} + ${F(n,d)} = −${F(w*d-n,d)}. What's wrong, and what's the right answer?`,
+ a:`−${F(T,d)}`,
+ e:`The negative applies to the whole amount: −${w}${F(n,d)} means −(${w} + ${F(n,d)}) = −${F(T,d)}. Convert the positive part first, then attach the minus sign.`,
+ w:`With a negative mixed number, convert ${w}${F(n,d)} first and put the minus sign back at the end.`}},
+// 3
+()=>{const {w,n,d,T}=mix();const g=pick([2,3,4]);
+ return {q:`Convert −${F(T*g,d*g)} to a mixed number in simplest form. Try it both ways: simplify first, then convert — and the other order.`,
+ a:`−${w}${F(n,d)}`,
+ e:`Simplify first: ${F(T*g,d*g)} = ${F(T,d)}, then convert to ${w}${F(n,d)}. Or convert first: ${w}${F(n*g,d*g)}, then simplify ${F(n*g,d*g)} to ${F(n,d)}. Same answer.`}},
+// 4
+()=>{const k=R(2,9);const v=R(0,1);const m=mix();
+ if(v) return {q:`True or false: “Every improper fraction is greater than 1.” Use ${F(k,k)} to decide.`,a:`False`,
+  e:`${F(k,k)} is improper (top ≥ bottom) but equals exactly 1. Improper describes the form, not the size.`};
+ return {q:`True or false: “Every improper fraction is greater than 1.” Use −${F(m.T,m.d)} to decide.`,a:`False`,
+  e:`−${F(m.T,m.d)} is improper but it's negative, so it's far less than 1. Improper only means the numerator is at least as big as the denominator.`}},
+// 5
+()=>{const d=pick([3,4,5,6,8]);let n1,n2;do{n1=R(1,d-1);n2=R(1,d-1)}while(n1===n2);const w=R(1,6);
+ const big=Math.min(n1,n2),small=Math.max(n1,n2);
+ return {q:`Which is greater: −${w}${F(n1,d)} or −${w}${F(n2,d)}? Explain with a number line.`,
+ a:`−${w}${F(big,d)} is greater`,
+ e:`−${w}${F(small,d)} is farther left, so it's less. With negatives, the bigger fractional part makes the smaller number.`,
+ w:`Don't just compare ${F(n1,d)} and ${F(n2,d)} and pick the bigger — the negative flips it.`}},
+// 6
+()=>{const a=R(2,9);
+ return {q:`Finish the pattern, then say what it shows:<br>−${a} × 2 = ${I(-2*a)}, &nbsp; −${a} × 1 = ${I(-a)}, &nbsp; −${a} × 0 = 0, &nbsp; −${a} × (−1) = ___, &nbsp; −${a} × (−2) = ___`,
+ a:`${a} and ${2*a}`,
+ e:`Each step adds ${a} to the answer. To keep the pattern going past zero, the products have to turn positive — which is why negative × negative is positive.`}},
+// 7
+()=>{const a=R(2,12),b=R(2,9),c=R(2,6);const sa=pick([1,-1]),sb=pick([1,-1]),sc=pick([1,-1]);
+ const negs=[sa,sb,sc].filter(x=>x<0).length;
+ const show=`${sa<0?'−'+a:a}(${sb<0?'−'+b:b})(${sc<0?'−'+c:c})`;
+ return {q:`Without multiplying, is ${show} positive or negative? What rule are you using?`,
+ a:`${negs%2?'Negative':'Positive'} — ${negs} negative factor${negs===1?'':'s'}`,
+ e:`Count the negative factors. An even number of negatives gives a positive product; an odd number gives a negative one.`}},
+// 8
+()=>{const n1=R(2,4),n2=n1+1;const nums=()=>shuffle([2,3,4,5,6,7,8,9]);
+ const a=nums().slice(0,n1),b=nums().slice(0,n2);
+ const f=arr=>arr.map(x=>`(−${x})`).join('');
+ return {q:`Decide the sign of each without computing:<br>a. ${f(a)} &nbsp;&nbsp; b. ${f(b)}`,
+ a:`a. ${n1%2?'Negative':'Positive'} &nbsp;&nbsp; b. ${n2%2?'Negative':'Positive'}`,
+ e:`${n1} negatives is ${n1%2?'odd → negative':'even → positive'}; ${n2} negatives is ${n2%2?'odd → negative':'even → positive'}. The numbers themselves don't affect the sign.`}},
+// 9
+()=>{const b=pick([2,3,4,5,6,8,10,20]);const q0=R(2,12);const a=b*q0;
+ return {q:`Find each and explain why two of them match:<br>a. ${F(-a,b)} &nbsp;&nbsp; b. ${F(a,-b)} &nbsp;&nbsp; c. ${F(-a,-b)}`,
+ a:`a. ${I(-q0)} &nbsp; b. ${I(-q0)} &nbsp; c. ${q0}`,
+ e:`One negative — wherever it sits — makes the quotient negative. Two negatives cancel out.`}},
+// 10
+()=>{const v=R(0,1);let a,b;do{a=R(5,40);b=R(2,9)}while(a%b===0);
+ if(v) return {q:`True or false: “When you divide one integer by another, the answer is always an integer.” Test it with ${a} ÷ ${b}.`,
+  a:`False`,e:`${a} ÷ ${b} isn't a whole number. Division doesn't always come out even — that's exactly why fractions exist.`};
+ return {q:`True or false: “When you multiply two integers, the answer is always an integer.” Test it with −${b} • ${a}.`,
+  a:`True`,e:`−${b} • ${a} = ${I(-a*b)}, a whole number. Multiplying integers always gives an integer — but dividing them (like ${a} ÷ ${b}) doesn't.`}},
+// 11
+()=>{const a=R(3,12),f=R(3,12),q0=R(3,12),b=R(3,12);
+ return {q:`Fill in the blanks.<br>a. −${a} × ___ = ${a*f} &nbsp;&nbsp; b. ___ ÷ (−${b}) = −${q0}`,
+ a:`a. −${f} &nbsp;&nbsp; b. ${b*q0}`,
+ e:`a: the product is positive, so the missing factor must also be negative. b: the quotient is negative, so the two numbers must have opposite signs — the missing one is positive.`}},
+// 12
+()=>{const a=R(2,9),b=R(10,50);
+ return {q:`A student wrote −${a} • (−${b}) = −${a*b}, saying “the negative carries through.” What's wrong?`,
+ a:`−${a} • (−${b}) = ${a*b}`,
+ e:`Two negative factors cancel. The rule for multiplying isn't the rule for adding — with addition, −${a} + (−${b}) really is ${I(-a-b)}.`}},
+// 13
+()=>{const b=pick([2,4,5,6,8,10]);const q0=R(3,20);const a=b*q0;
+ return {q:`Are ${a} ÷ (−${b}) and (−${a}) ÷ ${b} the same? What about (−${a}) ÷ (−${b})?`,
+ a:`First two are both ${I(-q0)}. The third is ${q0}.`,
+ e:`It doesn't matter which number carries the negative — one negative makes the quotient negative, and two make it positive.`}},
+// 14
+()=>{const r=R(2,9),h=R(3,12);const c=pick([[`The temperature drops ${r} degrees every hour for ${h} hours`,'degrees'],[`A submarine descends ${r} feet each minute for ${h} minutes`,'feet'],[`You spend $${r} every day for ${h} days`,'dollars']]);
+ return {q:`${c[0]}. Write a multiplication expression using an integer, then find the total change.`,
+ a:`−${r} × ${h} = ${I(-r*h)} ${c[1]}`,
+ e:`A repeated loss is repeated addition of a negative, which is multiplication by a negative. The answer is a <em>change</em> of ${I(-r*h)}.`}},
+// 15
+()=>{const b=pick([2,3,4,5,6,8]);const q0=R(2,12);const a=b*q0;const c=R(5,30);
+ return {q:`In ${a} ÷ (−${b}) + (−${c}), which operation comes first and why? What's the answer?`,
+ a:`Divide first. ${I(-q0)} + (−${c}) = ${I(-q0-c)}`,
+ e:`Multiplication and division come before addition and subtraction, no matter which is written first.`}},
+// 16
+()=>{const a=R(5,20),b=R(3,20),c=R(2,9);
+ return {q:`A student evaluated −${a} − ${b} × (−${c}) by subtracting first: ${I(-a-b)} × (−${c}) = ${(a+b)*c}. What's wrong, and what's the correct answer?`,
+ a:`${I(-a+b*c)}`,
+ e:`Multiply first: ${b} × (−${c}) = ${I(-b*c)}. Then −${a} − (${I(-b*c)}) = −${a} + ${b*c} = ${I(-a+b*c)}.`,
+ w:`Working left to right is only safe within the same level of operations.`}},
+// 17
+()=>{const a=R(5,20),b=R(3,20),c=R(2,9);
+ return {q:`Where would you put parentheses in −${a} − ${b} × (−${c}) to make the answer ${(a+b)*c}?`,
+ a:`(−${a} − ${b}) × (−${c})`,
+ e:`Parentheses outrank everything, so the subtraction happens first: ${I(-a-b)} × (−${c}) = ${(a+b)*c}. Without them the answer is ${I(-a+b*c)}.`}},
+// 18
+()=>{const b=R(2,9),c=R(2,9);const s=b+c;const k=R(2,8);const a=s*k;const q2=a/b;
+ if(!Number.isInteger(q2)) return GEN[17]();
+ return {q:`Evaluate both and explain why they differ:<br>a. −${a} ÷ (−${b} − ${c}) &nbsp;&nbsp; b. −${a} ÷ (−${b}) − ${c}`,
+ a:`a. ${k} &nbsp;&nbsp; b. ${I(q2-c)}`,
+ e:`In a, the parentheses make the divisor ${I(-s)}: −${a} ÷ (−${s}) = ${k}. In b, you divide first (${q2}), then subtract ${c}.`}},
+// 19
+()=>{const p=pick([2,3,4,5]);const q=p+R(1,3);const W=p*R(2,6);
+ return {q:`Why does dividing by a fraction mean multiplying by its reciprocal? Use ${W} ÷ ${F(p,q)} — what is that question really asking?`,
+ a:`How many ${F(p,q)}s fit in ${W}? &nbsp;${W*q/p}`,
+ e:`Dividing asks how many groups fit. Each whole holds ${F(q,p)} groups of ${F(p,q)}, so ${W} wholes hold ${W} × ${F(q,p)} = ${W*q/p}.`}},
+// 20
+()=>{const x=prop(),y=prop();
+ return {q:`Write a multiplication expression for −${F(x.n,x.d)} ÷ ${F(y.n,y.d)}. Don't solve it.`,
+ a:`−${F(x.n,x.d)} × ${F(y.d,y.n)}`,
+ e:`Keep the first fraction, change ÷ to ×, and flip the second one. Only the second fraction flips.`}},
+// 21
+()=>{const x=prop();const w=R(2,9);const m=mix(4);
+ return {q:`Give the reciprocal of each, and say what makes two numbers reciprocals:<br>a. −${F(x.n,x.d)} &nbsp;&nbsp; b. ${w} &nbsp;&nbsp; c. ${m.w}${F(m.n,m.d)}`,
+ a:`a. −${F(x.d,x.n)} &nbsp; b. ${F(1,w)} &nbsp; c. ${F(m.d,m.T)}`,
+ e:`Two numbers are reciprocals when their product is 1. The sign stays — only the numerator and denominator swap. Convert the mixed number first: ${m.w}${F(m.n,m.d)} = ${F(m.T,m.d)}.`}},
+// 22
+()=>{const x=prop(),y=prop();const n=x.n*y.n,d=x.d*y.d;
+ return {q:`Without computing: is ${F(x.n,x.d)} × ${F(y.n,y.d)} bigger or smaller than ${F(x.n,x.d)}? Why?`,
+ a:`Smaller: ${mixed(n,d)}`,
+ e:`${F(y.n,y.d)} is less than 1, so you're taking a <em>part</em> of ${F(x.n,x.d)}. Multiplying by less than 1 always shrinks a positive number.`}},
+// 23
+()=>{const p=pick([2,3,4,5]);const q=p+R(1,4);const W=p*R(2,6);
+ return {q:`Without computing: is ${W} ÷ ${F(p,q)} bigger or smaller than ${W}? Why?`,
+ a:`Bigger: ${W*q/p}`,
+ e:`The groups are smaller than 1, so more of them fit. Dividing by a number less than 1 always makes the result bigger.`}},
+// 24
+()=>{const A=mix(5),B=mix(5);const n=A.T*B.T,d=A.d*B.d;const [sn,sd]=simp(n,d);
+ return {q:`Find −${A.w}${F(A.n,A.d)} • (−${B.w}${F(B.n,B.d)}). Give the answer as an improper fraction <b>in simplest form</b> and as a mixed number.`,
+ a:sd===1?`${sn} (a whole number)`:`${F(sn,sd)} = ${mixed(n,d)}`,
+ e:`−${F(A.T,A.d)} • −${F(B.T,B.d)} = ${F(n,d)}. Two negatives make a positive.${n!==sn?` ${F(n,d)} simplifies to ${sd===1?sn+` — it comes out to a whole number this time`:F(sn,sd)+`, which is `+mixed(n,d)}.`:``}`,
+ w:`If the directions say simplest form, keep reducing after you multiply.`}},
+// 25
+()=>{const A=mix(5),y=prop();const n=A.T*y.d,d=A.d*y.n;
+ return {q:`To compute −${A.w}${F(A.n,A.d)} ÷ ${F(y.n,y.d)}, a student flipped the <b>first</b> number: ${F(A.d,A.T)} × ${F(y.n,y.d)}. What's wrong, and what's the right answer?`,
+ a:`−${F(A.T,A.d)} × ${F(y.d,y.n)} = ${mixed(-n,d)}`,
+ e:`Only the divisor (the second number) flips. The first number stays exactly as it is, negative sign and all.`}},
+// 26
+()=>{const A=mix(9);const y=prop();const W=R(2,12);
+ const n=A.T*y.d,d=A.d*y.n;const val=-n/d;
+ if(!Number.isInteger(val)) return GEN[25]();
+ return {q:`In ${W} + ${A.w}${F(A.n,A.d)} ÷ (−${F(y.n,y.d)}), which operation comes first, and what's the answer?`,
+ a:`Division first. ${W} + (${I(val)}) = ${I(W+val)}`,
+ e:`${F(A.T,A.d)} ÷ (−${F(y.n,y.d)}) = ${F(A.T,A.d)} × (−${F(y.d,y.n)}) = ${I(val)}. Then add ${W}.`}},
+// 27
+()=>{const {n,d,s}=dec();
+ return {q:`How do you turn ${F(n,d)} into a decimal? What does the fraction bar actually mean?`,
+ a:`${n} ÷ ${d} = ${s}`,
+ e:`The fraction bar is a division sign: top divided by bottom, always in that order.`}},
+// 28
+()=>{const set=[];while(set.length<3){const x=prop();if(!set.some(y=>y.n===x.n&&y.d===x.d))set.push(x)}
+ const big=mix(2);const opts=shuffle([...set.map(x=>F(x.n,x.d)),F(big.T,big.d)]);
+ return {q:`One of these is greater than 1: ${opts.join(', &nbsp;')}. Which one, and how can you tell without dividing?`,
+ a:`${F(big.T,big.d)}`,
+ e:`Its numerator is bigger than its denominator, so it's more than one whole. The others all have a smaller top than bottom.`}},
+// 29
+()=>{const used=[];const items=[];
+ while(items.length<3){const {n,d,s}=dec();if(used.includes(s)||n>=d)continue;used.push(s);items.push({f:F(n,d),s})}
+ while(items.length<4){const {n,d,s}=dec();if(used.includes(s)||n<=d)continue;used.push(s);items.push({f:F(n,d),s})}
+ const left=shuffle(items),right=shuffle(items);
+ return {q:`Match each fraction to its decimal:<br>${left.map(i=>i.f).join(', &nbsp;')}<br>${right.map(i=>i.s).join(', &nbsp;')}`,
+ a:items.map(i=>`${i.f}=${i.s}`).join(', &nbsp;'),
+ e:`Divide the top by the bottom for each one. Anything with a numerator bigger than its denominator has to be the decimal above 1.`}},
+// 30
+()=>{const d=pick([8,10,12,16,20]);const j=R(1,d/2-1);
+ const v=R(0,1);const j2=v?j:R(1,d/2-1);
+ const lo=d/2-j,hi=d/2+j2;
+ return {q:`Without dividing, which is closer to ${F(1,2)}: ${F(lo,d)} or ${F(hi,d)}?`,
+ a:j===j2?`Same distance (${F(j,d)} each)`:(j<j2?F(lo,d):F(hi,d)),
+ e:`${F(1,2)} = ${F(d/2,d)}. ${F(lo,d)} is ${F(j,d)} below it and ${F(hi,d)} is ${F(j2,d)} above it.`}},
+// 31
+()=>{const p=pick([2,3,4,5]);const q=p+R(1,3);const W=p*R(2,6);
+ const item=pick([['packages of peanuts','ounce','ounces'],['bags of flour','cup','cups'],['bottles of juice','liter','liters']]);
+ return {q:`How many ${F(p,q)}-${item[1]} ${item[0]} can be made from ${W} ${item[2]}? Explain why the answer is <b>bigger</b> than ${W}.`,
+ a:`${W} ÷ ${F(p,q)} = ${W*q/p}`,
+ e:`Each one is smaller than a whole ${item[1]}, so you get more of them than you have ${item[2]}. Total ÷ size of each part = number of parts.`}},
+// 32
+()=>{const c=R(5,15),m=R(10,40);
+ return {q:`You burn ${c} calories each minute you jog. What integer represents the change in your calories after jogging ${m} minutes?`,
+ a:`−${c} × ${m} = ${I(-c*m)} calories`,
+ e:`Burning is a loss, so the rate is −${c} per minute. The answer is a change of ${I(-c*m)}, not ${c*m} calories gained.`}},
+// 33
+()=>{const p=pick([2,3,4,5]);const q=p+R(1,3);const t=q*R(2,6);
+ return {q:`A diver descends ${F(p,q)} of a foot each second for ${t} seconds. Write an expression with a negative number, then find her depth change.`,
+ a:`−${F(p,q)} × ${t} = ${I(-p*t/q)} feet`,
+ e:`Descending repeatedly is a negative rate times the time. She ends up ${p*t/q} feet lower than she started.`}},
+// 34
+()=>{const p=pick([2,3,4]);const q=p+R(1,3);const W=p*R(2,6);
+ return {q:`Write your own word problem that needs dividing by a fraction, and show the answer is bigger than the number you started with.`,
+ a:`Example: how many ${F(p,q)}-cup scoops are in ${W} cups? ${W} ÷ ${F(p,q)} = ${W*q/p}`,
+ e:`Any “how many small pieces fit in a larger amount” question works. Writing one yourself proves you understand what dividing by a fraction means.`}}
+];
+
+
+const SECTIONS=[{"id":"forms","t":"Mixed numbers and improper fractions"},{"id":"signs","t":"Sign rules for multiplying and dividing"},{"id":"intops","t":"Multiplying and dividing integers"},{"id":"order","t":"Order of operations"},{"id":"fracops","t":"Multiplying and dividing fractions"},{"id":"dec","t":"Fractions as decimals"},{"id":"word","t":"Word problems"}];
+const frac=h=>h.replace(/\{(\d+)\/(\d+)\}/g,'<span class="fr"><span>$1</span><span>$2</span></span>');
+const KEY="ch2-concept-check-v1";
+let state={marks:{},mode:"topic"};
+try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&typeof s==="object"){state.marks=s.marks||{};state.mode=s.mode||"topic"}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+
+const qs=[...document.querySelectorAll('.q')];
+const secs=[...document.querySelectorAll('section[data-topic]')];
+const mixedEl=document.getElementById('mixed');
+const hint=document.getElementById('modehint');
+const nomissed=document.getElementById('nomissed');
+const nav=document.getElementById('nav');
+let order=null;
+
+function layout(){
+  const mode=state.mode;
+  document.querySelectorAll('.modes button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===mode));
+  nav.hidden = mode!=="topic";
+  if(mode==="mixed"){
+    if(!order) order=shuffle(qs);
+    secs.forEach(s=>s.hidden=true);
+    nomissed.hidden=true;
+    mixedEl.hidden=false;
+    order.forEach((d,i)=>{d.hidden=false;mixedEl.appendChild(d);d.querySelector('.num').textContent=(i+1)+'.'});
+    hint.textContent="Shuffled with the topic headings removed, like a real test. Tap Mixed test again to reshuffle.";
+    hint.hidden=false;
+    return;
+  }
+  mixedEl.hidden=true;
+  secs.forEach(s=>qs.filter(d=>d.dataset.s===s.dataset.topic).forEach(d=>{s.appendChild(d);d.querySelector('.num').textContent=d.dataset.id+'.'}));
+  if(mode==="missed"){
+    let any=0;
+    qs.forEach(d=>{const m=state.marks[d.dataset.id]==="miss";d.hidden=!m;if(m)any++});
+    secs.forEach(s=>s.hidden=!qs.some(d=>d.dataset.s===s.dataset.topic&&!d.hidden));
+    nomissed.hidden=any>0;
+    hint.textContent="Only the questions you missed. Tap “Try a new one like this” to retest with new numbers.";
+    hint.hidden=false;
+  } else {
+    qs.forEach(d=>d.hidden=false);
+    secs.forEach(s=>s.hidden=false);
+    nomissed.hidden=true;
+    hint.hidden=true;
+  }
+}
+
+function paint(){
+  let got=0,miss=0;const missed={};
+  qs.forEach(d=>{
+    const id=d.dataset.id,m=state.marks[id];
+    d.classList.toggle('got',m==='got');d.classList.toggle('miss',m==='miss');
+    if(m)d.querySelector(':scope > details').open=true;
+    d.querySelector('.yes').setAttribute('aria-pressed',m==='got');
+    d.querySelector('.no').setAttribute('aria-pressed',m==='miss');
+    if(m!=='miss')clearPractice(d);
+    if(m==='got')got++;
+    if(m==='miss'){miss++;(missed[d.dataset.s]=missed[d.dataset.s]||[]).push(id)}
+  });
+  const t=qs.length;
+  document.getElementById('score').textContent=(got+miss)+' of '+t+' marked · '+got+' right';
+  document.getElementById('barG').style.width=(got/t*100)+'%';
+  document.getElementById('barM').style.width=(miss/t*100)+'%';
+  const r=document.getElementById('review');
+  if(got+miss===0) r.innerHTML='<h2>What to review</h2><p>Mark questions as you go and your weak spots will show up here.</p>';
+  else if(!miss) r.innerHTML='<h2>What to review</h2><p>Nothing missed so far. '+(got+miss<t?'Keep going — '+(t-got-miss)+' left.':"You're ready for this test.")+'</p>';
+  else r.innerHTML='<h2>What to review</h2><p>Go back over these topics. Then tap <b>Missed only</b> at the top and retest each one with new numbers until you get it.</p><ul>'+
+    SECTIONS.filter(s=>missed[s.id]).map(s=>'<li><a class="golink" href="#'+s.id+'">'+s.t+'</a> — question'+(missed[s.id].length>1?'s ':' ')+missed[s.id].join(', ')+'</li>').join('')+'</ul>';
+}
+
+function clearPractice(d){const p=d.querySelector('.practice');if(p.innerHTML){p.innerHTML=''}d.classList.remove('practicing')}
+function renderPractice(d){
+  const p=d.querySelector('.practice');
+  const avoid=[d.querySelector(':scope > details .hand').innerHTML];
+  const prev=p.querySelector('.hand');if(prev)avoid.push(prev.innerHTML);
+  let o,tries=0;do{o=GEN[+d.dataset.id-1]();tries++}while(tries<20&&avoid.includes(frac(o.a)));
+  p.innerHTML='<div class="pcard"><span class="kind">Same idea, new numbers</span><div>'+frac(o.q)+'</div>'+
+    '<details class="ans"><summary>Show answer</summary><div class="inner"><p class="hand">'+frac(o.a)+'</p><p class="why">'+frac(o.e)+'</p>'+
+    (o.w?'<p class="watch"><b>Watch out:</b> '+frac(o.w)+'</p>':'')+
+    '<div class="pself"><button class="pgot" type="button">Got it this time</button><button class="pnew" type="button">Missed — new numbers</button></div></div></details></div>';
+  d.classList.add('practicing');
+  const card=p.querySelector('.pcard');
+  card.scrollIntoView({block:'nearest'});
+  card.querySelector('summary').focus({preventScroll:true});
+}
+
+document.getElementById('main').addEventListener('click',e=>{
+  const d=e.target.closest('.q');if(!d)return;const id=d.dataset.id;const c=e.target.classList;
+  if(c.contains('yes')){state.marks[id]==='got'?delete state.marks[id]:state.marks[id]='got';save();paint()}
+  else if(c.contains('no')){state.marks[id]==='miss'?delete state.marks[id]:state.marks[id]='miss';save();paint()}
+  else if(c.contains('retry')||c.contains('pnew')){renderPractice(d)}
+  else if(c.contains('pgot')){state.marks[id]='got';save();paint()}
+});
+document.querySelector('.modes').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.mode==='mixed'&&state.mode==='mixed')order=shuffle(qs);
+  state.mode=b.dataset.mode;save();layout();
+  window.scrollTo(0,document.querySelector('.modes').offsetTop-10);
+});
+document.getElementById('review').addEventListener('click',e=>{
+  if(e.target.classList.contains('golink')&&state.mode!=='topic'){state.mode='topic';save();layout()}
+});
+const RBTNS=[...document.querySelectorAll('.restart')];
+const RLABEL=RBTNS.length?RBTNS[0].textContent:'Start over';
+let rtimer=null;
+function disarm(){clearTimeout(rtimer);RBTNS.forEach(x=>{x.textContent=RLABEL;x.classList.remove('armed')})}
+function doReset(){
+  state={marks:{},mode:"topic"};order=null;save();
+  qs.forEach(d=>{const dt=d.querySelector(':scope > details');if(dt)dt.open=false;clearPractice(d)});
+  layout();paint();window.scrollTo(0,0);
+}
+RBTNS.forEach(b=>b.addEventListener('click',e=>{
+  e.preventDefault();
+  if(b.classList.contains('armed')){disarm();doReset();return}
+  disarm();
+  RBTNS.forEach(x=>{x.textContent='Tap again to clear';x.classList.add('armed')});
+  rtimer=setTimeout(disarm,6000);
+}));
+layout();paint();
+
+
+</script>
+</body>
+</html>
