@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Graham's Math Lessons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#FAFCFA;--ink:#1C2B23;--muted:#56695E;--pen:#1B7A45;--card:#FFFFFF;--line:#C5DACB}
+@media (prefers-color-scheme: dark){:root{--paper:#122019;--ink:#E4F0E8;--muted:#A0B8A9;--pen:#6FD39A;--card:#182A20;--line:#2F4A3A}}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink);font-family:"Atkinson Hyperlegible",system-ui,sans-serif}
+header{padding:.6rem 1rem 0;border-bottom:2px solid var(--ink)}
+h1{font-family:"Caveat","Bradley Hand",cursive;color:var(--pen);font-size:2.2rem;line-height:1;margin:0 0 .5rem}
+[role=tablist]{display:flex;gap:.3rem;overflow-x:auto;scrollbar-width:thin}
+[role=tab]{flex:none;font:inherit;font-weight:700;font-size:.95rem;min-height:44px;padding:.4rem 1rem;color:var(--muted);background:var(--card);border:1px solid var(--line);border-bottom:0;border-radius:8px 8px 0 0;cursor:pointer}
+[role=tab][aria-selected=true]{color:var(--paper);background:var(--pen);border-color:var(--pen)}
+[role=tab]:focus-visible{outline:3px solid var(--pen);outline-offset:2px}
+main{flex:1;min-height:0}
+iframe{display:block;width:100%;height:100%;border:0}
+.soon{max-width:32rem;margin:3rem auto;padding:0 1rem;text-align:center;color:var(--muted)}
+.soon h2{color:var(--ink);margin:0 0 .5rem}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <h1>Graham's Math Lessons</h1>
+  <div role="tablist" id="tabs" aria-label="Chapters"></div>
+</header>
+<main>
+  <iframe id="frame" title="Chapter" hidden></iframe>
+  <div class="soon" id="soon" hidden><h2 id="soonTitle"></h2><p>This chapter isn't up yet. Check back soon.</p></div>
+</main>
+<script>
+// To add a chapter: drop its page in this folder and add a line here.
+// file: null shows a "coming soon" tab.
+const CHAPTERS=[
+  {id:"1",title:"Chapter 1",file:"chapter1.html"},
+  {id:"2",title:"Chapter 2",file:null}
+];
+const tabs=document.getElementById('tabs'),frame=document.getElementById('frame'),
+  soon=document.getElementById('soon'),soonTitle=document.getElementById('soonTitle');
+CHAPTERS.forEach(c=>{
+  const b=document.createElement('button');
+  b.type='button';b.role='tab';b.textContent=c.title;b.dataset.id=c.id;
+  b.onclick=()=>{location.hash='ch'+c.id};
+  tabs.appendChild(b);
+});
+function show(){
+  const id=(location.hash.match(/^#ch(\d+)$/)||[])[1]||CHAPTERS[0].id;
+  const c=CHAPTERS.find(x=>x.id===id)||CHAPTERS[0];
+  tabs.querySelectorAll('[role=tab]').forEach(b=>{
+    const on=b.dataset.id===c.id;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;
+  });
+  document.title=c.title+" · Graham's Math Lessons";
+  if(c.file){
+    if(frame.getAttribute('src')!==c.file)frame.src=c.file;
+    frame.title=c.title;frame.hidden=false;soon.hidden=true;
+  }else{
+    frame.hidden=true;frame.removeAttribute('src');soonTitle.textContent=c.title;soon.hidden=false;
+  }
+}
+tabs.addEventListener('keydown',e=>{
+  const i=CHAPTERS.findIndex(c=>c.id===document.querySelector('[aria-selected=true]').dataset.id);
+  const n=e.key==='ArrowRight'?i+1:e.key==='ArrowLeft'?i-1:null;
+  if(n!==null&&CHAPTERS[n]){location.hash='ch'+CHAPTERS[n].id;tabs.querySelector('[aria-selected=true]').focus()}
+});
+addEventListener('hashchange',show);show();
+</script>
+</body>
+</html>
