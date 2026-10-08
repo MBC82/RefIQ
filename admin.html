@@ -4138,12 +4138,6 @@ function asgnStartLinksListener() {
   }, () => {});
 }
 
-// Kept for backward compat (called after game save/delete where we want an immediate re-render)
-async function asgnLoadGames() {
-  // The onSnapshot listener already handles real-time updates.
-  // This is a no-op stub — the listener fires automatically after Firestore writes.
-}
-
 // ── TAB SWITCHING ─────────────────────────────────────────────────────────────
 window.switchAsgnTab = function(name, btn) {
   document.querySelectorAll('.asgn-tab-btn').forEach(b => b.classList.remove('active'));
