@@ -5329,7 +5329,7 @@ window.asgnOpenIncidentReport = async function(gameId) {
   document.getElementById('ir-game-id').value = gameId;
   // Pre-fill if report exists
   try {
-    const snap = await getDocs(query(collection(db,'incidentReports'), where('gameId','==',gameId)));
+    const snap = await getDocs(query(collection(db,'incidentReports'), where('gameId','==',gameId), where('leagueId','==',leagueId)));
     if (!snap.empty) {
       const r = snap.docs[0].data();
       document.getElementById('ir-yellow').value       = r.yellowCards||0;
@@ -5371,7 +5371,7 @@ window.asgnSaveIncidentReport = async function() {
   };
   try {
     // Check if report exists
-    const snap = await getDocs(query(collection(db,'incidentReports'), where('gameId','==',gameId)));
+    const snap = await getDocs(query(collection(db,'incidentReports'), where('gameId','==',gameId), where('leagueId','==',leagueId)));
     if (!snap.empty) {
       await updateDoc(doc(db,'incidentReports', snap.docs[0].id), data);
     } else {

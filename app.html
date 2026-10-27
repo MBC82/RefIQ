@@ -1093,7 +1093,7 @@ async function loadProfile(u) {
     const tc = document.getElementById('tier-chip');
     if(userPlan==='league')           { tc.textContent='LEAGUE';     tc.className='tier-chip chip-league'; }
     else if(userPlan==='individual')  { tc.textContent='INDIVIDUAL'; tc.className='tier-chip chip-individual'; }
-    else if(userPlan==='trial')       { tc.textContent='TRIAL';      tc.className='tier-chip chip-trial'; }
+    else if(userPlan==='trial')       { tc.textContent='FREE';       tc.className='tier-chip chip-trial'; }
     else if(role==='admin'||userPlan==='active') { tc.textContent='PRO'; tc.className='tier-chip chip-pro'; }
     else                              { tc.textContent='FREE';       tc.className='tier-chip chip-free'; }
     applyTier();

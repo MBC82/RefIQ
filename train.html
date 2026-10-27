@@ -645,7 +645,7 @@ async function loadProfile(u) {
     if (userPlan === 'league')       { tc.textContent = 'LEAGUE';     tc.className = 'tier-chip chip-league'; }
     else if (userPlan === 'individual') { tc.textContent = 'INDIVIDUAL'; tc.className = 'tier-chip chip-individual'; }
     else if (userPlan === 'referee') { tc.textContent = 'REF PRO';    tc.className = 'tier-chip chip-referee'; }
-    else if (userPlan === 'trial')   { tc.textContent = 'TRIAL';      tc.className = 'tier-chip chip-trial'; }
+    else if (userPlan === 'trial')   { tc.textContent = 'FREE';       tc.className = 'tier-chip chip-trial'; }
     else if (userRole === 'admin' || userPlan === 'active') { tc.textContent = 'PRO'; tc.className = 'tier-chip chip-pro'; }
     else { tc.textContent = 'FREE'; tc.className = 'tier-chip chip-free'; }
     applyTierLocks();
