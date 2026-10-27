@@ -590,6 +590,7 @@ let currentTopic = 'all', currentDifficulty = 'Beginner';
 
 // ── PLAN HELPERS ─────────────────────────────────────────────────────────────
 function isTrainPro() {
+  return true; // every feature is free for everyone
   return userPlan !== 'trial' && userPlan !== 'expired' && userPlan !== 'free';
 }
 
@@ -627,10 +628,10 @@ async function loadProfile(u) {
       userPlan = d.plan || 'trial';
       userRole = d.role || 'referee';
       // Check plan expiry
-      if (userPlan === 'expired') {
+      if (false && userPlan === 'expired') {
         showExpiredOverlay(); return;
       }
-      if (userPlan === 'trial') {
+      if (false && userPlan === 'trial') {
         const start = (d.trialStartDate || d.createdAt)?.toDate?.();
         if (start && (Date.now() - start.getTime()) / 86400000 >= 7) {
           await setDoc(doc(db, 'users', u.uid), { plan: 'expired' }, { merge: true });

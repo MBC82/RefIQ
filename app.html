@@ -1101,10 +1101,12 @@ async function loadProfile(u) {
 }
 
 function isPro() {
+  return true; // every feature is free for everyone
   return userPlan==='league'||userPlan==='individual'||userPlan==='referee'||userPlan==='active'||role==='admin';
 }
 
 function checkPlanAccess(d) {
+  return; // quiz training is free: no trial period, no plan expiry
   const plan = d.plan;
   if (plan === 'expired') { showPlanExpiredOverlay(d); return; }
 
@@ -1148,6 +1150,7 @@ const PRICE_LEAGUE     = 'price_1T8Z15JlYByErfPaTpRf3xic';
 const PRICE_REFEREE    = 'price_1RV06yJIYByErfPa9kZDaCaR';
 
 async function redirectToCheckout(priceId, btnEl) {
+  return; // paid plans were retired
   const orig = btnEl ? btnEl.textContent : '';
   if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Loading…'; }
   try {

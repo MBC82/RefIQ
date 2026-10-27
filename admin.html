@@ -2122,10 +2122,7 @@ async function handleAdminAuth(u) {
       const _qp = new URLSearchParams(window.location.search);
       if (_qp.get('checkout') === 'success') handleCheckoutSuccess();
       const _upgradePrice = _qp.get('upgrade');
-      if (_upgradePrice) {
-        history.replaceState({}, '', '/admin');
-        setTimeout(() => redirectToCheckout(_upgradePrice, null), 500);
-      }
+      if (_upgradePrice) { history.replaceState({}, '', '/admin'); }   // old checkout links just land here now
     } else {
       showAuth();
     }
@@ -2291,6 +2288,7 @@ document.getElementById('signout-btn').addEventListener('click',()=>signOut(auth
 
 // ── PLAN ENFORCEMENT ──────────────────────────────────────────────────────────
 async function checkTrialStatus() {
+  return; // quiz training is free: no trial period, no plan expiry
   try {
     // Operators always have full access — skip all plan gating
     if (currentRole === 'operator') return;
@@ -2352,12 +2350,13 @@ let _expiredPriceId = PRICE_LEAGUE;
 // ── PLAN LINK CAPS ────────────────────────────────────────────────────────────
 // Season ($49) = 'individual', League ($149) = 'league', Referee ($9.99) = 'referee'
 const PLAN_LIMITS = {
-  trial:      1,
-  referee:    0,   // individual training only — no link creation
-  individual: 3,   // "Season" plan
-  league:     10,  // "League" plan
-  active:     10,  // legacy label for league
-  expired:    0,
+  // The quiz is free for everyone. The cap keeps AI costs in check.
+  trial:      5,
+  referee:    5,
+  individual: 5,
+  league:     5,
+  active:     5,
+  expired:    5,
 };
 
 function handleExpiredCta() {
@@ -2365,6 +2364,7 @@ function handleExpiredCta() {
 }
 
 function isProUser() {
+  return true; // every feature is free for everyone
   const plan = cachedUserData?.plan || 'trial';
   const role = cachedUserData?.role || '';
   return role === 'admin'
@@ -2382,7 +2382,7 @@ async function checkLinkCap() {
     if (token.claims.admin) return true; // unlimited for Firebase admin claim
   } catch(e) {}
   const plan = cachedUserData?.plan || 'trial';
-  const limit = PLAN_LIMITS[plan] ?? 0;
+  const limit = PLAN_LIMITS[plan] ?? 5;
   const activeCount = allLinks.filter(l => l.active !== false).length;
   if (limit === 0 || activeCount >= limit) {
     showLinkCapPrompt(plan, activeCount, limit);
@@ -2397,10 +2397,10 @@ function showLinkCapPrompt(plan, count, limit) {
     referee:    { title:'My Quizzes Not Available',          body:'The Referee plan is for individual training only. Upgrade to Season or League to create shareable quizzes for your referees.', priceId: PRICE_INDIVIDUAL, cta:'Upgrade to Season — $49/6mo' },
     trial:      { title:'Trial Quiz Limit Reached',          body:'You\'ve used your trial quiz. Upgrade to keep creating quizzes for your referees.', priceId: PRICE_LEAGUE, cta:'Upgrade to League — $149/season' },
     individual: { title:`Limit Reached (${count}/${limit})`, body:'You\'ve used all 3 quizzes in your Season plan. Upgrade to League for up to 10 active quizzes.', priceId: PRICE_LEAGUE, cta:'Upgrade to League — $149/season' },
-    league:     { title:`Limit Reached (${count}/${limit})`, body:'You\'ve reached the 10 active quiz limit. Delete an existing quiz from My Quizzes to free up a slot.', priceId: null, cta: null },
+    league:     { title:`Limit Reached (${count}/${limit})`, body:`You've reached the free limit of ${limit} active quizzes. Delete one from My Quizzes to free up a slot.`, priceId: null, cta: null },
     expired:    { title:'Plan Expired',                      body:'Your plan has expired. Renew to create quizzes.', priceId: PRICE_LEAGUE, cta:'Renew League Plan' },
   };
-  const m = msgs[plan] || msgs['referee'];
+  const m = msgs.league;  // free for everyone: one message, no upgrade button
   const ctaHtml = m.cta && m.priceId
     ? `<button onclick="redirectToCheckout('${m.priceId}',this)" style="background:var(--gold);color:#080c09;border:none;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.05em;padding:8px 18px;border-radius:7px;cursor:pointer;margin-top:2px">${m.cta} →</button>`
     : `<div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Go to My Quizzes → delete a quiz to free up a slot.</div>`;
@@ -2433,6 +2433,7 @@ function showLinkUsage() {
 }
 
 async function redirectToCheckout(priceId, btnEl) {
+  return; // paid plans were retired
   const orig = btnEl ? btnEl.textContent : '';
   if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Loading…'; }
 
