@@ -3,11 +3,16 @@
 // Returns: { mapping: { "Header": "fieldName"|null, ... } }
 // Env var required: ANTHROPIC_API_KEY
 
+import { authorize } from '../lib/guard.mjs';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end('Method Not Allowed');
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Anthropic API not configured' });
+
+  const gate = await authorize(req, req.body, { perUser: 60 });      // league admins only: must be signed in
+  if (!gate.ok) return res.status(gate.status).json({ error: gate.error });
 
   const { headers } = req.body || {};
   if (!Array.isArray(headers) || !headers.length) {

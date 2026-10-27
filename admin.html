@@ -3081,7 +3081,7 @@ async function preGenerateQuestions(age, num, src, mode, resources) {
     : '';
   const prompt = `You are an elite soccer referee examiner. Generate exactly ${num} multiple-choice quiz questions for referees working in: ${divLabel}.\n\n${modeStr} ${srcStr}\n\nDIVISION-SPECIFIC ENFORCEMENT RULES:\n${divisionRules.enforcement}\n\nIFAB LAWS 2025/26 REFERENCE:\n${IFAB_SHORT}${rulebookSec}${leagueSec}\n\nACCURACY REQUIREMENTS — MANDATORY:\n1. All answers must be 100% correct for this specific division and age group.\n2. NEVER include questions about cards in divisions where cards are not used.\n3. NEVER include offside questions in divisions where offside is not enforced.\n4. GOALKEEPER TIME-WASTING (2025/26): Do NOT state a GK must release the ball within "6 seconds". Under current Laws, GK time-wasting is penalised with a CORNER KICK.\n5. VARY the correct answer index — distribute across positions 0, 1, 2, 3 equally.\n6. Each question must have exactly 4 distinct, plausible answer options.\n7. "lawRef" must cite a specific IFAB Law or "Local Rule / Youth Modification".\n8. "explanation" must reference the specific Law or local rule.\n\nReturn ONLY a valid JSON array. No markdown, no code blocks, no preamble. Start with [ and end with ].\n[{"type":"rules|scenario","source":"ifab|league","question":"...","options":["A text","B text","C text","D text"],"correct":0,"lawRef":"Law 12","explanation":"..."}]`;
   const res = await fetch('/api/quiz', {
-    method:'POST', headers:{'Content-Type':'application/json'},
+    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+(await auth.currentUser.getIdToken())},
     body: JSON.stringify({
       model:'claude-sonnet-4-20250514',
       max_tokens: 6000,
@@ -3239,7 +3239,7 @@ async function runPreview() {
   document.getElementById('preview-overlay').querySelector('.preview-scroll').scrollTo(0,0);
 
   try {
-    const res = await fetch('/api/quiz',{method:'POST',headers:{'Content-Type':'application/json'},
+    const res = await fetch('/api/quiz',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(await auth.currentUser.getIdToken())},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2200,
         system:'Return ONLY valid JSON array. No markdown. Start with [ end with ].',
         messages:[{role:'user',content:prompt}]})});
@@ -4735,7 +4735,7 @@ async function importMapColumns(headers, dataRows) {
   try {
     const res = await fetch('/api/import-map', {
       method:  'POST',
-      headers: { 'Content-Type':'application/json' },
+      headers: { 'Content-Type':'application/json', 'Authorization': 'Bearer ' + (await auth.currentUser.getIdToken()) },
       body:    JSON.stringify({ headers }),
     });
     const data = await res.json();
@@ -5005,7 +5005,7 @@ window.asgnAISuggest = async function() {
     };
     const resp = await fetch('/api/ai-suggest', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (await auth.currentUser.getIdToken()) },
       body: JSON.stringify(payload)
     });
     if (!resp.ok) throw new Error('AI suggest failed');

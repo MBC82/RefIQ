@@ -1,5 +1,7 @@
 // api/quiz.js — Anthropic API proxy for Vercel
-// Env var required: ANTHROPIC_API_KEY
+// Env var required: ANTHROPIC_API_KEY (and FIREBASE_API_KEY, to check sign-ins)
+// Callers: a signed-in person (Bearer token) or a referee opening a live shared quiz link (quizLinkId). Nobody else.
+import { authorize, badQuizBody } from '../lib/guard.mjs';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -12,9 +14,11 @@ export default async function handler(req, res) {
   }
 
   const body = req.body;
-  if (!body || typeof body !== 'object') {
-    return res.status(400).json({ error: 'Invalid JSON.' });
-  }
+  const bad = badQuizBody(body);
+  if (bad) return res.status(400).json({ error: bad });
+
+  const gate = await authorize(req, body, { allowQuizLink: true });
+  if (!gate.ok) return res.status(gate.status).json({ error: gate.error });
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {

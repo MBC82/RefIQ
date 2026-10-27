@@ -2,6 +2,8 @@
 // POST { game: {homeTeam, awayTeam, division, date, time}, refs: [{name, cert, scores[], lastAt}] }
 // Returns { suggestions: [{name, reason}] }
 
+import { authorize } from '../lib/guard.mjs';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -18,6 +20,9 @@ export default async function handler(req, res) {
   } catch {
     return res.status(400).json({ error: 'Invalid JSON' });
   }
+
+  const gate = await authorize(req, body, { perUser: 60 });          // league admins only: must be signed in
+  if (!gate.ok) return res.status(gate.status).json({ error: gate.error });
 
   const { game, refs } = body || {};
   if (!game || !refs) {

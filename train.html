@@ -736,7 +736,7 @@ Return ONLY a valid JSON array. No markdown, no preamble. Start with [ end with 
   try {
     const res = await fetch('/api/quiz', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (await auth.currentUser.getIdToken()) },
       signal: ctrl.signal,
       body: JSON.stringify({
         model: 'claude-3-5-haiku-20241022',
@@ -1040,7 +1040,7 @@ Respond with ONLY the recommendation text. No JSON, no lists, no formatting, no 
   try {
     const res = await fetch('/api/quiz', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (await auth.currentUser.getIdToken()) },
       body: JSON.stringify({
         model: 'claude-3-5-haiku-20241022',
         max_tokens: 120,

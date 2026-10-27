@@ -758,6 +758,7 @@ async function _prefetchQuizQuestions() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
+      quizLinkId,                       // proves this is a live shared quiz; the server checks it
       model: 'claude-sonnet-4-20250514',
       max_tokens: Math.min(Math.max(num * 280, 1800), 6000),
       system: 'Return ONLY valid JSON array. No markdown. No preamble. Start with [ end with ].',

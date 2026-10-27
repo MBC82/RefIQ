@@ -1456,7 +1456,7 @@ Format:
   try {
     const res = await fetch('/api/quiz',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+(await auth.currentUser.getIdToken())},
       signal: _ctrl.signal,
       body:JSON.stringify({
         model:'claude-3-5-haiku-20241022',

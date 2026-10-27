@@ -480,6 +480,7 @@ Return ONLY a valid JSON array. No markdown, no backticks, no preamble.
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
+      quizLinkId: slug,                 // proves this is a live shared quiz; the server checks it
       model: 'claude-sonnet-4-20250514',
       max_tokens: 6000,
       system: systemPrompt,
