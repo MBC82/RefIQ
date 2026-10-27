@@ -3,28 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RefIQ — Train, Assign &amp; Manage Your Referee Program</title>
+<title>RefIQ — Schedule and Assign Officials for Any Sport</title>
 <link rel="icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#080c09">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="RefIQ">
-<meta name="description" content="AI-powered quiz training + game assignment tools for soccer referees and league assignors.">
-<!-- Open Graph -->
-<meta property="og:type"        content="website">
-<meta property="og:url"         content="https://www.myrefiq.com/">
-<meta property="og:title"       content="RefIQ — Train, Assign &amp; Manage Your Referee Program">
-<meta property="og:description" content="AI-powered quiz training + game assignment tools for soccer referees and league assignors.">
-<meta property="og:image"       content="https://www.myrefiq.com/og-image.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:site_name"   content="RefIQ">
-<!-- Twitter Card -->
-<meta name="twitter:card"        content="summary_large_image">
-<meta name="twitter:title"       content="RefIQ — Train, Assign &amp; Manage Your Referee Program">
-<meta name="twitter:description" content="AI-powered quiz training + game assignment tools for soccer referees and league assignors.">
-<meta name="twitter:image"       content="https://www.myrefiq.com/og-image.png">
+<meta name="description" content="RefIQ is the iPhone app for assignors and officials. Post games, auto-assign crews, see exact-time availability, and catch double-bookings before game day. Soccer, basketball, baseball, football and more.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.myrefiq.com/">
+<meta property="og:title" content="RefIQ — Schedule and Assign Officials for Any Sport">
+<meta property="og:description" content="Post games, auto-assign crews, see exact-time availability, and catch double-bookings before game day.">
+<meta property="og:image" content="https://www.myrefiq.com/og-image.png">
+<meta property="og:site_name" content="RefIQ">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -34,898 +25,291 @@
   --gold:#ffd60a;--gold-dark:#b8940a;
   --bg:#080c09;--surface:#111711;--surface2:#1a221b;
   --border:rgba(255,255,255,.08);
-  --text:#f0f4f0;--muted:#8ea696;--red:#ff453a;
+  --text:#f0f4f0;--muted:#8ea696;--red:#ff453a;--green:#34c759;
 }
-html{overflow-x:hidden}body{min-height:100%;overflow-x:hidden}
-body{
-  font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);
-  -webkit-font-smoothing:antialiased;
-}
-body::before{
-  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-  background-image:
-    linear-gradient(rgba(255,214,10,.012) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(255,214,10,.012) 1px,transparent 1px);
-  background-size:60px 60px;
-}
-@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+html{overflow-x:hidden;scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,214,10,.012) 1px,transparent 1px),linear-gradient(90deg,rgba(255,214,10,.012) 1px,transparent 1px);
+  background-size:60px 60px}
+a{color:inherit}
+section,footer,nav{position:relative;z-index:1}
 
-/* ── NAV ── */
-nav{
-  position:fixed;top:0;left:0;right:0;z-index:100;height:80px;
-  background:rgba(8,12,9,.92);backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border);
-}
-.nav-inner{
-  max-width:1160px;margin:0 auto;height:100%;
-  display:grid;grid-template-columns:1fr auto 1fr;
-  align-items:center;padding:0 24px;
-}
-.nav-logo{
-  display:flex;align-items:center;gap:8px;text-decoration:none;
-}
-.nav-logo img{height:62px;width:auto;object-fit:contain;mix-blend-mode:screen;filter:contrast(2) saturate(1.2)}
-.nav-logo-text{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:4px;color:var(--gold)}
-.nav-spacer{}
-.nav-right{justify-self:end;display:flex;align-items:center;gap:8px}
-.nav-cta{
-  white-space:nowrap;padding:9px 18px;background:var(--gold-dark);color:#fff;
-  border-radius:10px;font-size:13px;font-weight:600;
-  text-decoration:none;transition:background .2s;border:none;cursor:pointer;
-  font-family:'DM Sans',sans-serif;
-}
-.nav-cta:hover{background:var(--gold);color:#080c09}
-.nav-login{
-  white-space:nowrap;padding:8px 16px;background:transparent;color:rgba(255,255,255,.7);
-  border-radius:10px;font-size:13px;font-weight:600;
-  text-decoration:none;transition:color .2s,border-color .2s;
-  border:1.5px solid rgba(255,255,255,.2);cursor:pointer;
-  font-family:'DM Sans',sans-serif;
-}
-.nav-login:hover{color:#fff;border-color:rgba(255,255,255,.5)}
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;height:72px;background:rgba(8,12,9,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:100}
+.nav-inner{max-width:1160px;margin:0 auto;height:100%;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo img{width:36px;height:36px;border-radius:9px}
+.logo span{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:4px;color:var(--gold)}
+.nav-links{display:flex;align-items:center;gap:26px}
+.nav-links a{font-size:14px;color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.btn{display:inline-block;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;text-decoration:none;text-align:center;border-radius:12px;transition:all .2s}
+.btn-gold{background:var(--gold);color:#000;font-size:18px;padding:13px 26px;box-shadow:0 8px 24px rgba(255,214,10,.2)}
+.btn-gold:hover{background:#ffe44d;transform:translateY(-1px)}
+.btn-ghost{border:1.5px solid rgba(255,214,10,.5);color:var(--gold);font-size:18px;padding:11.5px 24px}
+.btn-ghost:hover{background:var(--gold);color:#000}
+.btn-sm{font-size:15px;padding:9px 18px}
 
-/* ── DEMO HERO ── */
-.demo-hero{
-  min-height:100vh;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:100px 20px 48px;
-  position:relative;z-index:1;
-}
-.hero-text{
-  text-align:center;margin-bottom:16px;
-  animation:fadeUp .5s ease both;
-}
-.hero-headline{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:clamp(38px,6vw,72px);
-  letter-spacing:3px;line-height:.95;color:#fff;margin-bottom:14px;
-}
-.hero-sub{
-  font-size:clamp(14px,1.8vw,17px);color:var(--muted);letter-spacing:.2px;margin-bottom:24px;
-}
-/* ── HERO TOGGLE ── */
-.hero-toggle-wrap{
-  display:flex;justify-content:center;
-  animation:fadeUp .5s .08s ease both;margin-top:28px;
-}
-.hero-toggle{
-  display:flex;align-items:center;gap:2px;
-  background:rgba(255,255,255,.06);border:1px solid var(--border);
-  border-radius:14px;padding:4px;
-}
-.hero-toggle-btn{
-  display:flex;align-items:center;gap:7px;
-  padding:9px 22px;border-radius:10px;border:none;
-  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;
-  cursor:pointer;letter-spacing:.2px;
-  transition:background .25s ease,color .25s ease,box-shadow .25s ease;
-  background:transparent;color:var(--muted);white-space:nowrap;
-}
-.hero-toggle-btn.active{
-  background:var(--gold);color:#000;
-  box-shadow:0 2px 12px rgba(255,214,10,.28);
-}
-.hero-toggle-icon{font-size:15px;line-height:1}
+/* HERO */
+.hero{max-width:1160px;margin:0 auto;padding:128px 24px 72px;display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:14px}
+h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,8vw,96px);letter-spacing:3px;line-height:.92;color:#fff;margin-bottom:20px}
+h1 em{font-style:normal;color:var(--gold)}
+.lede{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.65;max-width:520px;margin-bottom:28px}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.soon{display:inline-flex;align-items:center;gap:10px;padding:10px 20px;border-radius:12px;background:var(--surface);border:1px solid var(--border);font-size:13px;color:var(--muted);line-height:1.3}
+.soon strong{display:block;color:var(--text);font-size:15px}
+.hero-note{font-size:12px;color:var(--muted);margin-top:14px}
+.phones{position:relative;display:flex;justify-content:center;min-height:520px}
+.phone{position:absolute;border-radius:34px;border:2px solid rgba(255,214,10,.22);background:var(--surface);overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.65)}
+.phone img{display:block;width:100%;height:auto}
+.phone.a{width:min(270px,58%);left:2%;top:0;z-index:2}
+.phone.b{width:min(250px,54%);right:0;top:64px;z-index:1;opacity:.96}
 
-/* ── PANELS (grid-stack crossfade) ── */
-.demo-panels{
-  display:grid;width:100%;max-width:620px;
-  animation:fadeUp .5s .15s ease both;margin-top:24px;
-}
-.demo-panel{
-  grid-area:1/1;width:100%;
-  transition:opacity .38s ease, transform .38s ease;
-}
-.demo-panel.hidden{
-  opacity:0;pointer-events:none;transform:translateY(10px);
-}
+/* SPORTS STRIP */
+.strip{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:22px 24px;text-align:center}
+.strip p{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);line-height:2.1}
+.strip b{color:var(--text);font-weight:500;margin:0 8px;white-space:nowrap}
 
-/* ── DEMO CARD ── */
-.demo-card-wrap{
-  width:100%;max-width:620px;
-  animation:fadeUp .5s .1s ease both;margin-top:32px;
-}
-.demo-card{
-  background:var(--surface);
-  border:1px solid rgba(255,214,10,.18);
-  border-radius:20px;overflow:hidden;
-  box-shadow:0 24px 64px rgba(0,0,0,.55);
-  transition:border-color .3s,box-shadow .3s;
-}
-.demo-prog{height:4px;background:rgba(255,255,255,.06)}
-.demo-prog-fill{
-  height:100%;width:0;
-  background:linear-gradient(90deg,var(--gold),#ffe14d);
-  border-radius:3px;transition:width .6s ease;
-}
-.demo-header{
-  padding:14px 20px;
-  background:linear-gradient(160deg,rgba(255,214,10,.13) 0%,rgba(255,214,10,.04) 55%,transparent 100%);
-  display:flex;align-items:center;
-}
-.demo-label{
-  font-family:'DM Sans',sans-serif;font-size:12px;letter-spacing:0.12em;
-  font-weight:600;color:#ffd60a;
-}
-.demo-body{padding:20px 24px 0}
-.demo-pills{display:flex;gap:5px;flex-wrap:wrap;padding:12px 24px 16px;opacity:.6}
-.demo-pill{
-  font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.6px;
-  text-transform:uppercase;padding:2px 7px;border-radius:20px;font-weight:400;
-}
-.pill-rules{background:rgba(255,214,10,.08);color:var(--gold);border:1px solid rgba(255,214,10,.15)}
-.pill-scenario{background:rgba(255,214,10,.08);color:var(--gold);border:1px solid rgba(255,214,10,.15)}
-.pill-law{background:rgba(255,255,255,.04);color:var(--muted);border:1px solid rgba(255,255,255,.08)}
-.demo-qtext{
-  font-size:clamp(17px,2.6vw,21px);font-weight:800;line-height:1.45;
-  color:var(--text);margin-bottom:20px;margin-top:4px;letter-spacing:-.1px;
-}
-.demo-opts{padding:0 24px 20px}
-.demo-opt{
-  display:flex;align-items:center;gap:14px;
-  padding:14px 16px;margin-bottom:10px;
-  border-radius:14px;background:rgba(255,255,255,.03);
-  border:1.5px solid rgba(255,255,255,.1);
-  cursor:pointer;transition:border-color .18s,background .18s;
-  user-select:none;-webkit-tap-highlight-color:transparent;
-}
-.demo-opt:last-child{margin-bottom:0}
-.demo-opt:hover:not(.answered){border-color:rgba(255,214,10,.35);background:rgba(255,214,10,.06)}
-.demo-opt.answered{cursor:default;pointer-events:none}
-.demo-letter{
-  width:36px;height:36px;flex-shrink:0;border-radius:10px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Bebas Neue',sans-serif;font-size:18px;
-  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
-  color:rgba(255,255,255,.75);transition:background .2s,border-color .2s,color .2s;
-}
-.demo-opt-text{font-size:15px;font-weight:500;color:rgba(255,255,255,.85);line-height:1.4;flex:1}
-.demo-opt.correct{background:rgba(255,214,10,.1);border-color:rgba(255,214,10,.55)}
-.demo-opt.correct .demo-letter{background:var(--gold);border-color:var(--gold);color:#000;font-weight:700}
-.demo-opt.correct .demo-opt-text{color:#fff;font-weight:600}
-.demo-opt.wrong{background:rgba(255,69,58,.07);border-color:rgba(255,69,58,.45)}
-.demo-opt.wrong .demo-letter{background:rgba(255,69,58,.15);border-color:rgba(255,69,58,.5);color:var(--red)}
-.demo-opt.wrong .demo-opt-text{color:rgba(255,255,255,.65)}
-.demo-opt.faded{opacity:.3;border-color:rgba(255,255,255,.05);background:transparent}
-.demo-opt.faded .demo-letter{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.07);color:rgba(255,255,255,.3)}
-button.demo-opt{width:100%;text-align:left;font-family:inherit}
-.demo-opt:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-.demo-expl{
-  max-height:0;overflow:hidden;opacity:0;margin:0 24px;
-  transition:max-height .45s ease,opacity .35s ease .06s,margin .45s ease;
-}
-.demo-expl.show{max-height:200px;opacity:1;margin:0 24px 14px}
-.demo-expl-inner{
-  background:rgba(255,214,10,.07);border:1px solid rgba(255,214,10,.2);
-  border-radius:12px;padding:14px 16px;
-}
-.demo-expl-law{
-  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;
-  text-transform:uppercase;color:var(--gold);margin-bottom:6px;display:block;
-}
-.demo-expl-text{font-size:13px;color:rgba(240,244,240,.72);line-height:1.65}
-.demo-cta-wrap{display:block;padding:0 24px 24px;animation:fadeUp .35s ease both}
-.demo-cta-btn{
-  display:block;width:100%;padding:16px;background:var(--gold);color:#000;
-  border:none;border-radius:14px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;
-  cursor:pointer;transition:all .2s;text-align:center;text-decoration:none;
-  box-shadow:0 8px 24px rgba(255,214,10,.2);
-}
-.demo-cta-btn:hover{background:#ffe44d;transform:translateY(-1px);box-shadow:0 12px 32px rgba(255,214,10,.32)}
-.member-link{display:block;text-align:center;margin-top:10px;font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s}
-.member-link:hover{color:var(--text)}
+/* SECTIONS */
+.sec{padding:clamp(64px,8vw,104px) 24px}
+.wrap{max-width:1040px;margin:0 auto}
+.center{text-align:center}
+h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(34px,5vw,56px);letter-spacing:3px;color:#fff;line-height:1;margin-bottom:14px}
+.sub{font-size:16px;color:var(--muted);line-height:1.65;max-width:600px}
+.center .sub{margin:0 auto}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:44px}
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:30px 26px;text-align:left;transition:border-color .2s,transform .2s}
+.card:hover{border-color:rgba(255,214,10,.22);transform:translateY(-2px)}
+.card h3{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:#fff;margin-bottom:6px}
+.card .tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;display:block}
+.card ul{list-style:none;display:flex;flex-direction:column;gap:11px;margin-top:16px}
+.card li{display:flex;gap:10px;font-size:14.5px;color:rgba(240,244,240,.82);line-height:1.5}
+.card li::before{content:'✓';color:var(--gold);font-weight:700;flex-shrink:0}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:44px}
+.feat{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:28px 24px;text-align:left}
+.feat h3{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#fff;margin-bottom:10px}
+.feat p{font-size:14px;color:var(--muted);line-height:1.7}
+.feat .k{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;display:block;margin-bottom:12px}
+.alt{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(17,23,17,.5)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-top:48px}
+.step{display:flex;flex-direction:column;align-items:center;gap:12px;padding:0 8px}
+.num{width:54px;height:54px;border-radius:50%;background:rgba(255,214,10,.07);border:1.5px solid rgba(255,214,10,.28);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold)}
+.step h3{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff}
+.step p{font-size:14px;color:var(--muted);line-height:1.7}
+.split{display:grid;grid-template-columns:.8fr 1.2fr;gap:56px;align-items:center}
+.split .phone-solo{border-radius:30px;border:2px solid rgba(255,214,10,.22);overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.55);max-width:300px;margin:0 auto}
+.split .phone-solo img{display:block;width:100%}
+.checks{list-style:none;display:flex;flex-direction:column;gap:14px;margin-top:22px}
+.checks li{display:flex;gap:12px;font-size:15px;color:rgba(240,244,240,.85);line-height:1.55}
+.checks li::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:8px}
+.checks b{color:#fff}
 
-/* ── ASSIGNMENT MOCK CARD ── */
-.assign-card{
-  background:var(--surface);
-  border:1px solid rgba(255,214,10,.18);
-  border-radius:20px;overflow:hidden;
-  box-shadow:0 24px 64px rgba(0,0,0,.55);
-}
-.assign-header{
-  padding:14px 20px;
-  background:linear-gradient(160deg,rgba(255,214,10,.13) 0%,rgba(255,214,10,.04) 55%,transparent 100%);
-  display:flex;align-items:center;justify-content:space-between;
-}
-.assign-label{font-family:'DM Sans',sans-serif;font-size:12px;letter-spacing:.12em;font-weight:600;color:var(--gold)}
-.assign-pills{display:flex;gap:5px;align-items:center}
-.assign-pill{
-  font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.6px;
-  text-transform:uppercase;padding:2px 7px;border-radius:20px;font-weight:400;
-  background:rgba(255,255,255,.04);color:var(--muted);border:1px solid rgba(255,255,255,.08);
-}
-.assign-body{padding:20px 24px 4px}
-.assign-matchup{
-  font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,4vw,30px);
-  letter-spacing:2px;color:#fff;line-height:1;margin-bottom:8px;
-}
-.assign-vs{color:rgba(255,214,10,.55);margin:0 10px}
-.assign-meta{
-  display:flex;flex-wrap:wrap;gap:10px;font-size:12px;
-  color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.3px;
-  margin-bottom:20px;margin-top:4px;
-}
-.assign-meta-item{display:flex;align-items:center;gap:5px}
-/* Officials */
-.assign-officials-label{
-  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;
-  text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:10px;
-}
-.assign-officials{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
-.assign-ref-row{
-  display:flex;align-items:center;gap:12px;
-  padding:11px 14px;border-radius:12px;
-  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
-}
-.assign-role-badge{
-  font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.5px;
-  min-width:32px;color:rgba(255,255,255,.4);flex-shrink:0;
-}
-.assign-ref-name{font-size:14px;font-weight:600;color:var(--text);flex:1}
-.assign-chip{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:4px 10px;border-radius:20px;
-  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.8px;font-weight:500;
-  text-transform:uppercase;
-}
-.chip-confirmed{background:rgba(52,199,89,.12);color:#34c759;border:1px solid rgba(52,199,89,.28)}
-.chip-pending{background:rgba(255,214,10,.1);color:var(--gold);border:1px solid rgba(255,214,10,.25)}
-.chip-declined{background:rgba(255,69,58,.1);color:var(--red);border:1px solid rgba(255,69,58,.25)}
-/* Bottom bar */
-.assign-footer{padding:0 24px 24px;display:flex;align-items:center;gap:10px}
-.assign-cta-btn{
-  display:block;flex:1;padding:14px;
-  background:var(--gold);color:#000;border:none;border-radius:14px;
-  font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;
-  cursor:pointer;transition:all .2s;text-align:center;text-decoration:none;
-  box-shadow:0 6px 20px rgba(255,214,10,.2);
-}
-.assign-cta-btn:hover{background:#ffe44d;transform:translateY(-1px)}
-.assign-edit-link{
-  font-size:12px;color:var(--muted);text-decoration:none;
-  transition:color .2s;white-space:nowrap;text-align:center;
-  padding:0 4px;
-}
-.assign-edit-link:hover{color:var(--text)}
-
-/* ── FEATURES SECTION ── */
-.features-section{
-  padding:clamp(60px,7vw,96px) 24px;position:relative;z-index:1;
-  border-top:1px solid var(--border);
-}
-.features-inner{max-width:1040px;margin:0 auto;text-align:center}
-.features-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px;
-}
-.feat-card{
-  background:var(--surface);border:1.5px solid var(--border);
-  border-radius:20px;padding:32px 24px;text-align:left;
-  transition:border-color .2s,transform .2s;
-}
-.feat-card:hover{border-color:rgba(255,214,10,.22);transform:translateY(-2px)}
-.feat-icon{font-size:32px;margin-bottom:16px;display:block}
-.feat-title{
-  font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;
-  color:#fff;margin-bottom:10px;
-}
-.feat-body{font-size:14px;color:var(--muted);line-height:1.7}
-
-/* ── HOW IT WORKS ── */
-.how-section{padding:clamp(60px,7vw,96px) 24px;position:relative;z-index:1;border-top:1px solid var(--border)}
-.how-inner{max-width:840px;margin:0 auto;text-align:center}
-.how-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,4vw,48px);letter-spacing:3px;color:#fff;margin-bottom:48px}
-.how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;position:relative}
-.how-steps::before{
-  content:'';position:absolute;top:27px;left:calc(16.7% + 24px);right:calc(16.7% + 24px);height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,214,10,.22),transparent);pointer-events:none;
-}
-.how-step{display:flex;flex-direction:column;align-items:center;gap:14px;padding:0 8px}
-.how-num{
-  width:54px;height:54px;border-radius:50%;flex-shrink:0;
-  background:rgba(255,214,10,.07);border:1.5px solid rgba(255,214,10,.28);
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);
-}
-.how-step-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:#fff}
-.how-step-desc{font-size:13px;color:var(--muted);line-height:1.7;text-align:center}
-
-/* ── PRICING ── */
-.pricing{
-  padding:clamp(64px,7vw,100px) 24px;
-  position:relative;z-index:1;border-top:1px solid var(--border);
-}
-.pricing-inner{max-width:960px;margin:0 auto;text-align:center}
-.section-label{
-  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;
-  text-transform:uppercase;color:var(--gold);margin-bottom:12px;display:block;
-}
-.pricing-title{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:clamp(32px,5vw,56px);letter-spacing:3px;margin-bottom:40px;color:#fff;
-}
-.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.p-card{
-  background:var(--surface);border:1.5px solid var(--border);
-  border-radius:20px;padding:28px 20px;
-  transition:border-color .2s,transform .2s;text-align:left;
-}
-.p-card:hover{border-color:rgba(255,214,10,.22);transform:translateY(-2px)}
-.p-card.featured{border-color:rgba(255,214,10,.35)}
+/* TRAINING / PRICING */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:40px}
+.p-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:28px 22px;text-align:left}
 .p-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;margin-bottom:6px}
-.p-price{
-  font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:2px;
-  color:#fff;line-height:1;margin-bottom:4px;
-}
-.p-price sup{font-size:18px;color:var(--muted);vertical-align:top;margin-top:8px}
-.p-price sub{font-size:14px;color:var(--muted)}
-.p-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:0}
-.p-features{
-  list-style:none;display:flex;flex-direction:column;gap:9px;
-  margin:16px 0 20px;padding-top:16px;border-top:1px solid var(--border);
-}
-.p-features li{
-  display:flex;align-items:center;gap:9px;
-  font-size:13px;color:rgba(240,244,240,.78);line-height:1.4;
-}
-.p-features li.off{color:var(--muted);opacity:.5}
-.p-feat-icon{flex-shrink:0;width:16px;text-align:center;font-style:normal}
-.p-feat-icon.on{color:var(--gold)}
-.p-feat-icon.off{color:var(--muted)}
-.p-btn{
-  display:block;width:100%;padding:13px;border:none;border-radius:12px;
-  font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;
-  cursor:pointer;transition:all .2s;text-align:center;text-decoration:none;
-  color:#fff;background:var(--gold-dark);box-sizing:border-box;
-}
-.p-btn:hover{background:var(--gold);color:#080c09}
-.p-btn-league{color:#ffd60a;background:transparent;border:1.5px solid #ffd60a}
-.p-btn-league:hover{background:#ffd60a;color:#080c09}
+.p-price{font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:2px;color:#fff;line-height:1;margin-bottom:6px}
+.p-price small{font-size:15px;color:var(--muted)}
+.p-desc{font-size:13px;color:var(--muted);line-height:1.6}
+.p-btn{display:block;margin-top:20px;padding:12px;border-radius:12px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;text-align:center;text-decoration:none;color:#ffd60a;border:1.5px solid #ffd60a;transition:all .2s}
+.p-btn:hover{background:#ffd60a;color:#080c09}
 
-/* ── FINAL CTA ── */
-.final-cta-section{
-  padding:clamp(64px,8vw,104px) 24px;position:relative;z-index:1;
-  border-top:1px solid var(--border);text-align:center;overflow:hidden;
-}
-.final-cta-section::before{
-  content:'';position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(ellipse at 50% 110%,rgba(255,214,10,.08) 0%,transparent 65%);
-}
-.final-cta-inner{max-width:540px;margin:0 auto;position:relative}
-.final-cta-title{
-  font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,5vw,56px);
-  letter-spacing:3px;color:#fff;margin-bottom:12px;line-height:1;
-}
-.final-cta-sub{font-size:15px;color:var(--muted);margin-bottom:28px;line-height:1.6}
-.final-cta-btn{
-  display:inline-block;padding:18px 44px;background:var(--gold);color:#000;
-  border-radius:14px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;
-  text-decoration:none;transition:all .2s;box-shadow:0 8px 32px rgba(255,214,10,.22);
-}
-.final-cta-btn:hover{background:#ffe44d;transform:translateY(-2px);box-shadow:0 14px 40px rgba(255,214,10,.35)}
-.no-cc{font-size:11px;color:rgba(142,166,150,.45);font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:10px}
-.trust-badges{display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;margin-top:28px;padding-top:28px;border-top:1px solid var(--border)}
-.trust-badge{font-size:11px;color:rgba(142,166,150,.5);font-family:'DM Mono',monospace;letter-spacing:.5px}
+/* FAQ */
+.faq{max-width:760px;margin:40px auto 0;text-align:left}
+details{border-bottom:1px solid var(--border);padding:18px 0}
+summary{cursor:pointer;font-size:16px;font-weight:600;color:var(--text);list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:'+';color:var(--gold);font-size:22px;line-height:1}
+details[open] summary::after{content:'–'}
+details p{margin-top:12px;font-size:14.5px;color:var(--muted);line-height:1.7}
+details a{color:var(--gold)}
 
-/* ── FAQ ── */
-.faq-section{padding:clamp(60px,7vw,96px) 24px;position:relative;z-index:1;border-top:1px solid var(--border)}
-.faq-inner{max-width:680px;margin:0 auto}
-.faq-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,4vw,48px);letter-spacing:3px;color:#fff;margin-bottom:40px;text-align:center}
-.faq-item{border-bottom:1px solid var(--border)}
-.faq-item:first-of-type{border-top:1px solid var(--border)}
-.faq-q{
-  width:100%;background:none;border:none;padding:20px 0;
-  display:flex;align-items:center;justify-content:space-between;gap:16px;
-  cursor:pointer;text-align:left;
-  font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;color:var(--text);transition:color .2s;
-}
-.faq-q:hover{color:var(--gold)}
-.faq-icon{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--muted);flex-shrink:0;transition:transform .25s,color .2s;line-height:1}
-.faq-item.open .faq-icon{transform:rotate(45deg);color:var(--gold)}
-.faq-a{max-height:0;overflow:hidden;transition:max-height .32s ease,padding .32s ease}
-.faq-item.open .faq-a{max-height:300px;padding-bottom:18px}
-.faq-a p{font-size:14px;color:var(--muted);line-height:1.75}
-.faq-a strong{color:rgba(240,244,240,.85)}
+/* FINAL CTA + FOOTER */
+.final{text-align:center;overflow:hidden}
+.final::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 110%,rgba(255,214,10,.09) 0%,transparent 65%)}
+.final .in{position:relative;max-width:560px;margin:0 auto}
+footer{border-top:1px solid var(--border);padding:36px 24px}
+.foot{max-width:1160px;margin:0 auto;display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center;justify-content:space-between}
+.foot .links{display:flex;gap:20px;flex-wrap:wrap}
+.foot a{font-size:13px;color:var(--muted);text-decoration:none}
+.foot a:hover{color:var(--text)}
+.copy{font-family:'DM Mono',monospace;font-size:11px;color:rgba(142,166,150,.55)}
 
-/* Trust line */
-.trust-line{
-  padding:24px;text-align:center;
-  font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;
-  color:rgba(142,166,150,.45);border-top:1px solid var(--border);
-  position:relative;z-index:1;
-}
-.trust-line strong{color:rgba(255,214,10,.65);font-weight:400}
-
-/* Footer */
-footer{border-top:1px solid var(--border);padding:24px;position:relative;z-index:1}
-.footer-inner{
-  max-width:1160px;margin:0 auto;
-  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
-}
-.footer-links{display:flex;gap:16px;flex-wrap:wrap}
-.footer-links a{font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s}
-.footer-links a:hover{color:var(--text)}
-.footer-copy{font-size:11px;color:rgba(122,144,128,.38);font-family:'DM Mono',monospace}
-
-/* Responsive */
 @media(max-width:900px){
-  .pricing-grid{grid-template-columns:1fr;max-width:400px;margin:0 auto}
+  .hero{grid-template-columns:1fr;padding-top:104px;gap:32px}
+  .phones{min-height:480px}
+  .two,.grid3,.pricing-grid,.steps{grid-template-columns:1fr}
+  .split{grid-template-columns:1fr;gap:32px}
+  .nav-links a.hide-m{display:none}
 }
-@media(max-width:768px){
-  .features-grid{grid-template-columns:1fr}
-  .how-steps{grid-template-columns:1fr;gap:24px}
-  .how-steps::before{display:none}
-  .how-step{flex-direction:row;align-items:flex-start;gap:16px;text-align:left}
-  .how-step-title,.how-step-desc{text-align:left}
-}
-@media(max-width:600px){
-  .nav-cta{padding:7px 13px;font-size:12px;border-radius:8px}
-  .nav-login{padding:6px 12px;font-size:12px;border-radius:8px}
-  .nav-logo-text{font-size:26px}
-}
-@media(max-width:540px){
-  .demo-hero{padding:74px 12px 40px}
-  .hero-headline{font-size:clamp(30px,9vw,38px);letter-spacing:1px}
-  .demo-header{padding:12px 16px}
-  .demo-body{padding:14px 16px 0}
-  .demo-opts{padding:0 16px 16px}
-  .demo-expl{margin:0 16px}
-  .demo-expl.show{margin:0 16px 12px}
-  .demo-cta-wrap{padding:0 16px 20px}
-  .demo-opt{padding:15px 14px}
-  .demo-opt-text{font-size:14px}
+@media(max-width:480px){
+  .nav-inner{padding:0 16px}
+  .hero,.sec{padding-left:16px;padding-right:16px}
+  .phones{min-height:430px}
 }
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
   <div class="nav-inner">
-    <div class="nav-spacer"></div>
-    <a href="/" class="nav-logo">
-      <img src="HeroLogo.png" alt="RefIQ">
-      <span class="nav-logo-text">RefIQ</span>
-    </a>
-    <div class="nav-right">
-      <a href="/admin" class="nav-login">LOG IN</a>
-      <a href="/admin" class="nav-cta">Start Free →</a>
+    <a class="logo" href="/"><img src="/img/logo.png" alt="RefIQ"><span>REFIQ</span></a>
+    <div class="nav-links">
+      <a class="hide-m" href="#features">Features</a>
+      <a class="hide-m" href="#how">How it works</a>
+      <a class="hide-m" href="#training">Training</a>
+      <a class="hide-m" href="/support">Support</a>
+      <a href="/admin">Log in</a>
+      <a class="btn btn-gold btn-sm" href="#get-app">Get the app</a>
     </div>
   </div>
 </nav>
 
-<!-- DEMO HERO -->
-<section class="demo-hero">
-
-  <div class="hero-text">
-    <h1 class="hero-headline">TRAIN YOUR MATCH IQ</h1>
-    <p class="hero-sub">AI-powered quiz training + game assignment tools for soccer referees and assignors.</p>
-  </div>
-
-  <!-- Toggle switch -->
-  <div class="hero-toggle-wrap">
-    <div class="hero-toggle" role="tablist">
-      <button class="hero-toggle-btn active" id="toggle-training" role="tab" onclick="setPanel('training')">
-        <span class="hero-toggle-icon">🧠</span> Training
-      </button>
-      <button class="hero-toggle-btn" id="toggle-assign" role="tab" onclick="setPanel('assign')">
-        <span class="hero-toggle-icon">📋</span> Assignments
-      </button>
+<header class="hero">
+  <div>
+    <span class="eyebrow">Scheduling for sports officials</span>
+    <h1>ASSIGN.<br>SCHEDULE.<br><em>GO.</em></h1>
+    <p class="lede">The iPhone app for assignors and officials. Post games, fill crews in minutes, and know who is free before you ask. Built for soccer, basketball, baseball, football and more.</p>
+    <div class="cta-row" id="get-app">
+      <span class="soon"><span><strong>iPhone app</strong>Coming soon to the App Store</span></span>
+      <a class="btn btn-ghost" href="mailto:refiqsupport@gmail.com?subject=RefIQ%20app%20early%20access">Get early access</a>
     </div>
+    <p class="hero-note">Email us and we will send you a TestFlight invite as soon as it opens.</p>
   </div>
+  <div class="phones" aria-hidden="false">
+    <div class="phone a"><img src="/img/app-games.jpg" alt="RefIQ Games dashboard showing coverage and a needs-attention queue" width="600" height="746"></div>
+    <div class="phone b"><img src="/img/app-autoassign.jpg" alt="RefIQ auto-assign review screen with suggested officials and flagged open slots" width="600" height="1060"></div>
+  </div>
+</header>
 
-  <!-- Panels -->
-  <div class="demo-panels">
+<div class="strip">
+  <p><b>Soccer</b>·<b>Basketball</b>·<b>Baseball</b>·<b>Softball</b>·<b>Football</b>·<b>Volleyball</b>·<b>Hockey</b>·<b>Lacrosse</b>·<b>Rugby</b>·<b>Any sport you add</b></p>
+</div>
 
-    <!-- ── TRAINING PANEL ── -->
-    <div class="demo-panel" id="panel-training">
-      <div class="demo-card">
-        <div class="demo-prog"><div class="demo-prog-fill" id="demo-prog-fill"></div></div>
-        <div class="demo-header" style="justify-content:space-between">
-          <span class="demo-label">▶ TEST YOUR KNOWLEDGE</span>
-          <div class="demo-pills" style="padding:0;opacity:.7;margin:0">
-            <span class="demo-pill pill-rules">⚽ Rules</span>
-            <span class="demo-pill pill-scenario">🎯 Scenario</span>
-            <span class="demo-pill pill-law">📚 Law 12</span>
-          </div>
-        </div>
-        <div class="demo-body">
-          <div class="demo-qtext">A GK holds the ball for 9 seconds. An opponent protests verbally. What is the correct call?</div>
-        </div>
-        <div class="demo-opts" role="group" aria-label="Answer options">
-          <button class="demo-opt" onclick="selectAnswer(0)">
-            <div class="demo-letter">A</div>
-            <div class="demo-opt-text">Corner kick for the opposing team</div>
-          </button>
-          <button class="demo-opt" onclick="selectAnswer(1)">
-            <div class="demo-letter">B</div>
-            <div class="demo-opt-text">Indirect free kick where GK possessed</div>
-          </button>
-          <button class="demo-opt" onclick="selectAnswer(2)">
-            <div class="demo-letter">C</div>
-            <div class="demo-opt-text">Caution for GK + indirect FK</div>
-          </button>
-          <button class="demo-opt" onclick="selectAnswer(3)">
-            <div class="demo-letter">D</div>
-            <div class="demo-opt-text">No call — 10-second rule applies</div>
-          </button>
-        </div>
-        <div class="demo-expl" id="demo-expl">
-          <div class="demo-expl-inner">
-            <span class="demo-expl-law">📚 Law 12 — GK Restrictions (2025/26)</span>
-            <p class="demo-expl-text">Under the 2025/26 IFAB Laws, a goalkeeper who holds the ball longer than permitted is penalized with a <strong>corner kick</strong> for the opposing team — not an indirect free kick. The opponent's verbal protest has no effect on the restart; any dissent should be dealt with separately.</p>
-          </div>
-        </div>
-        <div class="demo-cta-wrap" id="demo-cta">
-          <a href="/admin" class="demo-cta-btn" id="demo-cta-btn">Start Training →</a>
-          <a href="/admin" class="member-link">Already a member? Log in →</a>
-        </div>
+<section class="sec center" id="audiences">
+  <div class="wrap">
+    <span class="eyebrow">One app, both sides of the whistle</span>
+    <h2>BUILT FOR ASSIGNORS AND OFFICIALS</h2>
+    <p class="sub">Spreadsheets, group texts, and email chains do not scale past a few dozen officials. RefIQ replaces them with one shared schedule.</p>
+    <div class="two">
+      <div class="card">
+        <span class="tag">For assignors</span>
+        <h3>RUN THE WEEKEND, NOT THE INBOX</h3>
+        <ul>
+          <li>See what needs you first: declines, double-bookings, and unreplied assignments in one queue.</li>
+          <li>Import a season schedule from CSV, PDF, a photo, or pasted text.</li>
+          <li>Auto-assign suggests crews, flags conflicts, and waits for your approval.</li>
+          <li>Set your own sport, crew sizes, age groups, and skill types.</li>
+        </ul>
       </div>
-    </div><!-- /#panel-training -->
-
-    <!-- ── ASSIGNMENTS PANEL ── -->
-    <div class="demo-panel hidden" id="panel-assign">
-      <div class="assign-card">
-
-        <!-- Header -->
-        <div class="assign-header">
-          <span class="assign-label">📅 GAME ASSIGNMENT</span>
-          <div class="assign-pills">
-            <span class="assign-pill">⚽ U16 Competitive</span>
-            <span class="assign-pill">📍 Sat May 17</span>
-          </div>
-        </div>
-
-        <!-- Game info -->
-        <div class="assign-body">
-          <div class="assign-matchup">
-            FC United<span class="assign-vs">VS</span>River City SC
-          </div>
-          <div class="assign-meta">
-            <span class="assign-meta-item">🕙 10:30 AM</span>
-            <span class="assign-meta-item">📍 Riverside Park · Field 3</span>
-            <span class="assign-meta-item">👥 3 officials required</span>
-          </div>
-
-          <!-- Officials -->
-          <div class="assign-officials-label">Officials</div>
-          <div class="assign-officials">
-
-            <div class="assign-ref-row">
-              <span class="assign-role-badge">CR</span>
-              <span class="assign-ref-name">Jordan Mitchell</span>
-              <span class="assign-chip chip-confirmed">✓ Confirmed</span>
-            </div>
-
-            <div class="assign-ref-row">
-              <span class="assign-role-badge">AR1</span>
-              <span class="assign-ref-name">Alex Rivera</span>
-              <span class="assign-chip chip-pending">⏳ Pending</span>
-            </div>
-
-            <div class="assign-ref-row">
-              <span class="assign-role-badge">AR2</span>
-              <span class="assign-ref-name">Sam Chen</span>
-              <span class="assign-chip chip-declined">✕ Declined</span>
-            </div>
-
-          </div>
-        </div><!-- /.assign-body -->
-
-        <!-- Footer actions -->
-        <div class="assign-footer">
-          <a href="/assignments-intro" class="assign-cta-btn" id="assign-cta-btn">Manage Assignments →</a>
-          <a href="/assign.html" class="assign-edit-link">Edit Game</a>
-        </div>
-
-      </div><!-- /.assign-card -->
-    </div><!-- /#panel-assign -->
-
-  </div><!-- /.demo-panels -->
-
-</section>
-
-<!-- FEATURES -->
-<section class="features-section">
-  <div class="features-inner">
-    <span class="section-label">Everything You Need</span>
-    <h2 class="how-title">ONE PLATFORM. COMPLETE REFEREE MANAGEMENT.</h2>
-    <div class="features-grid">
-
-      <div class="feat-card">
-        <span class="feat-icon">🧠</span>
-        <div class="feat-title">AI QUIZ TRAINING</div>
-        <p class="feat-body">Generate custom quizzes based on division, age group, and Laws of the Game. Track every referee's results in real time.</p>
+      <div class="card">
+        <span class="tag">For officials</span>
+        <h3>YOUR GAMES, YOUR TERMS</h3>
+        <ul>
+          <li>Accept or decline from your phone and see your whole schedule in one place.</li>
+          <li>Set exact-time weekly availability, recurring blocks, and days off.</li>
+          <li>Add games to your calendar and open directions to the field.</li>
+          <li>Build a profile with your sports, positions, and certification, and track your development.</li>
+        </ul>
       </div>
-
-      <div class="feat-card">
-        <span class="feat-icon">📋</span>
-        <div class="feat-title">GAME ASSIGNMENT</div>
-        <p class="feat-body">Assign referees to games, collect availability, send confirmations, and track payments — all in one place.</p>
-      </div>
-
-      <div class="feat-card">
-        <span class="feat-icon">🏆</span>
-        <div class="feat-title">LEAGUE MANAGEMENT</div>
-        <p class="feat-body">Manage your entire referee pool, track certifications, and get insights on performance across your league.</p>
-      </div>
-
     </div>
   </div>
 </section>
 
-<!-- HOW IT WORKS -->
-<section class="how-section">
-  <div class="how-inner">
-    <span class="section-label">How It Works</span>
-    <h2 class="how-title">THREE STEPS TO A SHARPER LEAGUE</h2>
-    <div class="how-steps">
-
-      <div class="how-step">
-        <div class="how-num">1</div>
-        <div>
-          <div class="how-step-title">CREATE YOUR LEAGUE</div>
-          <p class="how-step-desc">Set up your referee pool, add league branding, and upload your rulebook. Ready in minutes.</p>
-        </div>
-      </div>
-
-      <div class="how-step">
-        <div class="how-num">2</div>
-        <div>
-          <div class="how-step-title">TRAIN YOUR REFS</div>
-          <p class="how-step-desc">Send AI-powered quizzes before the season. Every referee gets instant feedback with Law citations.</p>
-        </div>
-      </div>
-
-      <div class="how-step">
-        <div class="how-num">3</div>
-        <div>
-          <div class="how-step-title">ASSIGN YOUR GAMES</div>
-          <p class="how-step-desc">Manage assignments and confirmations in one place. Know who's available, who's confirmed, and who needs follow-up.</p>
-        </div>
-      </div>
-
+<section class="sec alt" id="features">
+  <div class="wrap center">
+    <span class="eyebrow">What is inside</span>
+    <h2>EVERYTHING AN ASSIGNOR ACTUALLY DOES</h2>
+    <div class="grid3">
+      <div class="feat"><span class="k">Auto-assign</span><h3>FILL CREWS IN MINUTES</h3><p>Matches officials to open slots using availability, age group, skill type, position, travel time, and how many games each person has had. You review every suggestion before anything is sent.</p></div>
+      <div class="feat"><span class="k">Conflicts</span><h3>CATCH IT BEFORE GAME DAY</h3><p>Flags double-bookings, overlapping venues, and duplicate games, plus officials who are not free at that time or have the day off.</p></div>
+      <div class="feat"><span class="k">Import</span><h3>BRING YOUR SCHEDULE</h3><p>Drop in a CSV, a PDF, a screenshot, or text from an email. RefIQ reads it and builds the games that need officials.</p></div>
+      <div class="feat"><span class="k">Availability</span><h3>EXACT TIMES, NOT GUESSES</h3><p>Officials set the hours they can work each day, block recurring times, and mark days off. Assignors see a fit badge on every pick.</p></div>
+      <div class="feat"><span class="k">Reports</span><h3>POST-GAME REPORTS</h3><p>Officials file scores, cards, injuries, and sideline behavior. Reports stay private to the assignor, and board summaries show clubs only.</p></div>
+      <div class="feat"><span class="k">Development</span><h3>KEEP YOUR BEST OFFICIALS</h3><p>Certification expiry warnings, at-risk officials, retention insights, and feedback tracked per official.</p></div>
     </div>
   </div>
 </section>
 
-<!-- PRICING -->
-<section class="pricing" id="pricing">
-  <div class="pricing-inner">
-    <span class="section-label">Plans</span>
-    <h2 class="pricing-title">START FREE. GO FURTHER.</h2>
+<section class="sec" id="how">
+  <div class="wrap center">
+    <span class="eyebrow">Getting started</span>
+    <h2>THREE STEPS TO A FULL WEEKEND</h2>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><h3>SET UP YOUR LEAGUE</h3><p>Pick your sport, crew sizes, age groups, and skill types. Share your league code.</p></div>
+      <div class="step"><div class="num">2</div><h3>OFFICIALS JOIN</h3><p>Officials enter the code, build a profile, and set the times they are available.</p></div>
+      <div class="step"><div class="num">3</div><h3>POST AND ASSIGN</h3><p>Import or add games, auto-assign or pick by hand, and send. Officials accept in the app.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt">
+  <div class="wrap split">
+    <div class="phone-solo"><img src="/img/app-autoassign.jpg" alt="Auto-assign proposal grouped by day with open slots explained" width="600" height="1060" loading="lazy"></div>
+    <div>
+      <span class="eyebrow">Auto-assign, with you in charge</span>
+      <h2>A PROPOSAL, NOT A SURPRISE</h2>
+      <p class="sub">Auto-assign never sends anything on its own. It builds a proposal, shows you why each official was picked, and tells you plainly when no one can take a slot.</p>
+      <ul class="checks">
+        <li><span><b>Explains every pick.</b> Free at that time, prefers that age group, games so far this season.</span></li>
+        <li><span><b>Explains every gap.</b> "No one can take it: 4 already on another game, 3 not free at that time."</span></li>
+        <li><span><b>Swap anyone.</b> Change a suggestion or leave a slot open, then send them all at once.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="sec center" id="training">
+  <div class="wrap">
+    <span class="eyebrow">Also from RefIQ</span>
+    <h2>AI RULES TRAINING FOR REFEREES</h2>
+    <p class="sub">The original RefIQ: scenario quizzes built on the current Laws of the Game, with results your league can track. Referees take quizzes from a shared link and do not need a paid account.</p>
     <div class="pricing-grid">
-
-      <div class="p-card">
-        <div class="p-name">REFEREE</div>
-        <div class="p-price"><sup>$</sup>9<sub>.99/mo</sub></div>
-        <p class="p-desc">Individual training. Cancel anytime.</p>
-        <ul class="p-features">
-          <li><i class="p-feat-icon on">✓</i> Unlimited AI-generated quizzes</li>
-          <li><i class="p-feat-icon on">✓</i> IFAB Laws &amp; scenario training</li>
-          <li><i class="p-feat-icon on">✓</i> Rules &amp; case study modes</li>
-          <li class="off"><i class="p-feat-icon off">—</i> Admin dashboard</li>
-          <li class="off"><i class="p-feat-icon off">—</i> League management</li>
-          <li class="off"><i class="p-feat-icon off">—</i> White-label branding</li>
-        </ul>
-        <a href="/app" class="p-btn">GET REFEREE →</a>
-      </div>
-
-      <div class="p-card">
-        <div class="p-name">SEASON</div>
-        <div class="p-price"><sup>$</sup>49<sub>/season</sub></div>
-        <p class="p-desc">One payment. 6 months of access. Equivalent to $8.17/mo — save 18%.</p>
-        <ul class="p-features">
-          <li><i class="p-feat-icon on">✓</i> Unlimited AI-generated quizzes</li>
-          <li><i class="p-feat-icon on">✓</i> IFAB Laws &amp; scenario training</li>
-          <li><i class="p-feat-icon on">✓</i> Rules &amp; case study modes</li>
-          <li><i class="p-feat-icon on">✓</i> No recurring charge — pay once</li>
-          <li class="off"><i class="p-feat-icon off">—</i> Admin dashboard</li>
-          <li class="off"><i class="p-feat-icon off">—</i> White-label branding</li>
-        </ul>
-        <a href="/admin?upgrade=price_1T8Z4lJlYByErfPaulsRF7EZ" class="p-btn">GET SEASON →</a>
-      </div>
-
-      <div class="p-card featured">
-        <div class="p-name">LEAGUE</div>
-        <div class="p-price"><sup>$</sup>149<sub>/season</sub></div>
-        <p class="p-desc">Everything your league needs in one platform.</p>
-        <ul class="p-features">
-          <li><i class="p-feat-icon on">✓</i> Unlimited AI-generated quizzes</li>
-          <li><i class="p-feat-icon on">✓</i> Admin dashboard &amp; analytics</li>
-          <li><i class="p-feat-icon on">✓</i> Unlimited referees</li>
-          <li><i class="p-feat-icon on">✓</i> Quiz links &amp; result tracking</li>
-          <li><i class="p-feat-icon on">✓</i> White-label branding</li>
-          <li><i class="p-feat-icon on">✓</i> Rulebook upload</li>
-        </ul>
-        <a href="/admin?upgrade=price_1T8Z15JlYByErfPaTpRf3xic" class="p-btn p-btn-league">GET LEAGUE →</a>
-      </div>
-
+      <div class="p-card"><div class="p-name">REFEREE</div><div class="p-price">$9.99<small>/mo</small></div><p class="p-desc">Individual training. Unlimited AI-generated quizzes. Cancel anytime.</p><a class="p-btn" href="/app">GET REFEREE →</a></div>
+      <div class="p-card"><div class="p-name">SEASON</div><div class="p-price">$49<small>/season</small></div><p class="p-desc">One payment. Six months of access. No recurring charge.</p><a class="p-btn" href="/admin?upgrade=price_1T8Z4lJlYByErfPaulsRF7EZ">GET SEASON →</a></div>
+      <div class="p-card"><div class="p-name">LEAGUE</div><div class="p-price">$149<small>/season</small></div><p class="p-desc">Admin dashboard, unlimited referees, quiz links and result tracking, white-label branding, rulebook upload.</p><a class="p-btn" href="/admin?upgrade=price_1T8Z15JlYByErfPaTpRf3xic">GET LEAGUE →</a></div>
     </div>
   </div>
 </section>
 
-<!-- FINAL CTA -->
-<section class="final-cta-section">
-  <div class="final-cta-inner">
-    <span class="section-label">Get Started</span>
-    <h2 class="final-cta-title">READY TO RUN A SHARPER LEAGUE?</h2>
-    <p class="final-cta-sub">Start with a 7-day free trial. No credit card required.</p>
-    <a href="/admin" class="final-cta-btn">Start Free Today →</a>
-    <p class="no-cc">Cancel anytime · IFAB Laws 2025/26 · AI-powered</p>
-    <div class="trust-badges">
-      <span class="trust-badge">🔒 Stripe Secure Payments</span>
-      <span class="trust-badge">🔐 SSL Encrypted</span>
-      <span class="trust-badge">⚖️ IFAB Laws 2025/26</span>
-      <span class="trust-badge">🤖 AI-Powered</span>
+<section class="sec alt">
+  <div class="wrap center">
+    <span class="eyebrow">Questions</span>
+    <h2>COMMON QUESTIONS</h2>
+    <div class="faq">
+      <details><summary>Which sports does it support?</summary><p>Soccer, basketball, baseball, softball, football, volleyball, hockey, lacrosse, and rugby, each with preset crew sizes. Anything else works too: add your own sport and positions.</p></details>
+      <details><summary>Is there an Android app?</summary><p>Not yet. RefIQ is on iPhone first. Email us if Android matters to your league.</p></details>
+      <details><summary>How do officials join my league?</summary><p>You share a six-character league code. Officials enter it in the app under Account and appear on your roster.</p></details>
+      <details><summary>Who can see post-game reports and ratings?</summary><p>Reports are visible only to the assignor and the official who wrote them. Ratings and notes you write about an official are private to you; the official sees only an average. Summaries you share with a board show clubs only, with no official names.</p></details>
+      <details><summary>Can I import my existing schedule?</summary><p>Yes. Import a CSV, a PDF, a photo of a schedule, or pasted text. RefIQ builds the games and flags duplicates so you can review before anything is created.</p></details>
+      <details><summary>Can I delete my account and data?</summary><p>Yes, from inside the app under Account → Delete my account. See our <a href="/privacy">Privacy Policy</a> for exactly what is removed.</p></details>
     </div>
   </div>
 </section>
 
-<!-- FAQ -->
-<section class="faq-section">
-  <div class="faq-inner">
-    <span class="section-label">FAQ</span>
-    <h2 class="faq-title">COMMON QUESTIONS</h2>
-
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Is there really a free trial? <span class="faq-icon">+</span></button>
-      <div class="faq-a"><p>Yes — every new account starts with a <strong>7-day free trial</strong>. No credit card required to get started. You get full access to AI-generated quizzes during the trial.</p></div>
-    </div>
-
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">What's included in the Training plan? <span class="faq-icon">+</span></button>
-      <div class="faq-a"><p>The <strong>Training plan ($149/6 months)</strong> includes unlimited quiz links, custom league branding, results tracking, division-specific questions, and rulebook upload. It covers everything you need to run a full pre-season referee training program.</p></div>
-    </div>
-
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">What does the Pro plan add? <span class="faq-icon">+</span></button>
-      <div class="faq-a"><p>The <strong>Pro plan</strong> adds game assignment tools on top of everything in Training. That means availability collection, ref-to-game assignment, confirmation tracking, payment tracking, and a full referee pool manager. It's the complete operations platform for league assignors.</p></div>
-    </div>
-
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Are the Laws up to date? <span class="faq-icon">+</span></button>
-      <div class="faq-a"><p>Yes. RefIQ uses <strong>IFAB Laws of the Game 2025/26</strong>, including the updated GK possession rule (corner kick, not indirect free kick). The AI is instructed to apply current Laws for every question generated.</p></div>
-    </div>
-
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Do my referees need a paid account? <span class="faq-icon">+</span></button>
-      <div class="faq-a"><p>No — referees take quizzes via shareable links and don't need a paid account. Your league plan covers all referees in your pool. Only the league admin (you) needs a subscription.</p></div>
-    </div>
-
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">How is this different from just reading the Laws? <span class="faq-icon">+</span></button>
-      <div class="faq-a"><p>Reading is passive. RefIQ puts referees in <strong>real scenarios and forces a decision</strong>, then explains the exact rule. Active recall is significantly more effective than passive reading — refs remember what they had to work for.</p></div>
-    </div>
-
+<section class="sec final">
+  <div class="in">
+    <h2>READY FOR A QUIETER GROUP CHAT?</h2>
+    <p class="sub" style="margin-bottom:28px">Join the early access list and be among the first assignors to run a full weekend from your phone.</p>
+    <a class="btn btn-gold" href="mailto:refiqsupport@gmail.com?subject=RefIQ%20app%20early%20access">Get early access</a>
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer>
-  <div class="footer-inner">
-    <div style="display:flex;align-items:center;gap:8px">
-      <img src="RefIQ.PNG" alt="RefIQ" style="height:20px;width:20px;object-fit:contain;mix-blend-mode:screen;opacity:.45">
-      <span style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:rgba(240,244,240,.28)">RefIQ</span>
-    </div>
-    <div class="footer-links">
-      <a href="#pricing">Pricing</a>
-      <a href="/admin">League Admin</a>
-      <a href="/assign.html">Assignments</a>
-      <a href="/app">Start Free</a>
+  <div class="foot">
+    <a class="logo" href="/"><img src="/img/logo.png" alt="" style="width:28px;height:28px"><span style="font-size:20px">REFIQ</span></a>
+    <div class="links">
+      <a href="#features">Features</a>
       <a href="/privacy">Privacy Policy</a>
       <a href="/terms">Terms of Service</a>
-      <a href="mailto:refiqsupport@gmail.com">Contact Support</a>
+      <a href="/support">Support</a>
+      <a href="/admin">Log in</a>
     </div>
-    <div class="footer-copy">© 2026 RefIQ LLC · Sharper officials. Smarter leagues.</div>
+    <span class="copy">© 2026 RefIQ LLC · Kansas City, Missouri</span>
   </div>
 </footer>
-
-<script>
-const CORRECT = 0;
-let answered  = false;
-
-// ── TOGGLE ───────────────────────────────────────────────────────────────────
-function setPanel(name) {
-  const panels = ['training', 'assign'];
-  panels.forEach(p => {
-    document.getElementById('panel-' + p).classList.toggle('hidden', p !== name);
-    document.getElementById('toggle-' + p).classList.toggle('active', p === name);
-  });
-}
-
-// ── QUIZ ─────────────────────────────────────────────────────────────────────
-function selectAnswer(idx) {
-  if (answered) return;
-  answered = true;
-  const isCorrect = idx === CORRECT;
-  document.querySelectorAll('.demo-opt').forEach((opt, i) => {
-    opt.classList.add('answered');
-    if      (i === idx && isCorrect)  opt.classList.add('correct');
-    else if (i === idx && !isCorrect) opt.classList.add('wrong');
-    else if (i === CORRECT)           opt.classList.add('correct');
-    else                              opt.classList.add('faded');
-  });
-  showResult();
-}
-
-function showResult() {
-  document.getElementById('demo-prog-fill').style.width = '100%';
-  document.getElementById('demo-expl').classList.add('show');
-  document.getElementById('demo-cta').classList.add('show');
-  setTimeout(() => {
-    document.getElementById('demo-cta').scrollIntoView({behavior:'smooth', block:'nearest'});
-  }, 480);
-}
-
-// ── FAQ ──────────────────────────────────────────────────────────────────────
-function toggleFaq(btn) {
-  const item = btn.closest('.faq-item');
-  const isOpen = item.classList.contains('open');
-  document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
-  if (!isOpen) item.classList.add('open');
-}
-</script>
-
-<!-- Auth-aware CTA routing — lightweight, no Firestore -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-const _auth = getAuth(initializeApp({
-  apiKey:            'AIzaSyCs3WkdtkGCdEcJnMS116KO1hUcUqrSppM',
-  authDomain:        'refiq-b8142.firebaseapp.com',
-  projectId:         'refiq-b8142',
-  storageBucket:     'refiq-b8142.firebasestorage.app',
-  messagingSenderId: '62305657245',
-  appId:             '1:62305657245:web:d6e35a80859ee8fdd08f74'
-}, 'landing'));
-
-// _authed: null=resolving, false=logged out, object=logged in
-let _authed = null;
-onAuthStateChanged(_auth, u => { _authed = u || false; });
-
-// Wait for auth state (resolves in <200ms for cached sessions; 1s fallback)
-function awaitAuth() {
-  if (_authed !== null) return Promise.resolve(_authed);
-  return new Promise(resolve => {
-    const unsub = onAuthStateChanged(_auth, u => { unsub(); resolve(u || false); });
-    setTimeout(() => resolve(false), 1000);
-  });
-}
-
-function intercept(id, authedDest, unauthDest) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.addEventListener('click', async e => {
-    e.preventDefault();
-    const user = await awaitAuth();
-    window.location.href = user ? authedDest : unauthDest;
-  });
-}
-
-intercept('demo-cta-btn',  '/train',  '/training-intro');
-intercept('assign-cta-btn', '/admin', '/assignments-intro');
-</script>
 
 </body>
 </html>

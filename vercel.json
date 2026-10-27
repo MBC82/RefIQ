@@ -11,6 +11,7 @@
     { "source": "/train",              "destination": "/train.html" },
     { "source": "/privacy",            "destination": "/privacy.html" },
     { "source": "/terms",              "destination": "/terms.html" },
+    { "source": "/support",            "destination": "/support.html" },
     { "source": "/training-intro",     "destination": "/training-intro.html" },
     { "source": "/assignments-intro",  "destination": "/assignments-intro.html" }
   ],
