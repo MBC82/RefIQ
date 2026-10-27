@@ -1,6 +1,26 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { rateLimit, verifyIdToken, activeQuizLink, badQuizBody, authorize } from '../lib/guard.mjs';
+import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+// The guard lives inside each endpoint file (see the markers). Test the copy in api/quiz.js, and that the copies match.
+const ENDPOINTS = ['api/quiz.js', 'api/ai-suggest.js', 'api/import-map.js'];
+const guardText = file => { const s = readFileSync(file, 'utf8'); return s.slice(s.indexOf('// <guard>'), s.indexOf('// </guard>')); };
+const dir = mkdtempSync(join(tmpdir(), 'refiq-guard-'));
+writeFileSync(join(dir, 'guard.mjs'), guardText('api/quiz.js') + '\nexport { rateLimit, verifyIdToken, activeQuizLink, badQuizBody, authorize };\n');
+const { rateLimit, verifyIdToken, activeQuizLink, badQuizBody, authorize } = await import(pathToFileURL(join(dir, 'guard.mjs')).href);
+
+test('every endpoint carries the same guard, and none imports a local file (Vercel loads them as CommonJS)', () => {
+  const first = guardText(ENDPOINTS[0]);
+  assert.ok(first.includes('async function authorize'));
+  for (const f of ENDPOINTS) {
+    assert.equal(guardText(f), first, `${f} has a different guard`);
+    assert.equal(/^import\s/m.test(readFileSync(f, 'utf8')), false, `${f} must not import anything: a local ES module crashes on Vercel`);
+    assert.ok(readFileSync(f, 'utf8').includes('await authorize('), `${f} must call the guard`);
+  }
+});
 
 const json = (data, status = 200) => ({ ok: status < 400, status, json: async () => data });
 const env = { FIREBASE_API_KEY: 'key' };

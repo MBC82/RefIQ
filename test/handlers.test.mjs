@@ -6,10 +6,9 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const guardUrl = pathToFileURL(resolve('lib/guard.mjs')).href;
 const dir = mkdtempSync(join(tmpdir(), 'refiq-api-'));
 async function load(name) {
-  const src = readFileSync(`api/${name}.js`, 'utf8').replace("'../lib/guard.mjs'", `'${guardUrl}'`);
+  const src = readFileSync(`api/${name}.js`, 'utf8');
   const file = join(dir, `${name}.mjs`);
   writeFileSync(file, src);
   return (await import(pathToFileURL(file).href + `?t=${Math.random()}`)).default;
