@@ -751,8 +751,31 @@ Format:
 
 // Called immediately after the quiz link loads — runs in the background while the
 // referee types their name so the quiz is ready (or nearly so) when they click Start.
+// Quizzes keep a bank of questions made when the quiz was created. A referee gets a random selection from it with the
+// answers shuffled, so opening a quiz link makes no AI call. Only a quiz with no bank falls back to generating fresh ones.
+function _validBankQuestion(q) {
+  return q && typeof q.question === 'string' && Array.isArray(q.options) && q.options.length === 4 && typeof q.correct === 'number' && q.correct >= 0 && q.correct <= 3;
+}
+function _shuffled(list) {
+  const a = list.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function _drawFromBank(bank, num) {
+  return _shuffled(bank).slice(0, num).map(q => {
+    const order = _shuffled([0, 1, 2, 3]);
+    return { ...q, options: order.map(i => q.options[i]), correct: order.indexOf(q.correct) };
+  });
+}
+
 async function _prefetchQuizQuestions() {
   const { num, timeLimit, prompt } = _buildQuizPayload();
+
+  const bank = (Array.isArray(quizLink.questions) ? quizLink.questions : []).filter(_validBankQuestion);
+  if (bank.length >= Math.min(num, 5)) {
+    _prefetchDone = true;
+    return { questions: _drawFromBank(bank, num), num, timeLimit };
+  }
 
   const res = await fetch('/api/quiz', {
     method: 'POST',

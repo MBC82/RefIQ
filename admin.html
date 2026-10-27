@@ -3058,7 +3058,36 @@ function getEffectiveResources(src) {
   return merged;
 }
 
-async function preGenerateQuestions(age, num, src, mode, resources) {
+// A quiz keeps a bank of questions, larger than the quiz itself, made once when the quiz is created. Each referee who opens
+// the quiz link then gets a random selection from it with the answers shuffled, so taking a quiz costs nothing.
+// Small quizzes get about three times as many questions to draw from; very large ones can't, so the bank equals the quiz.
+const QUESTION_BATCH = 20;
+function bankSizeFor(num) { return Math.max(num, Math.min(num * 3, 60)); }
+async function generateQuestionBank(age, num, src, mode, resources) {
+  const target = bankSizeFor(num);
+  const batches = Math.ceil(target / QUESTION_BATCH);
+  const notes = [
+    'Cover the most common situations referees face.',
+    'Avoid the most obvious questions. Cover less common Laws and trickier situations.',
+    'Cover edge cases, restarts, and decisions that referees often get wrong.'
+  ];
+  const results = await Promise.allSettled(Array.from({ length: batches }, (_, i) => {
+    const size = Math.min(QUESTION_BATCH, target - i * QUESTION_BATCH);
+    return preGenerateQuestions(age, size, src, mode, resources, batches > 1 ? `Batch ${i + 1} of ${batches}. ${notes[i % notes.length]} Do not repeat questions another batch would likely contain.` : '');
+  }));
+  const seen = new Set(), bank = [];
+  for (const r of results) {
+    if (r.status !== 'fulfilled') continue;
+    for (const q of r.value) {
+      const key = String(q.question).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+      if (!seen.has(key)) { seen.add(key); bank.push(q); }
+    }
+  }
+  if (!bank.length) throw new Error(results.find(r => r.status === 'rejected')?.reason?.message || 'No questions were generated');
+  return bank;
+}
+
+async function preGenerateQuestions(age, num, src, mode, resources, note) {
   const divisionRules = getDivisionRulesAdmin(age);
   const divLabel = divisionRules.label;
   const modeStr = {mixed:'Mix rules and scenarios.',scenarios:'ALL scenario questions.',rules:'ALL rules recall.'}[mode] || 'Mix rules and scenarios.';
@@ -3086,7 +3115,7 @@ async function preGenerateQuestions(age, num, src, mode, resources) {
       model:'claude-sonnet-4-20250514',
       max_tokens: 6000,
       system:'Return ONLY valid JSON array. No markdown. No preamble. Start with [ end with ].',
-      messages:[{role:'user', content:prompt}]
+      messages:[{role:'user', content: prompt + (note ? `\n\nBATCH NOTE: ${note}` : '')}]
     })
   });
   const data = await res.json();
@@ -3504,10 +3533,10 @@ document.getElementById('cr-save-btn').addEventListener('click', async()=>{
       return;
     }
     // Pre-generate updated questions
-    setLoad(true,`Regenerating ${num} questions…`);
+    setLoad(true,`Regenerating a bank of ${bankSizeFor(num)} questions…`);
     try {
-      const questions = await preGenerateQuestions(age,num,src,mode,cleanResources);
-      await updateDoc(doc(db,'quizLinks',editingLinkId),{questions,questionsGeneratedAt:serverTimestamp()});
+      const questions = await generateQuestionBank(age,num,src,mode,cleanResources);
+      await updateDoc(doc(db,'quizLinks',editingLinkId),{questions,bankSize:questions.length,questionsGeneratedAt:serverTimestamp()});
     } catch(genErr) {
       console.warn('[RefIQ] Pre-generation failed on edit (fallback enabled):', genErr.message);
     }
@@ -3592,12 +3621,13 @@ document.getElementById('cr-save-btn').addEventListener('click', async()=>{
   }
 
   // ── Phase 2: Pre-generate questions ──
-  setLoad(true,`Generating ${num} questions…`);
+  setLoad(true,`Generating a bank of ${bankSizeFor(num)} questions…`);
   try {
-    const questions = await preGenerateQuestions(age, num, src, mode,
+    const questions = await generateQuestionBank(age, num, src, mode,
       getEffectiveResources(src).map(r=>({name:r.name, text:sanitizeResourceText(r.text)})));
     await updateDoc(linkDocRef, {
       questions,
+      bankSize: questions.length,
       questionsGeneratedAt: serverTimestamp()
     });
   } catch(genErr) {
